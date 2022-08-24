@@ -53,7 +53,7 @@
 	#define MAX_STEP       4
 	#define MAX_SIZE_NAME 16//31
 
-	#define MAX_CMDS      15//6
+	#define MAX_CMDS      16//15//6
 #else
 	#define MAX_CMDS       8
 #endif

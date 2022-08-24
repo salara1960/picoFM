@@ -6,7 +6,7 @@
 #endif
 
 //------------------------------------------------------------------------------------------
-//         picotool load -v -x oled_i2c.uf2 -t uf2
+//         picotool load -v -x picoFM.uf2 -t uf2
 //------------------------------------------------------------------------------------------
 enum {
 	cmdNone = -1,
@@ -20,6 +20,7 @@ enum {
 	cmdSec
 #ifdef SET_RDA
 	,
+	cmdCfg,
 	cmdScan,
 	cmdVol,
 	cmdBass,
@@ -67,7 +68,7 @@ const char *ver = "Ver.0.8.1 24.08.22";
 
 
 
-volatile static uint32_t epoch = 1661344350;//1661285299;//1661258255;//1661193099;//1661096209;
+volatile static uint32_t epoch = 1661371110;//1661344350;//1661285299;//1661258255;//1661193099;//1661096209;
 //1661004270;//1660945885;//1660743445;//1660736830;//1660731354;//1660684399;
 //1660657998;//1660601220;//1660576465;//1660563510;//1660506862;//1660505693;//1660494699;
 
@@ -93,6 +94,7 @@ const char *s_cmds[MAX_CMDS] = {
 	"sec"
 #ifdef SET_RDA
 	,
+	"cfg",
 	"scan",
 	"vol:",
 	"bass:",
@@ -155,6 +157,7 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 	uint8_t dataRDS[8] = {0};
 	bool syncRds = false;
 	bool readyRds = false;
+	//char strf[MAX_UART_BUF << 2] = {0};
 	//
 	const char *allBands[MAX_BAND] = {
 		"87-108 MHz",// (US/Europe)",
@@ -431,6 +434,18 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 //-------------------------------------------------------------------------------------------
 
 #ifdef SET_RDA
+//------------------------------------------------------------------------------------------
+void showCfg()
+{
+	char *st = (char *)calloc(1, MAX_UART_BUF << 2);
+	if (st) {
+		for (int i = 0; i < MAX_LIST; i++) {
+			sprintf(st+strlen(st), "%u:%.1f:%s\r\n", list[i].band, list[i].freq, list[i].name);
+		}
+		Report(0, "%s", st);
+		free(st);
+	}
+}
 //-------------------------------------------------------------------------------------------
 const char *nameStation(float fr)
 {
@@ -600,7 +615,9 @@ void uart_rx_callback()
         						evt.cmd = i;
         					break;
 #ifdef SET_RDA
-
+        					case cmdCfg:     //"cfg"
+        						evt.cmd = i;
+        					break;
         					case cmdBand:    //"band:2"
         						if (strlen(uk) >= 1) {
         							newBand = atol(uk);
@@ -1090,6 +1107,19 @@ int main() {
     				case cmdErr:
     					Report(1, "Error input\n");
     				break;
+    				case cmdUart:
+    					sprintf(tmp, "[que:%u] ", queCnt);
+    					if (!uart_enable)
+    						strcat(tmp, "Enable");
+    					else
+    						strcat(tmp, "Disable");
+    					Report(1, "%s uart\n", tmp);
+    					if (uart_enable) uart_enable = false; else uart_enable = true;
+    				break;
+#ifdef SET_RDA
+    				case cmdCfg:
+    					showCfg();
+    				break;
     				case cmdMute:
     					noMute = (~noMute) & 1;
     					rda5807_Set_Mute(noMute);
@@ -1103,16 +1133,6 @@ int main() {
     					ssd1306_text_xy(st, 1, 4, false);
     					Report(1, "[que:%u] set Mute to %u\r\n", queCnt, (~noMute) & 1);
     				break;
-    				case cmdUart:
-    					sprintf(tmp, "[que:%u] ", queCnt);
-    					if (!uart_enable)
-    						strcat(tmp, "Enable");
-    					else
-    						strcat(tmp, "Disable");
-    					Report(1, "%s uart\n", tmp);
-    					if (uart_enable) uart_enable = false; else uart_enable = true;
-    				break;
-#ifdef SET_RDA
     				case cmdList:
     					next_evt = cmdFreq;
     					newFreq = getNextList(Freq, seek_up, &newBand);

@@ -9,7 +9,7 @@
 
 volatile uint32_t ms10 = 0;
 
-static char txBuf[MAX_UART_BUF] = {0};
+static char txBuf[MAX_UART_BUF << 2] = {0};
 
 #ifdef SET_WITH_DMA
 	int chan;
@@ -133,7 +133,7 @@ void Report(const uint8_t addTime, const char *fmt, ...)
 {
 	if (!uart_enable) return;
 
-	size_t len = MAX_UART_BUF;
+	size_t len = MAX_UART_BUF << 2;
 	char *buf = &txBuf[0];
 	*buf = '\0';
 	int dl = 0;
