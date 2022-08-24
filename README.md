@@ -64,6 +64,7 @@ M radio based on Raspberry Pi Pico + RDA5807 + SSD1306 + NS8002 + TL1838 + KY-02
 ver
 24.08.22 12:33:11 | [que:1] cmd:3 attr:0
 24.08.22 12:33:11 | Ver.0.8.1 24.08.22
+
 help
 24.08.22 12:33:44 | [que:1] cmd:0 attr:0
         help
@@ -81,33 +82,70 @@ help
         freq:
         list
         rds
+
 epoch:1661351278
 24.08.22 12:34:32 | [que:1] cmd:2 attr:1661351278
+
 mute
 24.08.22 14:28:36 | [que:1] cmd:6 attr:0
 24.08.22 14:28:36 | [que:1] set Mute to 1
 mute
 24.08.22 14:28:45 | [que:1] cmd:6 attr:0
 24.08.22 14:28:45 | [que:1] set Mute to 0
+
 scan
 24.08.22 14:29:26 | [que:1] set new Freq to 95.500 МГц RetroFM (Chan:195) with volume 6
+
 list
 24.08.22 14:30:15 | Band = newBand = 2 -> goto set newFreq to 96.300 (up = 1)
 24.08.22 14:30:15 | [que:1] set new Freq to 96.300 МГц 'RusRadio' (Chan:203) with volume 6
+
 vol:up
 24.08.22 14:31:11 | [que:1] set new Volume to 7
 vol:down
 24.08.22 14:31:17 | [que:1] set new Volume to 6
+
 freq:105.9
 24.08.22 14:32:07 | [que:1] set new Freq to 105.900 МГц 'RoadRadio' (Chan:299) with volume 6
+
 rds
 24.08.22 14:32:36 | [que:1] RDS monitoring stop
 rds
 24.08.22 14:32:39 | [que:1] RDS monitoring start
+
 bass:1
 24.08.22 14:33:47 | [que:1] set new BassBoost to 1
 bass:0
 24.08.22 14:33:53 | [que:1] set new BassBoost to 0
+
+cfg
+3:68.5:Majak
+3:72.1:Shanson
+2:92.8:RadioDFM
+2:93.6:Radio7
+2:94.0:ComedyRadio
+2:95.1:VestiFM
+2:95.5:RetroFM
+2:96.3:RusRadio
+2:97.0:RadioVera
+2:97.7:SilverRain
+2:98.5:RadioEnegry
+2:99.5:RadioStar
+2:100.1:AutoRadio
+2:100.6:RusContry
+2:100.9:MonteCarlo
+2:101.3:OurRadio
+2:101.8:BusinessFM
+2:102.5:Majak
+2:102.9:LoveRadio
+2:103.4:Studio21
+2:103.9:RadioRussian
+2:104.5:Europe+
+2:105.2:Baltic+
+2:105.9:RoadRadio
+2:106.4:RadioMaxim
+2:107.2:RadioKP
+
 restart
 24.08.22 14:34:38 | [que:1] cmd:1 attr:0
 24.08.22 14:34:38 | Queue released
@@ -119,4 +157,3 @@ restart
 24.08.22 12:32:34 | [que:2] RDS monitoring start
 24.08.22 12:32:34 | [que:1] set new Freq to 95.100 МГц 'VestiFM' (Chan:191) with volume 6
 ```
-
