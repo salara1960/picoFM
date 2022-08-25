@@ -135,7 +135,7 @@ void Report(const uint8_t addTime, const char *fmt, ...)
 
 	size_t len = MAX_UART_BUF << 2;
 	char *buf = &txBuf[0];
-	*buf = '\0';
+	memset(buf, 0, sizeof(txBuf));//*buf = '\0';
 	int dl = 0;
 	if (addTime) {
 		dl = sec2str(buf);

@@ -65,12 +65,12 @@ enum {
 //const char *ver = "Ver.0.7 23.08.22";// add support infrared control !!!
 //const char *ver = "Ver.0.8 23.08.22";// add support jostic control !!!
 //const char *ver = "Ver.0.8.1 24.08.22";
-const char *ver = "Ver.0.9 25.08.22";// support joystic control in second core now !!!
+const char *ver = "Ver.0.9 25.08.22 multicore";// support joystic control in second core now !!!
 
 
 
 
-volatile static uint32_t epoch = 1661456915;//1661371110;//1661344350;//1661285299;//1661258255;//1661193099;//1661096209;
+volatile static uint32_t epoch = 1661463575;//1661459555;//1661371110;//1661344350;//1661285299;//1661258255;//1661193099;//1661096209;
 //1661004270;//1660945885;//1660743445;//1660736830;//1660731354;//1660684399;
 //1660657998;//1660601220;//1660576465;//1660563510;//1660506862;//1660505693;//1660494699;
 
@@ -384,13 +384,17 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 	adc_chan_t chanY;
 
 	uint32_t start_jkey = 0;
-
-	uint32_t jtmr = 0;
 	bool joy = false;
 #endif
 
 #if defined(SET_IR) || defined(SET_JOSTIC)
 	uint32_t cmd_tmr = 0;
+
+	void cmdLedOn()
+	{
+		gpio_put(LED_CMD_PIN, 1);
+		cmd_tmr = get_mstmr(_150ms);
+	}
 #endif
 
 
@@ -401,12 +405,12 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 //-------------------------------------------------------------------------------------------
 
 #ifdef SET_JOSTIC
-
+	//----------------------------------------------------------------------------------------
 	void gpio_callback(uint gpio, uint32_t events)
 	{
 		if (gpio == jKEY_PIN) {
 			if (!gpio_get(gpio)) {
-				start_jkey = get_mstmr(_150ms);
+				start_jkey = get_mstmr(_100ms);
 			} else {
 				if (start_jkey) {
 					if (check_mstmr(start_jkey)) {
@@ -434,7 +438,7 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 	    return chan->counter;
 	}
 	//----------------------------------------------------------------------------------------
-	void joystik_task()// Loop forcheck event from jostic
+	void joystik_task()// Loop for check event from jostic
 	{
 		joy = true;
 		uint32_t sumAdc = 0;
@@ -445,16 +449,17 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 		uint32_t valY = adc_read();
 		uint32_t last_valY = valY;
 		evt_t ev;
+		uint8_t yes = 0;
 
-		uint32_t jtmr = get_mstmr(_100ms);
+		Report(1, "Start '%s' function.\n", __func__);
+
+		uint32_t jtmr = get_mstmr(_10ms);
 
 		while (!restart) {
 
 			if (check_mstmr(jtmr)) {
 
-				jtmr = get_mstmr(_50ms);
-
-				uint8_t yes = 0;
+				jtmr = get_mstmr(_20ms);
 
 				adc_select_input(0);
 				valX = adc_read();
@@ -462,20 +467,17 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 					sumAdc = 0;
 					for (int8_t j = 0; j < MAX_ADC_BUF; j++) sumAdc += chanX.val[j];
 					valX = sumAdc / MAX_ADC_BUF;
-					if (last_valX != valX) {
-						last_valX = valX;
-						if ((valX < MIN_VAL) || (valX > MAX_VAL)) {
-							gpio_put(LED_CMD_PIN, 1);
-							cmd_tmr = get_mstmr(_150ms);
-							yes = 1;
-							if (valX < MIN_VAL) seek_up = 1;
-							else
-							if (valX > MAX_VAL) seek_up = 0;
-							ev.cmd = cmdList;
-							ev.attr = seek_up;
-							if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
-							//jtmr = get_mstmr(_80ms);
-						}
+					if ((valX < MIN_VAL) || (valX > MAX_VAL)) {
+						cmdLedOn();
+						//
+						if (valX < MIN_VAL) seek_up = 1;
+						else
+						if (valX > MAX_VAL) seek_up = 0;
+						//
+						ev.cmd = cmdList;
+						ev.attr = seek_up;
+						if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
+						jtmr = get_mstmr(_120ms);
 					}
 				}
 				//
@@ -485,35 +487,32 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 					sumAdc = 0;
 					for (int8_t j = 0; j < MAX_ADC_BUF; j++) sumAdc += chanY.val[j];
 					valY = sumAdc / MAX_ADC_BUF;
-					if (last_valY != valY) {
-						last_valY = valY;
-						if ((valY < MIN_VAL) || (valY > MAX_VAL)) {
-							yes = 1;
-							if (valY < MIN_VAL) {
-								if (Volume < 15) {
-									newVolume = Volume + 1;
-									yes = 2;
-								}
-							} else if (valY > MAX_VAL) {
-								if (Volume) {
-									newVolume = Volume - 1;
-									yes = 2;
-								}
+					if ((valY < MIN_VAL) || (valY > MAX_VAL)) {
+						yes = 0;
+						if (valY < MIN_VAL) {
+							if (Volume < 15) {
+								newVolume = Volume + 1;
+								yes = 1;
 							}
-							if (yes == 2) {
-								gpio_put(LED_CMD_PIN, 1);
-								cmd_tmr = get_mstmr(_150ms);
-								ev.cmd = cmdVol;
-								ev.attr = newVolume;
-								if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
-								jtmr = get_mstmr(_100ms);
+						} else if (valY > MAX_VAL) {
+							if (Volume) {
+								newVolume = Volume - 1;
+								yes = 1;
 							}
+						}
+						if (yes) {
+							cmdLedOn();
+							ev.cmd = cmdVol;
+							ev.attr = newVolume;
+							if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
+							jtmr = get_mstmr(_120ms);
 						}
 					}
 				}
-				jtmr = get_mstmr(_20ms);
 			}
 		}//while(1)
+
+		Report(1, "Closed '%s' function.\n", __func__);
 		joy = false;
 	}
 	//----------------------------------------------------------------------------------------
@@ -844,8 +843,7 @@ int8_t kid = -1;
 	for (int8_t i = 0; i < MAX_IRED_KEY; i++) {
 		if (value == keyAll[i].code) {
 			kid = i;
-			gpio_put(LED_CMD_PIN, 1);
-			cmd_tmr = get_mstmr(_150ms);
+			cmdLedOn();
 			break;
 		}
 	}
@@ -1249,7 +1247,7 @@ int main() {
     								sprintf(st, "Bas:%u Vol:%u M", BassBoost, Volume);
     							mkLineCenter(st, FONT_WIDTH);
     							ssd1306_text_xy(st, 1, 4, false);
-    							Report(1, "[que:%u] set new Freq to %.3f МГц '%s' (Chan:%u) with volume %u\n", queCnt, Freq, nameStation(Freq), Chan, Volume);
+    							Report(1, "[que:%u] set new Freq to %.3f МГц '%s' Chan:%u Volume:%u\n", queCnt, Freq, nameStation(Freq), Chan, Volume);
     #ifdef SET_RDS
     							if (rdsFlag) {
     								rds_init();
@@ -1316,7 +1314,7 @@ int main() {
     								sprintf(st, "Bas:%u Vol:%u M", BassBoost, Volume);
     							mkLineCenter(st, FONT_WIDTH);
     							ssd1306_text_xy(st, 1, 4, false);
-    							Report(1, "[que:%u] set new Freq to %.3f МГц %s (Chan:%u) with volume %u\n", queCnt, Freq, nameStation(Freq), Chan, Volume);
+    							Report(1, "[que:%u] set new Freq to %.3f МГц %s Chan:%u Volume:%u\n", queCnt, Freq, nameStation(Freq), Chan, Volume);
     							//
     					#ifdef SET_RDS
     							if (rdsFlag) {
@@ -1524,6 +1522,8 @@ int main() {
     while (joy && sch) {
     	sleep_ms(1);
     };
+
+    sleep_ms(100);
 
     //restart
     watchdog_reboot(0, SRAM_END, 0);

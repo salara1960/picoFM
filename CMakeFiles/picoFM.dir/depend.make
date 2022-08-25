@@ -2309,7 +2309,11 @@ CMakeFiles/picoFM.dir/libs.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/com
 CMakeFiles/picoFM.dir/libs.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_binary_info/include/pico/binary_info/defs.h
 CMakeFiles/picoFM.dir/libs.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_binary_info/include/pico/binary_info/structure.h
 CMakeFiles/picoFM.dir/libs.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_stdlib/include/pico/stdlib.h
+CMakeFiles/picoFM.dir/libs.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/critical_section.h
 CMakeFiles/picoFM.dir/libs.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/lock_core.h
+CMakeFiles/picoFM.dir/libs.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/mutex.h
+CMakeFiles/picoFM.dir/libs.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/sem.h
+CMakeFiles/picoFM.dir/libs.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/sync.h
 CMakeFiles/picoFM.dir/libs.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_time/include/pico/time.h
 CMakeFiles/picoFM.dir/libs.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_util/include/pico/util/datetime.h
 CMakeFiles/picoFM.dir/libs.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_util/include/pico/util/queue.h
@@ -2351,6 +2355,7 @@ CMakeFiles/picoFM.dir/libs.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2
 CMakeFiles/picoFM.dir/libs.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_timer/include/hardware/timer.h
 CMakeFiles/picoFM.dir/libs.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_uart/include/hardware/uart.h
 CMakeFiles/picoFM.dir/libs.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_watchdog/include/hardware/watchdog.h
+CMakeFiles/picoFM.dir/libs.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/include/pico/multicore.h
 CMakeFiles/picoFM.dir/libs.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_platform/include/pico/platform.h
 CMakeFiles/picoFM.dir/libs.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_stdio/include/pico/stdio.h
 CMakeFiles/picoFM.dir/libs.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_stdio_uart/include/pico/stdio_uart.h
