@@ -1464,27 +1464,6 @@ CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardw
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_platform/include/pico/platform.h
  generated/pico_base/pico/config_autogen.h
  generated/pico_base/pico/version.h
-CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_interp/interp.c.obj
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/boards/include/boards/pico.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico/assert.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico/config.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico/error.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico/types.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/platform_defs.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/addressmap.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/sio.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/interp.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/sio.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/cmsis/include/cmsis/rename_exceptions.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_base/include/hardware/address_mapped.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_claim/include/hardware/claim.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_interp/include/hardware/interp.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_interp/interp.c
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_sync/include/hardware/sync.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_platform/include/pico/platform.h
- generated/pico_base/pico/config_autogen.h
- generated/pico_base/pico/version.h
 CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/irq.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/boards/include/boards/pico.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico.h
@@ -1834,6 +1813,42 @@ CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_malloc/include/pico/malloc.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_malloc/pico_malloc.c
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_platform/include/pico/platform.h
+ generated/pico_base/pico/config_autogen.h
+ generated/pico_base/pico/version.h
+CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/multicore.c.obj
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/boards/include/boards/pico.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico/assert.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico/config.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico/error.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico/types.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/critical_section.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/lock_core.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/mutex.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/sem.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/sync.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_time/include/pico/time.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/platform_defs.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/addressmap.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/intctrl.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/m0plus.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/psm.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/sio.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/timer.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/interp.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/scb.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/sio.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/timer.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/cmsis/include/cmsis/rename_exceptions.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_base/include/hardware/address_mapped.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_claim/include/hardware/claim.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/include/hardware/irq.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_sync/include/hardware/sync.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_timer/include/hardware/timer.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/include/pico/multicore.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/multicore.c
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_platform/include/pico/platform.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_runtime/include/pico/runtime.h
  generated/pico_base/pico/config_autogen.h
  generated/pico_base/pico/version.h
 CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_platform/platform.c.obj
@@ -2359,7 +2374,11 @@ CMakeFiles/picoFM.dir/picoFM.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_binary_info/include/pico/binary_info/defs.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_binary_info/include/pico/binary_info/structure.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_stdlib/include/pico/stdlib.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/critical_section.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/lock_core.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/mutex.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/sem.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/sync.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_time/include/pico/time.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_util/include/pico/util/datetime.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_util/include/pico/util/queue.h
@@ -2401,6 +2420,7 @@ CMakeFiles/picoFM.dir/picoFM.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_timer/include/hardware/timer.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_uart/include/hardware/uart.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_watchdog/include/hardware/watchdog.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/include/pico/multicore.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_platform/include/pico/platform.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_stdio/include/pico/stdio.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_stdio_uart/include/pico/stdio_uart.h

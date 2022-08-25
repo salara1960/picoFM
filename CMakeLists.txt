@@ -35,13 +35,12 @@ pico_enable_stdio_usb(picoFM 1)
 # Add any user requested libraries
 target_link_libraries(picoFM
         pico_stdlib
+        pico_multicore
         hardware_i2c
         hardware_dma
         hardware_pio
-        hardware_interp
         hardware_timer
         hardware_watchdog
-        hardware_clocks
         hardware_uart
         hardware_rtc
         hardware_irq

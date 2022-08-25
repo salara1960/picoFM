@@ -10,7 +10,7 @@
 #include "pico/types.h"
 #include "pico/time.h"
 #include "pico/binary_info.h"
-//#include "pico/multicore.h"
+#include "pico/multicore.h"
 #include "pico/util/queue.h"
 #include "pico/util/datetime.h"
 #include "hardware/regs/addressmap.h"

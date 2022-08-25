@@ -82,6 +82,10 @@ pico/stdio_usb.h
 pico/stdio_semihosting.h
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_stdlib/include/pico/pico/stdio_semihosting.h
 
+/home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/critical_section.h
+pico/lock_core.h
+/home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/pico/lock_core.h
+
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/lock_core.h
 pico.h
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/pico.h
@@ -89,6 +93,22 @@ pico/time.h
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/pico/time.h
 hardware/sync.h
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/hardware/sync.h
+
+/home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/mutex.h
+pico/lock_core.h
+/home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/pico/lock_core.h
+
+/home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/sem.h
+pico/lock_core.h
+/home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/pico/lock_core.h
+
+/home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/sync.h
+pico/sem.h
+/home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/pico/sem.h
+pico/mutex.h
+/home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/pico/mutex.h
+pico/critical_section.h
+/home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/pico/critical_section.h
 
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_time/include/pico/time.h
 pico.h
@@ -298,6 +318,14 @@ pico.h
 hardware/structs/watchdog.h
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_watchdog/include/hardware/hardware/structs/watchdog.h
 
+/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/include/pico/multicore.h
+pico/types.h
+/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/include/pico/pico/types.h
+pico/sync.h
+/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/include/pico/pico/sync.h
+hardware/structs/sio.h
+/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/include/pico/hardware/structs/sio.h
+
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_platform/include/pico/platform.h
 hardware/platform_defs.h
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_platform/include/pico/hardware/platform_defs.h
@@ -345,6 +373,8 @@ pico/time.h
 /home/alarm/eclipse-workspace-arm/picoFM/pico/time.h
 pico/binary_info.h
 /home/alarm/eclipse-workspace-arm/picoFM/pico/binary_info.h
+pico/multicore.h
+/home/alarm/eclipse-workspace-arm/picoFM/pico/multicore.h
 pico/util/queue.h
 /home/alarm/eclipse-workspace-arm/picoFM/pico/util/queue.h
 pico/util/datetime.h

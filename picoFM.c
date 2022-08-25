@@ -64,11 +64,13 @@ enum {
 //const char *ver = "Ver.0.6.1 22.08.22";
 //const char *ver = "Ver.0.7 23.08.22";// add support infrared control !!!
 //const char *ver = "Ver.0.8 23.08.22";// add support jostic control !!!
-const char *ver = "Ver.0.8.1 24.08.22";
+//const char *ver = "Ver.0.8.1 24.08.22";
+const char *ver = "Ver.0.9 25.08.22";// support joystic control in second core now !!!
 
 
 
-volatile static uint32_t epoch = 1661371110;//1661344350;//1661285299;//1661258255;//1661193099;//1661096209;
+
+volatile static uint32_t epoch = 1661456915;//1661371110;//1661344350;//1661285299;//1661258255;//1661193099;//1661096209;
 //1661004270;//1660945885;//1660743445;//1660736830;//1660731354;//1660684399;
 //1660657998;//1660601220;//1660576465;//1660563510;//1660506862;//1660505693;//1660494699;
 
@@ -383,6 +385,8 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 
 	uint32_t start_jkey = 0;
 
+	uint32_t jtmr = 0;
+	bool joy = false;
 #endif
 
 #if defined(SET_IR) || defined(SET_JOSTIC)
@@ -429,7 +433,90 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 		}
 	    return chan->counter;
 	}
+	//----------------------------------------------------------------------------------------
+	void joystik_task()// Loop forcheck event from jostic
+	{
+		joy = true;
+		uint32_t sumAdc = 0;
+		adc_select_input(0);
+		uint32_t valX = adc_read();
+		uint32_t last_valX = valX;
+		adc_select_input(1);
+		uint32_t valY = adc_read();
+		uint32_t last_valY = valY;
+		evt_t ev;
 
+		uint32_t jtmr = get_mstmr(_100ms);
+
+		while (!restart) {
+
+			if (check_mstmr(jtmr)) {
+
+				jtmr = get_mstmr(_50ms);
+
+				uint8_t yes = 0;
+
+				adc_select_input(0);
+				valX = adc_read();
+				if (adcAddVal(&chanX, valX) == MAX_ADC_BUF) {//в окне накоплено MAX_ADC_BUF выборок -> фильтрация !
+					sumAdc = 0;
+					for (int8_t j = 0; j < MAX_ADC_BUF; j++) sumAdc += chanX.val[j];
+					valX = sumAdc / MAX_ADC_BUF;
+					if (last_valX != valX) {
+						last_valX = valX;
+						if ((valX < MIN_VAL) || (valX > MAX_VAL)) {
+							gpio_put(LED_CMD_PIN, 1);
+							cmd_tmr = get_mstmr(_150ms);
+							yes = 1;
+							if (valX < MIN_VAL) seek_up = 1;
+							else
+							if (valX > MAX_VAL) seek_up = 0;
+							ev.cmd = cmdList;
+							ev.attr = seek_up;
+							if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
+							//jtmr = get_mstmr(_80ms);
+						}
+					}
+				}
+				//
+				adc_select_input(1);
+				valY = adc_read();
+				if (adcAddVal(&chanY, valY) == MAX_ADC_BUF) {//в окне накоплено MAX_ADC_BUF выборок -> фильтрация !
+					sumAdc = 0;
+					for (int8_t j = 0; j < MAX_ADC_BUF; j++) sumAdc += chanY.val[j];
+					valY = sumAdc / MAX_ADC_BUF;
+					if (last_valY != valY) {
+						last_valY = valY;
+						if ((valY < MIN_VAL) || (valY > MAX_VAL)) {
+							yes = 1;
+							if (valY < MIN_VAL) {
+								if (Volume < 15) {
+									newVolume = Volume + 1;
+									yes = 2;
+								}
+							} else if (valY > MAX_VAL) {
+								if (Volume) {
+									newVolume = Volume - 1;
+									yes = 2;
+								}
+							}
+							if (yes == 2) {
+								gpio_put(LED_CMD_PIN, 1);
+								cmd_tmr = get_mstmr(_150ms);
+								ev.cmd = cmdVol;
+								ev.attr = newVolume;
+								if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
+								jtmr = get_mstmr(_100ms);
+							}
+						}
+					}
+				}
+				jtmr = get_mstmr(_20ms);
+			}
+		}//while(1)
+		joy = false;
+	}
+	//----------------------------------------------------------------------------------------
 #endif
 //-------------------------------------------------------------------------------------------
 
@@ -859,10 +946,9 @@ int main() {
     //
     gpio_set_irq_enabled_with_callback(jKEY_PIN, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
 
-    uint32_t sumAdc = 0;
-
     adc_init();
 
+    /*uint32_t sumAdc = 0;
     adc_select_input(0);
     uint32_t valX = adc_read();
     uint32_t last_valX = valX;
@@ -870,7 +956,7 @@ int main() {
     uint32_t valY = adc_read();
     uint32_t last_valY = valY;
 
-    uint32_t jtmr = get_mstmr(_1s);
+    uint32_t jtmr = get_mstmr(_1s);*/
 #endif
 
     gpio_init(LED_CMD_PIN);
@@ -1001,83 +1087,12 @@ int main() {
 #endif
 
 
+    multicore_launch_core1(joystik_task);
+
 
     while (!restart) {
     	//
-    	//---------------------------   check event from jostic   -----------------------------
-    	if (check_mstmr(jtmr)) {
-
-    		jtmr = get_mstmr(_50ms);
-
-    		uint8_t yes = 0;
-
-    		adc_select_input(0);
-    		valX = adc_read();
-    		if (adcAddVal(&chanX, valX) == MAX_ADC_BUF) {//в окне накоплено MAX_ADC_BUF выборок -> фильтрация !
-    			sumAdc = 0;
-    			for (int8_t j = 0; j < MAX_ADC_BUF; j++) sumAdc += chanX.val[j];
-    			valX = sumAdc / MAX_ADC_BUF;
-    			if (last_valX != valX) {
-    				last_valX = valX;
-    				if ((valX < MIN_VAL) || (valX > MAX_VAL)) {
-    					gpio_put(LED_CMD_PIN, 1);
-    					cmd_tmr = get_mstmr(_150ms);
-    					yes = 1;
-    					if (valX < MIN_VAL) seek_up = 1;
-    					else
-    					if (valX > MAX_VAL) seek_up = 0;
-    					ev.cmd = cmdList;
-    					ev.attr = seek_up;
-    					if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
-    					//jtmr = get_mstmr(_80ms);
-    				}
-    			}
-    		}
-    		adc_select_input(1);
-    		valY = adc_read();
-    		if (adcAddVal(&chanY, valY) == MAX_ADC_BUF) {//в окне накоплено MAX_ADC_BUF выборок -> фильтрация !
-    			sumAdc = 0;
-    			for (int8_t j = 0; j < MAX_ADC_BUF; j++) sumAdc += chanY.val[j];
-    			valY = sumAdc / MAX_ADC_BUF;
-    			if (last_valY != valY) {
-    				last_valY = valY;
-    				if ((valY < MIN_VAL) || (valY > MAX_VAL)) {
-    					yes = 1;
-    					if (valY < MIN_VAL) {
-    						if (Volume < 15) {
-    							newVolume = Volume + 1;
-    							yes = 2;
-    						}
-    					} else if (valY > MAX_VAL) {
-    						if (Volume) {
-    							newVolume = Volume - 1;
-    							yes = 2;
-    						}
-    					}
-    					if (yes == 2) {
-    						gpio_put(LED_CMD_PIN, 1);
-    						cmd_tmr = get_mstmr(_150ms);
-    						ev.cmd = cmdVol;
-    						ev.attr = newVolume;
-    						if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
-    						jtmr = get_mstmr(_100ms);
-    					}
-    				}
-    			}
-    		}
-
-    		/*if (yes) {
-    			sprintf(stz, "X:%lu Y:%lu", valX, valY);
-    			mkLineCenter(stz, FONT_WIDTH);
-    			ssd1306_clear_lines(4, 1);
-    			ssd1306_text_xy(stz, 1, 4, false);
-    			Report(1, "[adc] corX:%lu cotY:%lu\n", valX, valY);
-    		}*/
-
-    		jtmr = get_mstmr(_20ms);
-    	}
-    	//-------------------------------------------------------------------------------------
-
+    	//
     	//
     	queCnt = queue_get_level(&evt_fifo);
     	if (queCnt) {
@@ -1503,6 +1518,12 @@ int main() {
 
     //display off
     ssd1306_on(false);
+
+    //wait joystic_task closed.....
+    uint8_t sch = 255;
+    while (joy && sch) {
+    	sleep_ms(1);
+    };
 
     //restart
     watchdog_reboot(0, SRAM_END, 0);

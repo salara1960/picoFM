@@ -1102,33 +1102,6 @@ home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_i2c/i2c.c.s:
 	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_i2c/i2c.c.s
 .PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_i2c/i2c.c.s
 
-home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_interp/interp.obj: home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_interp/interp.c.obj
-
-.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_interp/interp.obj
-
-# target to build an object file
-home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_interp/interp.c.obj:
-	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_interp/interp.c.obj
-.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_interp/interp.c.obj
-
-home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_interp/interp.i: home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_interp/interp.c.i
-
-.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_interp/interp.i
-
-# target to preprocess a source file
-home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_interp/interp.c.i:
-	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_interp/interp.c.i
-.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_interp/interp.c.i
-
-home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_interp/interp.s: home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_interp/interp.c.s
-
-.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_interp/interp.s
-
-# target to generate assembly for a file
-home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_interp/interp.c.s:
-	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_interp/interp.c.s
-.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_interp/interp.c.s
-
 home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/irq.obj: home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/irq.c.obj
 
 .PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/irq.obj
@@ -1668,6 +1641,33 @@ home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_mem_ops/mem_ops_aeabi.
 home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_mem_ops/mem_ops_aeabi.S.obj:
 	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_mem_ops/mem_ops_aeabi.S.obj
 .PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_mem_ops/mem_ops_aeabi.S.obj
+
+home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/multicore.obj: home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/multicore.c.obj
+
+.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/multicore.obj
+
+# target to build an object file
+home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/multicore.c.obj:
+	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/multicore.c.obj
+.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/multicore.c.obj
+
+home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/multicore.i: home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/multicore.c.i
+
+.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/multicore.i
+
+# target to preprocess a source file
+home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/multicore.c.i:
+	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/multicore.c.i
+.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/multicore.c.i
+
+home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/multicore.s: home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/multicore.c.s
+
+.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/multicore.s
+
+# target to generate assembly for a file
+home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/multicore.c.s:
+	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/multicore.c.s
+.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/multicore.c.s
 
 home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_platform/platform.obj: home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_platform/platform.c.obj
 
@@ -2226,9 +2226,6 @@ help:
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_i2c/i2c.obj"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_i2c/i2c.i"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_i2c/i2c.s"
-	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_interp/interp.obj"
-	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_interp/interp.i"
-	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_interp/interp.s"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/irq.obj"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/irq.i"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/irq.s"
@@ -2289,6 +2286,9 @@ help:
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_malloc/pico_malloc.i"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_malloc/pico_malloc.s"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_mem_ops/mem_ops_aeabi.obj"
+	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/multicore.obj"
+	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/multicore.i"
+	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/multicore.s"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_platform/platform.obj"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_platform/platform.i"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_platform/platform.s"
