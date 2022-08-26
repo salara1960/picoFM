@@ -65,12 +65,14 @@ enum {
 //const char *ver = "Ver.0.7 23.08.22";// add support infrared control !!!
 //const char *ver = "Ver.0.8 23.08.22";// add support jostic control !!!
 //const char *ver = "Ver.0.8.1 24.08.22";
-const char *ver = "Ver.0.9 25.08.22 multicore";// support joystic control in second core now !!!
+//const char *ver = "Ver.0.9 25.08.22 multicore";// support joystic control in second core now !!!
+const char *ver = "Ver.1. 26.08.22 multicore";
 
 
 
 
-volatile static uint32_t epoch = 1661463575;//1661459555;//1661371110;//1661344350;//1661285299;//1661258255;//1661193099;//1661096209;
+volatile static uint32_t epoch = 1661527899;
+//1661463575;//1661459555;//1661371110;//1661344350;//1661285299;//1661258255;//1661193099;//1661096209;
 //1661004270;//1660945885;//1660743445;//1660736830;//1660731354;//1660684399;
 //1660657998;//1660601220;//1660576465;//1660563510;//1660506862;//1660505693;//1660494699;
 
@@ -931,11 +933,6 @@ int main() {
     gpio_set_dir(LED_PIN, GPIO_OUT);
     gpio_init(ERR_PIN);
     gpio_set_dir(ERR_PIN, GPIO_OUT);
-#ifdef SET_IRED
-    gpio_init(IRED_PIN);
-    gpio_set_dir(IRED_PIN, GPIO_IN);
-    gpio_pull_up(IRED_PIN);
-#endif
 
 #ifdef SET_JOSTIC
     gpio_init(jKEY_PIN);//#define JKEY_PIN 15
@@ -1035,7 +1032,7 @@ int main() {
     ssd1306_pattern();
     ssd1306_clear();
     ssd1306_contrast(0xff);//0xff or 0x00
-    sprintf(stx, "%s", ver);
+    strncpy(stx, ver, OLED_WIDTH/FONT_WIDTH - 1);
     mkLineCenter(stx, FONT_WIDTH);
     ssd1306_text_xy(stx, 1, 4, false);
     //-------------------------------------------------------------

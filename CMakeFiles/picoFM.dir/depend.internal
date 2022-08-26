@@ -2449,7 +2449,11 @@ CMakeFiles/picoFM.dir/rda5807.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_binary_info/include/pico/binary_info/defs.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_binary_info/include/pico/binary_info/structure.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_stdlib/include/pico/stdlib.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/critical_section.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/lock_core.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/mutex.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/sem.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/sync.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_time/include/pico/time.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_util/include/pico/util/datetime.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_util/include/pico/util/queue.h
@@ -2491,6 +2495,7 @@ CMakeFiles/picoFM.dir/rda5807.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_timer/include/hardware/timer.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_uart/include/hardware/uart.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_watchdog/include/hardware/watchdog.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/include/pico/multicore.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_platform/include/pico/platform.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_stdio/include/pico/stdio.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_stdio_uart/include/pico/stdio_uart.h
@@ -2513,7 +2518,11 @@ CMakeFiles/picoFM.dir/ssd1306.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_binary_info/include/pico/binary_info/defs.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_binary_info/include/pico/binary_info/structure.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_stdlib/include/pico/stdlib.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/critical_section.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/lock_core.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/mutex.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/sem.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/sync.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_time/include/pico/time.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_util/include/pico/util/datetime.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_util/include/pico/util/queue.h
@@ -2555,6 +2564,7 @@ CMakeFiles/picoFM.dir/ssd1306.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_timer/include/hardware/timer.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_uart/include/hardware/uart.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_watchdog/include/hardware/watchdog.h
+ /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/include/pico/multicore.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_platform/include/pico/platform.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_stdio/include/pico/stdio.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_stdio_uart/include/pico/stdio_uart.h
