@@ -23,7 +23,11 @@
 #include "hardware/rtc.h"
 #include "hardware/adc.h"
 #include "hardware/spi.h"
-
+#include "hardware/pwm.h"
+//
+#include "hardware/pio.h"
+#include "hardware/clocks.h"
+#include "ws2812.pio.h"
 
 //#define SET_SSD1306
 

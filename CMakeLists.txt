@@ -27,6 +27,7 @@ add_executable(picoFM
         fonts.c
         UC1609C.c)
 
+
 pico_set_program_name(picoFM "picoFM")
 pico_set_program_version(picoFM "0.1")
 
@@ -40,7 +41,6 @@ target_link_libraries(picoFM
         pico_multicore
         hardware_i2c
         hardware_dma
-        hardware_pio
         hardware_timer
         hardware_watchdog
         hardware_uart
@@ -48,6 +48,8 @@ target_link_libraries(picoFM
         hardware_irq
         hardware_adc
         hardware_spi
+        hardware_pwm
+        hardware_pio
         )
 
 pico_add_extra_outputs(picoFM)

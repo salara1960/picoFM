@@ -1,0 +1,13 @@
+# Target labels
+ PioasmBuild
+# Source files and their labels
+/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/PioasmBuild
+/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/PioasmBuild.rule
+/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/PioasmBuild-complete.rule
+/home/alarm/eclipse-workspace-arm/picoFM/pioasm/src/PioasmBuild-stamp/PioasmBuild-install.rule
+/home/alarm/eclipse-workspace-arm/picoFM/pioasm/src/PioasmBuild-stamp/PioasmBuild-mkdir.rule
+/home/alarm/eclipse-workspace-arm/picoFM/pioasm/src/PioasmBuild-stamp/PioasmBuild-download.rule
+/home/alarm/eclipse-workspace-arm/picoFM/pioasm/src/PioasmBuild-stamp/PioasmBuild-update.rule
+/home/alarm/eclipse-workspace-arm/picoFM/pioasm/src/PioasmBuild-stamp/PioasmBuild-patch.rule
+/home/alarm/eclipse-workspace-arm/picoFM/pioasm/src/PioasmBuild-stamp/PioasmBuild-configure.rule
+/home/alarm/eclipse-workspace-arm/picoFM/pioasm/src/PioasmBuild-stamp/PioasmBuild-build.rule

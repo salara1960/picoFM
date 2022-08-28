@@ -11,9 +11,11 @@
 
 #include "hdr.h"
 
-
-#define _10ms 1
-#define _20ms (_10ms * 2)
+#define _5ms 1
+#define _10ms _5ms * 2
+#define _15ms _5ms * 3
+#define _20ms (_5ms * 4)
+#define _25ms (_5ms * 5)
 #define _30ms (_10ms * 3)
 #define _40ms (_10ms * 4)
 #define _50ms (_10ms * 5)

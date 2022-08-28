@@ -79,7 +79,7 @@ const char *ver = "Ver.2.1 28.08.22 multicore";
 
 
 
-volatile static uint32_t epoch = 1661699652;//1661684619;//1661641164;//1661614899;//1661536565;
+volatile static uint32_t epoch = 1661726088;//1661699652;//1661684619;//1661641164;//1661614899;//1661536565;
 //1661463575;//1661459555;//1661371110;//1661344350;//1661285299;//1661258255;//1661193099;//1661096209;
 //1661004270;//1660945885;//1660743445;//1660736830;//1660731354;//1660684399;
 //1660657998;//1660601220;//1660576465;//1660563510;//1660506862;//1660505693;//1660494699;
@@ -160,8 +160,8 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 	uint8_t rdaID = 0;
 	volatile uint8_t scan = 0;
 	volatile uint8_t seek_up = 1;
-	uint8_t Volume = 6;//8;
-	uint8_t newVolume = 6;//8;
+	uint8_t Volume = 4;//6;//8;
+	uint8_t newVolume = 4;//6;//8;
 	uint8_t BassBoost = 0;
 	uint8_t newBassBoost = 0;
 	bool stereo = false;
@@ -310,7 +310,6 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 #ifdef SET_IR
 
 	#define IR_PIN 14
-	//#define LED_CMD_PIN 4//7//15
 	#define BIT_LENGTH 32
 	#define MAX_IRED_KEY 21
 
@@ -398,13 +397,72 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 #endif
 
 #if defined(SET_IR) || defined(SET_JOYSTIC)
-	uint32_t cmd_tmr = 0;
+	#define LED_CMD_PIN 16
 
+	uint32_t cmd_tmr = 0;
+	//
 	void cmdLedOn()
 	{
-		//gpio_put(LED_CMD_PIN, 1);
+		////gpio_put(LED_CMD_PIN, cled);
 		cmd_tmr = get_mstmr(_150ms);
 	}
+	//
+	static inline void put_pixel(uint32_t pixel_grb)
+	{
+	    pio_sm_put_blocking(pio0, 0, pixel_grb << 8u);
+	}
+	/*
+	static inline uint32_t urgb_u32(uint8_t r, uint8_t g, uint8_t b)
+	{
+	    return
+	            ((uint32_t) (r) << 8) |
+	            ((uint32_t) (g) << 16) |
+	            (uint32_t) (b);
+	}
+	void pattern_snakes(uint len, uint t)
+	{
+	    for (uint i = 0; i < len; ++i) {
+	        uint x = (i + (t >> 1)) % 64;
+	        if (x < 10)
+	            put_pixel(urgb_u32(0xff, 0, 0));
+	        else if (x >= 15 && x < 25)
+	            put_pixel(urgb_u32(0, 0xff, 0));
+	        else if (x >= 30 && x < 40)
+	            put_pixel(urgb_u32(0, 0, 0xff));
+	        else
+	            put_pixel(0);
+	    }
+	}
+	void pattern_random(uint len, uint t)
+	{
+	    if (t % 8) return;
+	    for (int i = 0; i < len; ++i) put_pixel(1);//rand());
+	}
+	void pattern_sparkle(uint len, uint t)
+	{
+	    if (t % 8) return;
+	    for (int i = 0; i < len; ++i) put_pixel(rand() % 16 ? 0 : 0xffffffff);
+	}
+	void pattern_greys(uint len, uint t)
+	{
+	    int max = 100; // let's not draw too much current!
+	    t %= max;
+	    for (int i = 0; i < len; ++i) {
+	        put_pixel(t * 0x10101);
+	        if (++t >= max) t = 0;
+	    }
+	}
+	typedef void (*pattern)(uint len, uint t);
+	const struct {
+	    pattern pat;
+	    const char *name;
+	} pattern_table[] = {
+		{pattern_snakes,  "Snakes!"},
+		{pattern_random,  "Random data"},
+		{pattern_sparkle, "Sparkles"},
+		{pattern_greys,   "Greys"},
+	};
+	*/
 #endif
 
 
@@ -432,6 +490,7 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 			} else {
 				if (start_jkey) {
 					if (check_mstmr(start_jkey)) {
+						cmdLedOn();
 						evt_t e = {cmdScan, 0};
 						if (!queue_try_add(&evt_fifo, &e)) devError |= devQue;
 						start_jkey = 0;
@@ -677,6 +736,10 @@ static char *errName(uint16_t err)
 bool repeating_timer_callback(struct repeating_timer *t)
 {
 	inc_msCounter();
+
+	if (cmd_tmr) {
+		put_pixel(rand() % 10 ? 0 : 0xffff0000);//0xffffffff);//LED_CMD_PIN active
+	}
 
 	if (!(get_msCounter() % _1s)) {// 1 seconda
 		seconda++;
@@ -961,9 +1024,20 @@ int main() {
 
 #endif
 
-    //gpio_init(LED_CMD_PIN);
-    //gpio_set_dir(LED_CMD_PIN, GPIO_OUT);
-    //gpio_pull_up(LED_CMD_PIN);
+
+#if defined(SET_IR) || defined(SET_JOYSTIC)
+
+    /*gpio_init(LED_CMD_PIN);
+    gpio_set_dir(LED_CMD_PIN, GPIO_OUT);
+    gpio_pull_up(LED_CMD_PIN);*/
+
+    PIO pio = pio0;
+    int sm = 0;
+    ws2812_program_init(pio, sm, pio_add_program(pio, &ws2812_program), LED_CMD_PIN, 800000, true);
+
+
+#endif
+
 
 #ifdef SET_IR
     gpio_init(IR_PIN);
@@ -1022,7 +1096,7 @@ int main() {
 
     //---------------- Setup and start periodic timer --------------------
     struct repeating_timer timer;
-    uint32_t period = 10;
+    uint32_t period = 5;//10;
     if (add_repeating_timer_ms(period, repeating_timer_callback, NULL, &timer)) {
     	Report(1, "Start timer with %lu ms period.\n", period);
     } else {
@@ -1670,6 +1744,7 @@ int main() {
     		if (check_mstmr(cmd_tmr)) {
     			cmd_tmr = 0;
     			//gpio_put(LED_CMD_PIN, 0);//LED_CMD_PIN OFF
+    			for (int8_t i = 0; i < 25; i++) put_pixel(0);
     		}
     	}
 #endif

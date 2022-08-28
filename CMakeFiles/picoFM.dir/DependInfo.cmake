@@ -121,10 +121,11 @@ set(CMAKE_ASM_TARGET_INCLUDE_PATH
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_i2c/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_dma/include"
-  "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_adc/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/include"
+  "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pwm/include"
+  "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include"
   )
 set(CMAKE_DEPENDS_CHECK_C
   "/home/alarm/eclipse-workspace-arm/picoFM/UC1609C.c" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/UC1609C.c.obj"
@@ -301,10 +302,11 @@ set(CMAKE_C_TARGET_INCLUDE_PATH
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_i2c/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_dma/include"
-  "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_adc/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/include"
+  "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pwm/include"
+  "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include"
   )
 set(CMAKE_DEPENDS_CHECK_CXX
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_standard_link/new_delete.cpp" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_standard_link/new_delete.cpp.obj"
@@ -412,10 +414,11 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_i2c/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_dma/include"
-  "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_adc/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/include"
+  "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pwm/include"
+  "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include"
   )
 
 # Targets to which this target links.
