@@ -315,16 +315,48 @@ void rda5807_SetupDefault(uint8_t band, uint8_t step)
 	Buffs.Reg03.bDIRECT_MODE = 0;
 	Buffs.Reg03.bCHAN = 0;
 	// Регистр 0x04
+#ifdef SET_RDA_FP
+	Buffs.Reg04.bGPIO1 = 0;//    // 0-1bits General Purpose I/O 1.
+								 //00 = High impedance.
+								 //01 = Reserved
+								 //10 = Low
+								 //11 = High
+	Buffs.Reg04.bGPIO2 = 0;//    // 2-3bits General Purpose I/O 2.
+								 //00 = High impedance.
+								 //01 = Interrupt (INT)
+								 //10 = Low.
+								 //11 = High
+	Buffs.Reg04.bGPIO3 = 0;//    // 4-5bits General Purpose I/O 3.
+								 //00 = High impedance.
+								 //01 = Mono/Stereo indicator (ST)
+								 //10 = Low.
+								 //11 = High
+	Buffs.Reg04.bI2S_ENABLED = 0;// 6bit I2S bus enable. If 0, disabled. If 1, enabled.
+	Buffs.Reg04.bRSVD1 = 0;      // 7bit Reserved
+	Buffs.Reg04.bAFCD = 0;       // 8bit AFC disable (0 = afc work; 1 = afc disabled)
+	Buffs.Reg04.bSOFTMUTE_EN = 1;// 9bit 1 = softmute enable
+	Buffs.Reg04.bRSVD2 = 0;      // 10bit Reserved
+	Buffs.Reg04.bDE = 0;         // 11bit De-emphasis (0 = 75 µs; 1 = 50 µs)
+	Buffs.Reg04.bRSVD3 = 0;      // 12-13bits Reserved
+	Buffs.Reg04.bSTCIEN = 0;     // FOR RDA5807FP : Seek/Tune Complete Interrupt Enable.0
+    							 //0 = Disable Interrupt
+    							 //1 = Enable Interrupt
+    							 //Setting STCIEN = 1 will generate a low pulse on
+    							 //GPIO2 when the interrupt occurs.
+	Buffs.Reg04.bRSVD3 = 0;      // 15bit Reserved
+
+#else
 	Buffs.Reg04.bRSVD1 = 0;
 	Buffs.Reg04.bAFCD = 0;
 	Buffs.Reg04.bSOFTMUTE_EN = 1;
 	Buffs.Reg04.bRSVD2 = 0;
 	Buffs.Reg04.bDE = 0;
 	Buffs.Reg04.bRSVD3 = 0;
+#endif
 	// Регистр 0x05
 	Buffs.Reg05.bVOLUME = 0;
 	Buffs.Reg05.bANT_GAIN = 0;
-	Buffs.Reg05.bANT_TYPE = ANT_TYPE_External;//ANT_TYPE_Headphones;//ANT_TYPE_Both;
+	Buffs.Reg05.bANT_TYPE = ANT_TYPE_Both;//ANT_TYPE_External;//ANT_TYPE_Headphones;
 	Buffs.Reg05.bSEEKTH = 6;//8;
 	Buffs.Reg05.bRSVD3 = 0;
 	Buffs.Reg05.bINT_MODE = 1;

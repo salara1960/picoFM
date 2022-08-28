@@ -22,8 +22,27 @@
 #include "hardware/dma.h"
 #include "hardware/rtc.h"
 #include "hardware/adc.h"
+#include "hardware/spi.h"
 
-#include "ssd1306.h"
+
+//#define SET_SSD1306
+
+
+#define portI2C i2c1
+
+
+#ifdef SET_SSD1306
+	#define portOLED portI2C
+
+	#include "ssd1306.h"
+
+    #define OLED_128x32
+    #define OLED_ADDR _u(0x3C)
+#else
+	#define portSPI spi0
+
+	#define SET_LCD_UC
+#endif
 
 //------------------------------------------------------------------------------
 
@@ -33,20 +52,33 @@
 
 #define SET_IR
 
-#define SET_JOSTIC
+#define SET_JOYSTIC
 
 //#define SET_WITH_DMA
+//#define RUS_SUPPORT
 
 //------------------------------------------------------------------------------
 
-#ifndef i2c_default
-	#define i2c_default  i2c0
-#endif
-
 #define MAX_UART_BUF 256
 
+#if defined(SET_RDA) || defined(SET_SSD1306)
+	#define I2C_SDA_PIN 2//PICO_DEFAULT_I2C_SDA_PIN
+	#define I2C_SCL_PIN 3//PICO_DEFAULT_I2C_SCL_PIN
+#endif
+
+#ifdef SET_LCD_UC
+	#define LCD_DC_PIN 4
+	//#define LCD_CS_PIN 5
+	#define LCD_RST_PIN 5
+	#define LCD_SCK_PIN  6
+	#define LCD_MOSI_PIN 7
+#endif
+
 #ifdef SET_RDA
-	#define portRDA     i2c0
+
+	//#define SET_RDA_FP
+
+	#define portRDA  portI2C
 
 	#define MAX_LIST      26//25
 	#define MAX_BAND       4
@@ -77,11 +109,7 @@
 #define UART_TX_PIN      0 //12//0
 #define UART_RX_PIN      1 //13//1
 //
-#define SET_SSD1306
-#ifdef SET_SSD1306
-    #define OLED_128x32
-    #define OLED_ADDR _u(0x3C)
-#endif
+
 
 //------------------------------------------------------------------------------
 

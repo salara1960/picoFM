@@ -124,8 +124,11 @@ set(CMAKE_ASM_TARGET_INCLUDE_PATH
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_adc/include"
+  "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/include"
   )
 set(CMAKE_DEPENDS_CHECK_C
+  "/home/alarm/eclipse-workspace-arm/picoFM/UC1609C.c" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/UC1609C.c.obj"
+  "/home/alarm/eclipse-workspace-arm/picoFM/fonts.c" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/fonts.c.obj"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/lib/tinyusb/src/class/audio/audio_device.c" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/lib/tinyusb/src/class/audio/audio_device.c.obj"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/lib/tinyusb/src/class/cdc/cdc_device.c" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/lib/tinyusb/src/class/cdc/cdc_device.c.obj"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/lib/tinyusb/src/class/dfu/dfu_device.c" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/lib/tinyusb/src/class/dfu/dfu_device.c.obj"
@@ -164,6 +167,7 @@ set(CMAKE_DEPENDS_CHECK_C
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.obj"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pll/pll.c" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pll/pll.c.obj"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/rtc.c" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/rtc.c.obj"
+  "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.c" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.c.obj"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_sync/sync.c" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_sync/sync.c.obj"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_timer/timer.c" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_timer/timer.c.obj"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_uart/uart.c" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_uart/uart.c.obj"
@@ -300,6 +304,7 @@ set(CMAKE_C_TARGET_INCLUDE_PATH
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_adc/include"
+  "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/include"
   )
 set(CMAKE_DEPENDS_CHECK_CXX
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_standard_link/new_delete.cpp" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_standard_link/new_delete.cpp.obj"
@@ -410,6 +415,7 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_adc/include"
+  "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/include"
   )
 
 # Targets to which this target links.

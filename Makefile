@@ -175,6 +175,60 @@ bs2_default/fast:
 	$(MAKE) -f pico-sdk/src/rp2_common/boot_stage2/CMakeFiles/bs2_default.dir/build.make pico-sdk/src/rp2_common/boot_stage2/CMakeFiles/bs2_default.dir/build
 .PHONY : bs2_default/fast
 
+UC1609C.obj: UC1609C.c.obj
+
+.PHONY : UC1609C.obj
+
+# target to build an object file
+UC1609C.c.obj:
+	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/UC1609C.c.obj
+.PHONY : UC1609C.c.obj
+
+UC1609C.i: UC1609C.c.i
+
+.PHONY : UC1609C.i
+
+# target to preprocess a source file
+UC1609C.c.i:
+	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/UC1609C.c.i
+.PHONY : UC1609C.c.i
+
+UC1609C.s: UC1609C.c.s
+
+.PHONY : UC1609C.s
+
+# target to generate assembly for a file
+UC1609C.c.s:
+	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/UC1609C.c.s
+.PHONY : UC1609C.c.s
+
+fonts.obj: fonts.c.obj
+
+.PHONY : fonts.obj
+
+# target to build an object file
+fonts.c.obj:
+	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/fonts.c.obj
+.PHONY : fonts.c.obj
+
+fonts.i: fonts.c.i
+
+.PHONY : fonts.i
+
+# target to preprocess a source file
+fonts.c.i:
+	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/fonts.c.i
+.PHONY : fonts.c.i
+
+fonts.s: fonts.c.s
+
+.PHONY : fonts.s
+
+# target to generate assembly for a file
+fonts.c.s:
+	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/fonts.c.s
+.PHONY : fonts.c.s
+
 home/alarm/PICO/pi-pico/pico/pico-sdk/lib/tinyusb/src/class/audio/audio_device.obj: home/alarm/PICO/pi-pico/pico/pico-sdk/lib/tinyusb/src/class/audio/audio_device.c.obj
 
 .PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/lib/tinyusb/src/class/audio/audio_device.obj
@@ -1219,6 +1273,33 @@ home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/rtc.c.s:
 	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/rtc.c.s
 .PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/rtc.c.s
 
+home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.obj: home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.c.obj
+
+.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.obj
+
+# target to build an object file
+home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.c.obj:
+	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.c.obj
+.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.c.obj
+
+home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.i: home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.c.i
+
+.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.i
+
+# target to preprocess a source file
+home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.c.i:
+	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.c.i
+.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.c.i
+
+home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.s: home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.c.s
+
+.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.s
+
+# target to generate assembly for a file
+home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.c.s:
+	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.c.s
+.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.c.s
+
 home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_sync/sync.obj: home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_sync/sync.c.obj
 
 .PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_sync/sync.obj
@@ -2123,6 +2204,12 @@ help:
 	@echo "... bs2_default_padded_checksummed_asm"
 	@echo "... bs2_default_bin"
 	@echo "... bs2_default"
+	@echo "... UC1609C.obj"
+	@echo "... UC1609C.i"
+	@echo "... UC1609C.s"
+	@echo "... fonts.obj"
+	@echo "... fonts.i"
+	@echo "... fonts.s"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/lib/tinyusb/src/class/audio/audio_device.obj"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/lib/tinyusb/src/class/audio/audio_device.i"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/lib/tinyusb/src/class/audio/audio_device.s"
@@ -2239,6 +2326,9 @@ help:
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/rtc.obj"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/rtc.i"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/rtc.s"
+	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.obj"
+	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.i"
+	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.s"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_sync/sync.obj"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_sync/sync.i"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_sync/sync.s"

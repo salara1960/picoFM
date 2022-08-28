@@ -1,5 +1,6 @@
 #include "hdr.h"
 
+#ifdef SET_SSD1306
 
 uint8_t invert = OLED_CMD_DISPLAY_NORMAL;//0xA6 //OLED_CMD_DISPLAY_INVERTED - 0xA7
 
@@ -140,7 +141,7 @@ uint8_t font8x8[128][8] = {
 void oled_send_cmd(uint8_t cmd)
 {
     uint8_t buf[2] = {0x80, cmd};
-    i2c_write_blocking(i2c_default, OLED_ADDR/* & I2C_WRITE_MODE)*/, buf, 2, false);
+    i2c_write_blocking(portOLED, OLED_ADDR/* & I2C_WRITE_MODE)*/, buf, 2, false);
 }
 //-----------------------------------------------------------------------------------------
 void oled_send_cmds(uint8_t *cmd, uint8_t len)
@@ -151,7 +152,7 @@ void oled_send_cmds(uint8_t *cmd, uint8_t len)
     if (buf) {
     	if (len == 1) buf[0] = 0x80;
     	memcpy(&buf[1], cmd, len);
-    	i2c_write_blocking(i2c_default, OLED_ADDR, buf, len + 1, false);
+    	i2c_write_blocking(portOLED, OLED_ADDR, buf, len + 1, false);
     	free(buf);
     } else {
     	printf("[%s] Error calloc(1, %u)\n", __func__, len + 1);
@@ -168,7 +169,7 @@ uint8_t bt;
         OLED_CONTROL_BYTE_CMD_SINGLE,
         bt
     };
-    i2c_write_blocking(i2c_default, OLED_ADDR, buf, sizeof(buf), false);
+    i2c_write_blocking(portOLED, OLED_ADDR, buf, sizeof(buf), false);
 }
 //-----------------------------------------------------------------------------------------
 void ssd1306_init()
@@ -239,7 +240,7 @@ void ssd1306_init()
     };
 #endif
 
-    i2c_write_blocking(i2c_default, OLED_ADDR, ini, sizeof(ini), false);
+    i2c_write_blocking(portOLED, OLED_ADDR, ini, sizeof(ini), false);
 
 }
 //-----------------------------------------------------------------------------------------
@@ -251,7 +252,7 @@ void ssd1306_invert()
         OLED_CONTROL_BYTE_CMD_SINGLE,
         invert
     };                                 
-    i2c_write_blocking(i2c_default, OLED_ADDR, buf, sizeof(buf), false);
+    i2c_write_blocking(portOLED, OLED_ADDR, buf, sizeof(buf), false);
 }
 //-----------------------------------------------------------------------------------------
 void ssd1306_clear()
@@ -263,9 +264,9 @@ uint8_t bytes[] = {OLED_CONTROL_BYTE_CMD_SINGLE, 0};
 
     for (uint8_t i = 0; i < OLED_MAX_STR; i++) {
         bytes[1] = 0xB0 | i;
-        i2c_write_blocking(i2c_default, OLED_ADDR, bytes, sizeof(bytes), true);
+        i2c_write_blocking(portOLED, OLED_ADDR, bytes, sizeof(bytes), true);
 
-        i2c_write_blocking(i2c_default, OLED_ADDR, zero, sizeof(zero), false);
+        i2c_write_blocking(portOLED, OLED_ADDR, zero, sizeof(zero), false);
     }
 }
 //-----------------------------------------------------------------------------------------
@@ -283,9 +284,9 @@ void ssd1306_clear_lines(uint8_t cy, uint8_t cnt)
 
     for (uint8_t i = cy; i < to; i++) {
         bytes[1] = 0xB0 | i;
-        i2c_write_blocking(i2c_default, OLED_ADDR, bytes, sizeof(bytes), true);
+        i2c_write_blocking(portOLED, OLED_ADDR, bytes, sizeof(bytes), true);
 
-        i2c_write_blocking(i2c_default, OLED_ADDR, zero, sizeof(zero), false);
+        i2c_write_blocking(portOLED, OLED_ADDR, zero, sizeof(zero), false);
     }
 }
 //-----------------------------------------------------------------------------------------
@@ -300,9 +301,9 @@ uint8_t j;
 
     for (uint8_t i = 0; i < OLED_MAX_STR; i++) {
         bytes[1] = 0xB0 | i;
-        i2c_write_blocking(i2c_default, OLED_ADDR, bytes, sizeof(bytes), true);
+        i2c_write_blocking(portOLED, OLED_ADDR, bytes, sizeof(bytes), true);
 
-        i2c_write_blocking(i2c_default, OLED_ADDR, patt, sizeof(patt), false);
+        i2c_write_blocking(portOLED, OLED_ADDR, patt, sizeof(patt), false);
     }
 }
 //-----------------------------------------------------------------------------------------
@@ -310,7 +311,7 @@ void ssd1306_contrast(uint8_t value)//0xff or 0x00
 {
 uint8_t bytes[] = {OLED_CONTROL_BYTE_CMD_STREAM, OLED_CMD_SET_CONTRAST, value};
 
-    i2c_write_blocking(i2c_default, OLED_ADDR, bytes, sizeof(bytes), false);
+    i2c_write_blocking(portOLED, OLED_ADDR, bytes, sizeof(bytes), false);
 
 }
 //-----------------------------------------------------------------------------------------
@@ -331,7 +332,7 @@ uint8_t dir;
         OLED_CMD_SET_ACTIVATE_SCROLL//0x2F
     };
 
-    i2c_write_blocking(i2c_default, OLED_ADDR, bytes, sizeof(bytes), false);
+    i2c_write_blocking(portOLED, OLED_ADDR, bytes, sizeof(bytes), false);
 }
 //-----------------------------------------------------------------------------------------
 void ssd1306_scroll(bool flag)
@@ -352,7 +353,7 @@ uint8_t bytes[] = {
     if (flag) bytes[sizeof(bytes - 1)] = OLED_CMD_SET_ACTIVATE_SCROLL;//0x2F;// activate scroll (p29)
          else bytes[sizeof(bytes - 1)] = OLED_CMD_SET_DEACTIVATE_SCROLL;//0x2E;// deactivate scroll (p29)
 
-    i2c_write_blocking(i2c_default, OLED_ADDR, bytes, sizeof(bytes), false);
+    i2c_write_blocking(portOLED, OLED_ADDR, bytes, sizeof(bytes), false);
 }
 //-----------------------------------------------------------------------------------------
 void ssd1306_text_xy(const char *stroka, uint8_t cx, uint8_t cy, bool inv)
@@ -374,17 +375,17 @@ uint8_t dat[] = {OLED_CONTROL_BYTE_CMD_STREAM, 0, 0x10, 0};
 uint8_t cif[] = {OLED_CONTROL_BYTE_DATA_STREAM, 0, 0, 0, 0, 0, 0, 0, 0};
 
 
-    i2c_write_blocking(i2c_default, OLED_ADDR, first, sizeof(first), true);
+    i2c_write_blocking(portOLED, OLED_ADDR, first, sizeof(first), true);
 
     for (i = 0; i < len; i++) {
         if (stroka[i] == '\n') {
             dat[3] = 0xB0 | ++lin;
-            i2c_write_blocking(i2c_default, OLED_ADDR, dat, sizeof(dat), false);
+            i2c_write_blocking(portOLED, OLED_ADDR, dat, sizeof(dat), false);
         } else {
             memcpy(&cif[1], &font8x8[(uint8_t)stroka[i]][0], 8);
             if (inv) 
                 for (uint8_t j = 1; j < sizeof(cif); j++) cif[j] = ~cif[j];
-            i2c_write_blocking(i2c_default, OLED_ADDR, cif, 8, false);
+            i2c_write_blocking(portOLED, OLED_ADDR, cif, 8, false);
         }
     }
 }
@@ -440,3 +441,4 @@ char st[64] = {0};
 
 //******************************************************************************************
 
+#endif

@@ -23,7 +23,9 @@ add_executable(picoFM
         picoFM.c
         libs.c
         ssd1306.c
-        rda5807.c)
+        rda5807.c
+        fonts.c
+        UC1609C.c)
 
 pico_set_program_name(picoFM "picoFM")
 pico_set_program_version(picoFM "0.1")
@@ -45,6 +47,7 @@ target_link_libraries(picoFM
         hardware_rtc
         hardware_irq
         hardware_adc
+        hardware_spi
         )
 
 pico_add_extra_outputs(picoFM)

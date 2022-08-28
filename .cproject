@@ -14,7 +14,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ProjName}" buildProperties="" description="" id="ilg.gnuarmeclipse.managedbuild.cross.toolchain.base.1183221491" name="Default" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=" parent="org.eclipse.cdt.build.core.emptycfg">
+				<configuration artifactName="${ProjName}" buildProperties="" description="" id="ilg.gnuarmeclipse.managedbuild.cross.toolchain.base.1183221491" name="Default" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=" parent="org.eclipse.cdt.build.core.emptycfg">
 					<folderInfo id="ilg.gnuarmeclipse.managedbuild.cross.toolchain.base.1183221491.504303638" name="/" resourcePath="">
 						<toolChain id="ilg.gnuarmeclipse.managedbuild.cross.toolchain.base.685629159" name="Arm Cross GCC" superClass="ilg.gnuarmeclipse.managedbuild.cross.toolchain.base">
 							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.architecture.654916057" name="Architecture" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.architecture" value="ilg.gnuarmeclipse.managedbuild.cross.option.architecture.arm" valueType="enumerated"/>
@@ -119,6 +119,7 @@
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/include"/>
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pico-sdk/src/rp2_common/hardware_irq/include"/>
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_adc/include"/>
+									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/include"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.2070015290" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
 							</tool>
@@ -150,6 +151,7 @@
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/include"/>
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pico-sdk/src/rp2_common/hardware_irq/include"/>
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_adc/include"/>
+									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/include"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1886104660" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
 							</tool>
@@ -171,6 +173,7 @@
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_i2c/include"/>
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_adc/include"/>
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/include"/>
+									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/include"/>
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pico-sdk/src/common/pico_stdlib/include"/>
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pico-sdk/src/common/pico_base/include"/>
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pico-sdk/src/common/pico_time/include"/>

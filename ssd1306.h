@@ -3,15 +3,16 @@
 
 #include "hdr.h"
 
+#ifdef SET_SSD1306
 
 #define FONT_WIDTH 7//8
 #define OLED_WIDTH 128
 
-//#ifdef OLED_128x32
-    #define OLED_MAX_STR 4
-//#else
-//    #define OLED_MAX_STR 8
-//#endif
+#ifdef OLED_128x32
+	#define OLED_MAX_STR 4
+#else
+    #define OLED_MAX_STR 8
+#endif
 #define OLED_LINE_FREQ OLED_MAX_STR
 #define OLED_LINE_CENTER (OLED_MAX_STR >> 1)
 #define OLED_LINE_STEP OLED_MAX_STR - 1
@@ -77,6 +78,9 @@ extern void ssd1306_text(const char *stroka);
 extern uint8_t ssd1306_calcx(int len);
 extern char *mkLineCenter(char *str, uint16_t width);
 extern char *mkLineWidth(char *str1, char *str2, uint16_t width);
+
+
+#endif
 
 
 #endif

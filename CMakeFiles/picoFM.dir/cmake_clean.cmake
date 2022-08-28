@@ -1,4 +1,6 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/picoFM.dir/UC1609C.c.obj"
+  "CMakeFiles/picoFM.dir/fonts.c.obj"
   "CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/lib/tinyusb/src/class/audio/audio_device.c.obj"
   "CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/lib/tinyusb/src/class/cdc/cdc_device.c.obj"
   "CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/lib/tinyusb/src/class/dfu/dfu_device.c.obj"
@@ -39,6 +41,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.obj"
   "CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pll/pll.c.obj"
   "CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/rtc.c.obj"
+  "CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.c.obj"
   "CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_sync/sync.c.obj"
   "CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_timer/timer.c.obj"
   "CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_uart/uart.c.obj"

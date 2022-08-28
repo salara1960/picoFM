@@ -1,10 +1,16 @@
 #include "hdr.h"
 #include "libs.h"
-#include "ssd1306.h"
+
+#ifdef SET_SSD1306
+	#include "ssd1306.h"
+#endif
 #ifdef SET_RDA
     #include "rda5807.h"
 #endif
-
+#ifdef SET_LCD_UC
+	#include "fonts.h"
+	#include "UC1609C.h"
+#endif
 //------------------------------------------------------------------------------------------
 //         picotool load -v -x picoFM.uf2 -t uf2
 //------------------------------------------------------------------------------------------
@@ -66,12 +72,14 @@ enum {
 //const char *ver = "Ver.0.8 23.08.22";// add support jostic control !!!
 //const char *ver = "Ver.0.8.1 24.08.22";
 //const char *ver = "Ver.0.9 25.08.22 multicore";// support joystic control in second core now !!!
-const char *ver = "Ver.1. 26.08.22 multicore";
+//const char *ver = "Ver.1.0 26.08.22 multicore";
+//const char *ver = "Ver.2.0 27.08.22 multicore";// add display UC1609C instead of SSD1306
+const char *ver = "Ver.2.1 28.08.22 multicore";
 
 
 
 
-volatile static uint32_t epoch = 1661527899;
+volatile static uint32_t epoch = 1661699652;//1661684619;//1661641164;//1661614899;//1661536565;
 //1661463575;//1661459555;//1661371110;//1661344350;//1661285299;//1661258255;//1661193099;//1661096209;
 //1661004270;//1660945885;//1660743445;//1660736830;//1660731354;//1660684399;
 //1660657998;//1660601220;//1660576465;//1660563510;//1660506862;//1660505693;//1660494699;
@@ -302,7 +310,7 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 #ifdef SET_IR
 
 	#define IR_PIN 14
-	#define LED_CMD_PIN 7//15
+	//#define LED_CMD_PIN 4//7//15
 	#define BIT_LENGTH 32
 	#define MAX_IRED_KEY 21
 
@@ -367,7 +375,7 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 	evt_t ei = {-1, 0};
 #endif
 
-#ifdef SET_JOSTIC
+#ifdef SET_JOYSTIC
 	#define jKEY_PIN 15
 	#define corX_PIN 26
 	#define corY_PIN 27
@@ -389,16 +397,24 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 	bool joy = false;
 #endif
 
-#if defined(SET_IR) || defined(SET_JOSTIC)
+#if defined(SET_IR) || defined(SET_JOYSTIC)
 	uint32_t cmd_tmr = 0;
 
 	void cmdLedOn()
 	{
-		gpio_put(LED_CMD_PIN, 1);
+		//gpio_put(LED_CMD_PIN, 1);
 		cmd_tmr = get_mstmr(_150ms);
 	}
 #endif
 
+
+#ifdef SET_LCD_UC
+
+	FontDef_t *mfnt = NULL;
+	FontDef_t *lfnt = NULL;
+	FontDef_t *hfnt = NULL;
+
+#endif
 
 //*******************************************************************************************
 //*******************************************************************************************
@@ -406,7 +422,7 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 
 //-------------------------------------------------------------------------------------------
 
-#ifdef SET_JOSTIC
+#ifdef SET_JOYSTIC
 	//----------------------------------------------------------------------------------------
 	void gpio_callback(uint gpio, uint32_t events)
 	{
@@ -453,7 +469,7 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 		evt_t ev;
 		uint8_t yes = 0;
 
-		Report(1, "Start '%s' function.\n", __func__);
+		Report(1, "Start '%s' function on Core1\n", __func__);
 
 		uint32_t jtmr = get_mstmr(_10ms);
 
@@ -934,7 +950,7 @@ int main() {
     gpio_init(ERR_PIN);
     gpio_set_dir(ERR_PIN, GPIO_OUT);
 
-#ifdef SET_JOSTIC
+#ifdef SET_JOYSTIC
     gpio_init(jKEY_PIN);//#define JKEY_PIN 15
     gpio_set_dir(jKEY_PIN, GPIO_IN);
     gpio_pull_up(jKEY_PIN);
@@ -943,20 +959,11 @@ int main() {
 
     adc_init();
 
-    /*uint32_t sumAdc = 0;
-    adc_select_input(0);
-    uint32_t valX = adc_read();
-    uint32_t last_valX = valX;
-    adc_select_input(1);
-    uint32_t valY = adc_read();
-    uint32_t last_valY = valY;
-
-    uint32_t jtmr = get_mstmr(_1s);*/
 #endif
 
-    gpio_init(LED_CMD_PIN);
-    gpio_set_dir(LED_CMD_PIN, GPIO_OUT);
-    gpio_pull_up(LED_CMD_PIN);
+    //gpio_init(LED_CMD_PIN);
+    //gpio_set_dir(LED_CMD_PIN, GPIO_OUT);
+    //gpio_pull_up(LED_CMD_PIN);
 
 #ifdef SET_IR
     gpio_init(IR_PIN);
@@ -991,20 +998,20 @@ int main() {
 
 
     //--------------------- i2c master config ----------------------------
-    bi_decl(bi_2pins_with_func(PICO_DEFAULT_I2C_SDA_PIN, PICO_DEFAULT_I2C_SCL_PIN, GPIO_FUNC_I2C));
+    bi_decl(bi_2pins_with_func(I2C_SDA_PIN, I2C_SCL_PIN, GPIO_FUNC_I2C));
     bi_decl(bi_program_description("Radio I2C example for the Raspberry Pi Pico"));
-    i2c_init(i2c_default, 400 * 1000);
-    gpio_set_function(PICO_DEFAULT_I2C_SDA_PIN, GPIO_FUNC_I2C);
-    gpio_set_function(PICO_DEFAULT_I2C_SCL_PIN, GPIO_FUNC_I2C);
-    gpio_pull_up(PICO_DEFAULT_I2C_SDA_PIN);
-    gpio_pull_up(PICO_DEFAULT_I2C_SCL_PIN);
+    i2c_init(portRDA, 400 * 1000);
+    gpio_set_function(I2C_SDA_PIN, GPIO_FUNC_I2C);
+    gpio_set_function(I2C_SCL_PIN, GPIO_FUNC_I2C);
+    gpio_pull_up(I2C_SDA_PIN);
+    gpio_pull_up(I2C_SCL_PIN);
+
     //------------------- Initialize RTC module --------------------------
     rtc_init();
     sleep_ms(250);
     set_sec(epoch + 1);
     sleep_ms(250);
     //--------------------------------------------------------------------
-
 
     Report(0,"\n");
     Report(1, "Start picoRadio application %s\n", ver);//uart_puts(UART_ID, "Hello, UART!\n");
@@ -1026,6 +1033,7 @@ int main() {
 
     char stz[32];
     char stx[32];
+#ifdef SET_SSD1306
     //-------------- Initialize ssd1306 display -------------------
     ssd1306_init();
     ssd1306_on(true);
@@ -1036,6 +1044,58 @@ int main() {
     mkLineCenter(stx, FONT_WIDTH);
     ssd1306_text_xy(stx, 1, 4, false);
     //-------------------------------------------------------------
+#else
+
+	#ifdef SET_LCD_UC
+
+    	spi_init(portSPI, 12000 * 1000);//set SCK to 12Mhz !
+    	gpio_set_function(LCD_MOSI_PIN, GPIO_FUNC_SPI);
+        gpio_set_function(LCD_SCK_PIN, GPIO_FUNC_SPI);
+        bi_decl(bi_2pins_with_func(LCD_MOSI_PIN, LCD_SCK_PIN, GPIO_FUNC_SPI));
+        gpio_init(LCD_DC_PIN);
+        gpio_set_dir(LCD_DC_PIN, GPIO_OUT);
+        gpio_put(LCD_DC_PIN, 0);//for send command
+        gpio_init(LCD_RST_PIN);
+        gpio_set_dir(LCD_RST_PIN, GPIO_OUT);
+        gpio_put(LCD_RST_PIN, 1);//no reset
+
+		#ifdef FONT_6x8
+  			mfnt = &Font_6x8;
+		#endif
+		#ifdef FONT_7x9
+  			lfnt = &Font_7x9;
+		#endif
+		#ifdef FONT_11x18
+  			hfnt = &Font_11x18;
+		#endif
+    	//
+    	UC1609C_init();
+    	UC1609C_enable(1);
+    	UC1609C_contrast(30);
+    	UC1609C_clearDisplay();
+    	//
+    	int dl = sprintf(tmp, "%s", ver);
+    	if (dl > (UC1609C_WIDTH / mfnt->FontWidth - 1)) {
+    		dl = UC1609C_WIDTH / mfnt->FontWidth - 1;
+    		tmp[dl] = '\0';
+    	}
+    	uint16_t x = ((UC1609C_WIDTH - (mfnt->FontWidth * dl)) >> 1);
+    	UC1609C_Print(x, UC1609C_HEIGHT - mfnt->FontHeight, tmp, mfnt, 0, FOREGROUND);
+    	//
+    	UC1609C_DrawFilledRectangle(0, 0, UC1609C_WIDTH - 1, hfnt->FontHeight - 1, FOREGROUND);
+    	UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
+    	UC1609C_update();
+    	//
+    	uint8_t line1 = hfnt->FontHeight + 1;
+    	uint8_t line2 = line1 + lfnt->FontHeight;
+    	uint8_t line3 = line2 + lfnt->FontHeight;
+    	uint8_t line4 = line3 + lfnt->FontHeight;
+    	uint8_t line5 = line4 + lfnt->FontHeight;
+    	//
+    	bool flag_ver = false;
+    	uint8_t tmr_ver = 0;
+	#endif
+#endif
     evt_t ev;
     int evt;
     int queCnt = 0;
@@ -1058,9 +1118,10 @@ int main() {
     	sprintf(st, "Unknown cID:0x%x", rdaID);
     }
     Report(1, "%s\n", st);
+#ifdef SET_SSD1306
     mkLineCenter(st, FONT_WIDTH);
     ssd1306_text_xy(st, 1, 4, false);
-
+#endif
     rda5807_delay(100);
 
 	#ifdef SET_RDS
@@ -1096,10 +1157,21 @@ int main() {
     			evt = ev.cmd;
     			if ((evt > cmdNone) && (evt < cmdSec)) {
     				Report(1, "[que:%d] cmd:%d attr:%lu\n", queCnt, ev.cmd, ev.attr);
+#ifdef SET_SSD1306
     				sprintf(stz, "cmd:'%s'", s_cmds[evt]);
     				mkLineCenter(stz, FONT_WIDTH);
     				ssd1306_clear_lines(4, 1);
     				ssd1306_text_xy(stz, 1, 4, false);
+#endif
+#ifdef SET_LCD_UC
+    				sprintf(stz, "cmd : %s", s_cmds[evt]);
+    				mkLineCenter(stz, mfnt->FontWidth);
+    				UC1609C_Print(1, line5, stz, mfnt, 0, FOREGROUND);
+    				UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
+    				UC1609C_update();
+    				flag_ver = true;
+    				tmr_ver = 10;
+#endif
     			} else {
 #ifdef SET_IR
     				if (evt > cmdRds) {
@@ -1133,7 +1205,7 @@ int main() {
     				case cmdMute:
     					noMute = (~noMute) & 1;
     					rda5807_Set_Mute(noMute);
-    					//
+	#ifdef SET_SSD1306
     					if (noMute)
     						sprintf(st, "Bas:%u Vol:%u", BassBoost, Volume);
     					else
@@ -1141,6 +1213,14 @@ int main() {
     					mkLineCenter(st, FONT_WIDTH);
     					ssd1306_clear_lines(4, 1);
     					ssd1306_text_xy(st, 1, 4, false);
+	#endif
+	#ifdef SET_LCD_UC
+    					sprintf(sta, "BASS:%u", BassBoost);
+    					sprintf(stb, "VOLUME:%u", Volume);
+    					if (!noMute) strcat(stb, " Mute");
+    					mkLineWidth(sta, stb, lfnt->FontWidth);
+    					showLine(sta, line2, lfnt, true);
+	#endif
     					Report(1, "[que:%u] set Mute to %u\r\n", queCnt, (~noMute) & 1);
     				break;
     				case cmdList:
@@ -1159,10 +1239,17 @@ int main() {
     					if (newBand != Band) {
     						Band = newBand;
     						if (!rda5807_Set_Band(Band)) {
+	#ifdef SET_SSD1306
     							sprintf(stb, "FM Band:%s", allBands[Band]);
     							mkLineCenter(stb, FONT_WIDTH);
     							ssd1306_clear_lines(4, 1);
     							ssd1306_text_xy(stb, 1, 4, false);
+	#endif
+	#ifdef SET_LCD_UC
+    							sprintf(stb, "FM Band:%s", allBands[Band]);
+    							mkLineCenter(stb, lfnt->FontWidth);
+    							showLine(stb, line4, lfnt, true);
+	#endif
     							Report(1, "[que:%u] set new band=%u '%s'\n", queCnt, Band, allBands[Band]);
     							if (next_evt == evt) {
     								if ((Freq < lBand) || (Freq > rBand)) {
@@ -1190,7 +1277,7 @@ int main() {
     					if (newBassBoost != BassBoost) {
     						BassBoost = newBassBoost;
     						rda5807_SetBassBoost(BassBoost);
-    						//
+	#ifdef SET_SSD1306
     						if (noMute)
     							sprintf(st, "Bas:%u Vol:%u", BassBoost, Volume);
     						else
@@ -1198,6 +1285,14 @@ int main() {
     						mkLineCenter(st, FONT_WIDTH);
     						ssd1306_clear_lines(4, 1);
     						ssd1306_text_xy(st, 1, 4, false);
+	#endif
+	#ifdef SET_LCD_UC
+    						sprintf(sta, "BASS:%u", BassBoost);
+    						sprintf(stb, "VOLUME:%u", Volume);
+    						if (!noMute) strcat(stb, " Mute");
+    						mkLineWidth(sta, stb, lfnt->FontWidth);
+    						showLine(sta, line2, lfnt, true);
+	#endif
     						Report(1, "[que:%u] set new BassBoost to %u\n", queCnt, BassBoost);
     					} else {
     						Report(1, "[que:%u] BassBoost already set to %u\n", queCnt, BassBoost);
@@ -1207,7 +1302,7 @@ int main() {
     					if (newVolume != Volume) {
     						Volume = newVolume;
     						rda5807_SetVolume(Volume);
-    						//
+	#ifdef SET_SSD1306
     						if (noMute)
     							sprintf(st, "Bas:%u Vol:%u", BassBoost, Volume);
     						else
@@ -1215,6 +1310,14 @@ int main() {
     						mkLineCenter(st, FONT_WIDTH);
     						ssd1306_clear_lines(4, 1);
     						ssd1306_text_xy(st, 1, 4, false);
+	#endif
+	#ifdef SET_LCD_UC
+    						sprintf(sta, "BASS:%u", BassBoost);
+    						sprintf(stb, "VOLUME:%u", Volume);
+    						if (!noMute) strcat(stb, " Mute");
+    						mkLineWidth(sta, stb, lfnt->FontWidth);
+    						showLine(sta, line2, lfnt, true);
+	#endif
     						Report(1, "[que:%u] set new Volume to %u\n", queCnt, Volume);
     					} else {
     						Report(1, "[que:%u] Volume already set to %u\n", queCnt, Volume);
@@ -1227,7 +1330,7 @@ int main() {
     							uint16_t fr = (uint16_t)(Freq * 10);
     							rda5807_SetFreq_In100Khz(fr);
     							rda5807_Get_ChanRssiFlag(&Chan, &RSSI, &stereo);
-    							//
+	#ifdef SET_SSD1306
     							if (stereo)
     								sprintf(st, "S:%u F:%.2f S", RSSI, Freq);
     							else
@@ -1238,12 +1341,35 @@ int main() {
     							sprintf(sta, "%s", nameStation(Freq));
     							mkLineCenter(sta, FONT_WIDTH);
     							ssd1306_text_xy(sta, 1, 3, false);
-    							if (noMute)
+								if (noMute)
     								sprintf(st, "Bas:%u Vol:%u", BassBoost, Volume);
     							else
     								sprintf(st, "Bas:%u Vol:%u M", BassBoost, Volume);
     							mkLineCenter(st, FONT_WIDTH);
     							ssd1306_text_xy(st, 1, 4, false);
+	#endif
+	#ifdef SET_LCD_UC
+    							sprintf(sta, "RSSI:%u", RSSI);
+    							stb[0] = '\0';
+    							if (stereo) strcpy(stb, "Stereo ");
+    							sprintf(stb+strlen(stb), "FREQ:%.2f", Freq);
+    							mkLineWidth(sta, stb, lfnt->FontWidth);
+    							showLine(sta, line1, lfnt, false);
+    							//
+    							sprintf(sta, "BASS:%u", BassBoost);
+    							sprintf(stb, "VOLUME:%u", Volume);
+    							if (!noMute) strcat(stb, " Mute");
+    							mkLineWidth(sta, stb, lfnt->FontWidth);
+    							showLine(sta, line2, lfnt, false);
+    							//
+    							sprintf(sta, "%s", nameStation(Freq));
+    							mkLineCenter(sta, lfnt->FontWidth);
+    							showLine(sta, line3, lfnt, false);
+    							//
+    							UC1609C_DrawFilledRectangle(2, line4, UC1609C_WIDTH - 4, lfnt->FontHeight - 2, BACKGROUND);
+    							UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
+    							UC1609C_update();
+	#endif
     							Report(1, "[que:%u] set new Freq to %.3f МГц '%s' Chan:%u Volume:%u\n", queCnt, Freq, nameStation(Freq), Chan, Volume);
     #ifdef SET_RDS
     							if (rdsFlag) {
@@ -1270,16 +1396,44 @@ int main() {
 	#endif
 #endif
     				case cmdSec:
+    				{
+#ifdef SET_SSD1306
     					sec2str(stx);
     					strcat(stx, " ");
     					mkLineCenter(stx, FONT_WIDTH);
     					ssd1306_text_xy(stx, 1, 1, true);
+#endif
+#ifdef SET_LCD_UC
+    					dl = sec2str(stx);
+    					if (dl > (UC1609C_WIDTH / hfnt->FontWidth)) {
+    						dl = UC1609C_WIDTH / hfnt->FontWidth;
+    						stx[dl] = '\0';
+    					}
+    					uint16_t x = ((UC1609C_WIDTH - (hfnt->FontWidth * dl)) >> 1);
+    					UC1609C_Print(x, 0, stx, hfnt, 0, BACKGROUND);
+    					//
+    					if (flag_ver) {
+    						tmr_ver--;
+    						if (!tmr_ver) {
+    							flag_ver = false;
+    							dl = sprintf(tmp, "%s", ver);
+    					    	if (dl > (UC1609C_WIDTH / mfnt->FontWidth - 1)) {
+    					    		dl = UC1609C_WIDTH / mfnt->FontWidth - 1;
+    					    		tmp[dl] = '\0';
+    					    	}
+    					    	x = ((UC1609C_WIDTH - (mfnt->FontWidth * dl)) >> 1);
+    					    	UC1609C_Print(x, UC1609C_HEIGHT - mfnt->FontHeight, tmp, mfnt, 0, FOREGROUND);
+    						}
+    					}
+    					UC1609C_update();
+#endif
 #ifdef SET_RDA
     					if (!scan) {
     						uint16_t sig = rda5807_rssi();
     						if (sig != RSSI) {
     							RSSI = sig;
     							stereo = rda5807_Get_StereoMonoFlag();
+	#ifdef SET_SSD1306
     							if (stereo)
     								sprintf(st, "S:%u F:%.2f S", RSSI, Freq);
     							else
@@ -1287,6 +1441,15 @@ int main() {
     							mkLineCenter(st, FONT_WIDTH);
     							ssd1306_clear_lines(2, 1);
     							ssd1306_text_xy(st, 1, 2, false);
+	#endif
+	#ifdef SET_LCD_UC
+    							sprintf(sta, "RSSI:%u", RSSI);
+    							stb[0] = '\0';
+    							if (stereo) strcpy(stb, "Stereo ");
+    							sprintf(stb+strlen(stb), "FREQ:%.2f", Freq);
+    							mkLineWidth(sta, stb, lfnt->FontWidth);
+    							showLine(sta, line1, lfnt, true);
+	#endif
     						}
     					} else {
     						if (rda5807_Get_SeekTuneReadyFlag()) {
@@ -1294,7 +1457,7 @@ int main() {
     							Freq = (float)rda5807_GetFreq_In100Khz();
     							Freq /= 10;
     							rda5807_Get_ChanRssiFlag(&Chan, &RSSI, &stereo);
-    							//
+	#ifdef SET_SSD1306
     							if (stereo)
     								sprintf(st, "S:%u F:%.2f S", RSSI, Freq);
     							else
@@ -1311,6 +1474,29 @@ int main() {
     								sprintf(st, "Bas:%u Vol:%u M", BassBoost, Volume);
     							mkLineCenter(st, FONT_WIDTH);
     							ssd1306_text_xy(st, 1, 4, false);
+	#endif
+	#ifdef SET_LCD_UC
+    							sprintf(sta, "RSSI:%u", RSSI);
+    							stb[0] = '\0';
+    							if (stereo) strcpy(stb, "Stereo ");
+    							sprintf(stb+strlen(stb), " FREQ:%.2f", Freq);
+    							mkLineWidth(sta, stb, lfnt->FontWidth);
+    							showLine(sta, line1, lfnt, false);
+    							//
+    							sprintf(sta, "BASS:%u", BassBoost);
+    							sprintf(stb, "VOLUME:%u", Volume);
+    							if (!noMute) strcat(stb, "_Mute");
+    							mkLineWidth(sta, stb, lfnt->FontWidth);
+    							showLine(sta, line2, lfnt, false);
+    							//
+    							sprintf(sta, "%s", nameStation(Freq));
+    							mkLineCenter(sta, lfnt->FontWidth);
+    							showLine(sta, line3, lfnt, false);
+    							//
+    							UC1609C_DrawFilledRectangle(2, line4, UC1609C_WIDTH - 4, lfnt->FontHeight - 2, BACKGROUND);
+    							UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
+    							UC1609C_update();
+	#endif
     							Report(1, "[que:%u] set new Freq to %.3f МГц %s Chan:%u Volume:%u\n", queCnt, Freq, nameStation(Freq), Chan, Volume);
     							//
     					#ifdef SET_RDS
@@ -1322,6 +1508,7 @@ int main() {
     						}
     					}
 #endif
+    				}
     				break;
     				case cmdHelp:
     					tmp[0] = '\0';
@@ -1415,14 +1602,20 @@ int main() {
     							if (strcmp(PSName, PSName_prev) != 0) {
     								Report(1, "[RDS] Station: %s\r\n", PSName);
     								strcpy(PSName_prev, PSName);
-    								//
-    								ssd1306_clear_lines(4, 1);
     								int lens = strlen(PSName);
     								if (lens > 15) lens = 15;
     								sprintf(st, "RDS : %.*s", lens, PSName);
-    								mkLineCenter(st, 7);//FONT_WIDTH);
+	#ifdef SET_SSD1306
+    								ssd1306_clear_lines(4, 1);
+    								mkLineCenter(st, 7);
     								ssd1306_text_xy(st, 1, 4, false);
-    								//
+	#endif
+	#ifdef SET_LCD_UC
+    								mkLineCenter(st, lfnt->FontWidth);
+    								UC1609C_Print(1, line4, st, lfnt, 0, FOREGROUND);
+    								UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
+    								UC1609C_update();
+	#endif
     				        	}
     				        }
     				    } // PSName, PTy end
@@ -1472,11 +1665,11 @@ int main() {
     	}
 #endif
     	//
-#if defined(SET_IR) || defined(SET_JOSTIC)
+#if defined(SET_IR) || defined(SET_JOYSTIC)
     	if (cmd_tmr) {
     		if (check_mstmr(cmd_tmr)) {
     			cmd_tmr = 0;
-    			gpio_put(LED_CMD_PIN, 0);//LED_CMD_PIN OFF
+    			//gpio_put(LED_CMD_PIN, 0);//LED_CMD_PIN OFF
     		}
     	}
 #endif
@@ -1511,8 +1704,13 @@ int main() {
 
     sleep_ms(500);
 
+#ifdef SET_SSD1306
     //display off
     ssd1306_on(false);
+#endif
+#ifdef SET_LCD_UC
+    UC1609C_enable(0);//OFF
+#endif
 
     //wait joystic_task closed.....
     uint8_t sch = 255;

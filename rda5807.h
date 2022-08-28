@@ -129,15 +129,59 @@ typedef struct {
 } tReg03h;      // 
 
 typedef struct {
+#ifdef SET_RDA_PF
+	uint16_t bGPIO1				:2;	   // 0-1 General Purpose I/O 1.
+										//00 = High impedance.
+										//01 = Reserved
+										//10 = Low
+										//11 = High
+	uint16_t bGPIO2				:2;	   // 2-3 General Purpose I/O 2.
+										//00 = High impedance.
+										//01 = Interrupt (INT)
+										//10 = Low.
+										//11 = High
+	uint16_t bGPIO3				:2;	   // 4-5 General Purpose I/O 3.
+										//00 = High impedance.
+										//01 = Mono/Stereo indicator (ST)
+										//10 = Low.
+										//11 = High
+	uint16_t bI2S_ENABLED       :1;    // 6 I2S bus enable. If 0, disabled. If 1, enabled.
+    uint16_t bRSVD1				:1;    // 7 Reserved
+    uint16_t bAFCD              :1;    // 08 AFC disable (0 = afc work; 1 = afc disabled)
+    uint16_t bSOFTMUTE_EN       :1;    // 09 1 = softmute enable
+    uint16_t bRSVD2             :1;    // 10 Reserved
+    uint16_t bDE                :1;    // 11 De-emphasis (0 = 75 µs; 1 = 50 µs)
+    uint16_t bRSVD3				:2;	   // 12-13 Reserved
+    uint16_t bSTCIEN			:1;    // FOR RDA5807FP : Seek/Tune Complete Interrupt Enable.0
+    									//0 = Disable Interrupt
+    									//1 = Enable Interrupt
+    									//Setting STCIEN = 1 will generate a low pulse on
+    									//GPIO2 when the interrupt occurs.
+    uint16_t bRSVD3             :1;    // 15 Reserved
+#else
     uint16_t bRSVD1             :8;    // 0-7 Reserved
     uint16_t bAFCD              :1;    // 08 AFC disable (0 = afc work; 1 = afc disabled)
     uint16_t bSOFTMUTE_EN       :1;    // 09 1 = softmute enable
     uint16_t bRSVD2             :1;    // 10 Reserved
     uint16_t bDE                :1;    // 11 De-emphasis (0 = 75 µs; 1 = 50 µs)
     uint16_t bRSVD3             :4;    // 12-15 Reserved
+#endif
 } tReg04h;      // 
 
 typedef struct {
+#ifdef SET_RDA_FP
+	uint16_t bVOLUME            :4;    //0-3bits [3:0] DAC Gain Control Bits (Volume).1111
+									   //0000=min; 1111=max
+									   //Volume scale is logarithmic When 0000, output mute and output
+									   //impedance is very large
+	uint16_t bRSVD2             :2;    //4-5bits Reserved
+	uint16_t bLNA_PORT_SEL      :2;    //6-7bits [1:0] Reserved000 Seek SNR threshold value1000
+									   //LNA input port selection bit:10
+									   //10: FMIN
+    uint16_t bSEEKTH            :4;    // 8-11 Seek SNR threshold value
+    uint16_t bRSVD3             :3;    // 12-14 Reserved
+	uint16_t bINT_MODE          :1;    // 1bit If 0, generate 5ms interrupt;If 1, interrupt last until read reg0CH action occurs.
+#else
     uint16_t bVOLUME            :4;    // 0-3 Volume - DAC Gain Control Bits (0000=min; 1111=max)
     uint16_t bANT_GAIN          :2;    // 4-5 Коэффициент усиления антены (предположительно)
     uint16_t bANT_TYPE          :2;    // 6-7 Тип антены (см. константы ANT_TYPE)
@@ -145,13 +189,40 @@ typedef struct {
     uint16_t bRSVD3             :3;    // 12-14 Reserved
     uint16_t bINT_MODE          :1;    // 15 INT MODE (0 = generate 5ms interrupt;
                                        //              1 = interrupt last until read reg0CH action occurs)
+#endif
 } tReg05h;      // 
 
 typedef struct {
+#ifdef SET_RDA_FP
+	uint16_t bR_DELY            :1;    // 0bit If 1, R channel data delay 1T.
+	uint16_t bL_DELY            :1;    // 1bit If 1, L channel data delay 1T.
+	uint16_t bSCLK_O_EDGE       :1;    // 2bit If 1, invert sclk output when as master.
+	uint16_t bSW_O_EDGE         :1;    // 3bit If 1, invert ws output when as master.
+	uint16_t bI2S_SW_CNT	    :4;    // 4-7bits
+									   //1000: WS_STEP_48;
+									   //0111: WS_STEP=44.1kbps;
+									   //0110: WS_STEP=32kbps;
+									   //0101: WS_STEP=24kbps;
+									   //0100: WS_STEP=22.05kbps;
+									   //0011: WS_STEP=16kbps;
+									   //0010: WS_STEP=12kbps;
+									   //0001: WS_STEP=11.025kbps;
+									   //0000: WS_STEP=8kbps;
+	uint16_t bWS_I_EDGE         :1;    //8bit If 0, use normal ws internally;If 1, inverte ws internally.
+	uint16_t bDATA_SIGNED       :1;    //9bit If 0,I2S output unsigned 16-bit audio data.
+									   //If 1,I2S output signed 16-bit audio data.
+	uint16_t bSCLK_I_EDGE       :1;    //10bit When I2S enable.If 0, use normal sclk internally;If 1, inverte sclk internally.
+	uint16_t bSW_LR				:1;    //11bit Ws relation to l/r channel.If 0, ws=0 ->r, ws=1 ->l;If 1, ws=0 ->l, ws=1 ->r.
+    uint16_t bI2S_MODE			:1;    //12bit If 0, master mode; If 1, slave mode.
+    uint16_t bOPEN_MODE         :2;    // 13-14 Open reserved register mode (11 = open behind registers writing
+                                       //        function others: only open behind registers reading function
+    uint16_t bRSVD2             :1;    // 15 Reserved
+#else
     uint16_t bRSVD1             :13;   // 0-12 Resvered
     uint16_t bOPEN_MODE         :2;    // 13-14 Open reserved register mode (11 = open behind registers writing
                                        //        function others: only open behind registers reading function
     uint16_t bRSVD2             :1;    // 15 Reserved
+#endif
 } tReg06h;      // 
 
 typedef struct {
