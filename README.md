@@ -1,4 +1,4 @@
-M radio based on Raspberry Pi Pico + RDA5807 + SSD1306 + NS8002 + TL1838 + KY-023
+M radio based on Raspberry Pi Pico + RDA5807 + UC1609C + NS8002 + TL1838 + KY-023
 
 #################################################
 #
@@ -12,7 +12,7 @@ M radio based on Raspberry Pi Pico + RDA5807 + SSD1306 + NS8002 + TL1838 + KY-02
 ```
 * RDA5807, RF receiver FM
 * Raspberry Pi Pico (Waveshare board)
-* ssd1306 OLED display 128x32
+* UC1609C LCD display 192x64
 * NS8002 chip - audio power amplifier
 * speaker 8 Om 3 W
 * KY-023 - joystick, control device
@@ -32,16 +32,18 @@ M radio based on Raspberry Pi Pico + RDA5807 + SSD1306 + NS8002 + TL1838 + KY-02
 
 
 # Функционал:
-* Устройство предназначено для прослушивания радио станций ФМ диапазона (65 - 108 Мгц)
+* Устройство предназначено для прослушивания радио станций ФМ диапазона (65 - 108 Мгц),
+  а также приема и отображения информации RDS от радио станций FM диапазона.
 * ПО построено с использованием программных средств SDK 'pico-sdk'.
   События обслуживаются в основном цикле программы. Формируются события в callBack-функциях
   по завершении прерываний от используемых модулей микроконтроллера.
 * Устройство инициализирует некоторые интерфейсы микроконтроллера :
   - ADC : Chan0(GP26) и Chan1(GP27) аналогово-цифровой преобразователь (измеряет напряжение на аналоговых выходах джойстика).
   - GPIO : подключены три светодиода : GP29 - секундный тик, GP8 - индикатор ошибки на устройстве,
-           GP7 - светодиод индикации появления очередного события в очереди, GP14 - пин приема данных от
+           GP4,GP5,GP6,GP7 (DC,RST,SCK,MOSI) - пины интерфейса SPI0, GP14 - пин приема данных от
            инфракрасного датчика TL1838, GP15 - пин обслуживает кнопку джойстка в режиме прерывания.
-  - I2C0 : режим мастера с частотой 400Кгц (шина ослуживает чипы rda5807, ssd1306).
+  - I2C1 : режим мастера с частотой 400Кгц (шина ослуживает чипы rda5807).
+  - SPI0 : режим мастера с частотой 12Мгц (шина ослуживает LCD display UC1609C).
   - USART1 : параметры порта 230400 8N1 - порт для логов и передачи команд устройству.
   - Core1 задействовано для обслуживания джойстика KY-023.
 * Прием данных по последовательному порту (USART1) выполняется в callback-функции обработчика прерывания.
@@ -51,12 +53,13 @@ M radio based on Raspberry Pi Pico + RDA5807 + SSD1306 + NS8002 + TL1838 + KY-02
 
 
 ```
-24.08.22 12:32:32 | Start picoRadio application Ver.0.8.1 24.08.22
-24.08.22 12:32:32 | Create queue for 16 events OK
-24.08.22 12:32:32 | Start timer with 10 ms period.
-24.08.22 12:32:33 | RDA5807 cID:0x58
-24.08.22 12:32:34 | [que:2] RDS monitoring start
-24.08.22 12:32:34 | [que:1] set new Freq to 95.100 МГц 'VestiFM' (Chan:191) with volume 6
+28.08.22 15:14:14 | Start picoRadio application Ver.2.1 28.08.22 multicore
+28.08.22 15:14:14 | Create queue for 16 events OK
+28.08.22 15:14:14 | Start timer with 10 ms period.
+28.08.22 15:14:15 | RDA5807 cID:0x58
+28.08.22 15:14:16 | Start 'joystik_task' function on Core1
+28.08.22 15:14:16 | [que:2] RDS monitoring start
+28.08.22 15:14:16 | [que:1] set new Freq to 95.100 МГц 'VestiFM' Chan:191 Volume:6
 ```
 
 * Через USART1 можно отправлять команды на устройство, например :
@@ -148,13 +151,16 @@ cfg
 2:107.2:RadioKP
 
 restart
-24.08.22 14:34:38 | [que:1] cmd:1 attr:0
-24.08.22 14:34:38 | Queue released
-24.08.22 14:34:38 | Timer cancelled... 1
-24.08.22 12:32:32 | Start picoRadio application Ver.0.8.1 24.08.22
-24.08.22 12:32:32 | Create queue for 16 events OK
-24.08.22 12:32:32 | Start timer with 10 ms period.
-24.08.22 12:32:33 | RDA5807 cID:0x58
-24.08.22 12:32:34 | [que:2] RDS monitoring start
-24.08.22 12:32:34 | [que:1] set new Freq to 95.100 МГц 'VestiFM' (Chan:191) with volume 6
+28.08.22 15:32:24 | [que:1] cmd:1 attr:0
+28.08.22 15:32:24 | Queue released
+28.08.22 15:32:24 | Queue released
+28.08.22 15:32:24 | Timer cancelled... 1
+
+28.08.22 15:14:14 | Start picoRadio application Ver.2.1 28.08.22 multicore
+28.08.22 15:14:14 | Create queue for 16 events OK
+28.08.22 15:14:14 | Start timer with 10 ms period.
+28.08.22 15:14:15 | RDA5807 cID:0x58
+28.08.22 15:14:16 | Start 'joystik_task' function on Core1
+28.08.22 15:14:16 | [que:2] RDS monitoring start
+28.08.22 15:14:16 | [que:1] set new Freq to 95.100 МГц 'VestiFM' Chan:191 Volume:6
 ```
