@@ -24,6 +24,10 @@ enum {
 	cmdUart,
 	cmdMute,
 	cmdSec
+#ifdef SET_ENCODER
+	,
+	cmdEnc
+#endif
 #ifdef SET_RDA
 	,
 	cmdCfg,
@@ -74,12 +78,14 @@ enum {
 //const char *ver = "Ver.0.9 25.08.22 multicore";// support joystic control in second core now !!!
 //const char *ver = "Ver.1.0 26.08.22 multicore";
 //const char *ver = "Ver.2.0 27.08.22 multicore";// add display UC1609C instead of SSD1306
-const char *ver = "Ver.2.1 28.08.22 multicore";
+//const char *ver = "Ver.2.1 28.08.22 multicore";
+const char *ver = "Ver.2.2 29.08.22 multicore";
 
 
 
 
-volatile static uint32_t epoch = 1661726088;//1661699652;//1661684619;//1661641164;//1661614899;//1661536565;
+volatile static uint32_t epoch = 1661792625;
+//1661767566;//1661726088;//1661699652;//1661684619;//1661641164;//1661614899;//1661536565;
 //1661463575;//1661459555;//1661371110;//1661344350;//1661285299;//1661258255;//1661193099;//1661096209;
 //1661004270;//1660945885;//1660743445;//1660736830;//1660731354;//1660684399;
 //1660657998;//1660601220;//1660576465;//1660563510;//1660506862;//1660505693;//1660494699;
@@ -104,6 +110,10 @@ const char *s_cmds[MAX_CMDS] = {
 	"uart",
 	"mute",
 	"sec"
+#ifdef SET_ENCODER
+	,
+	"enc"
+#endif
 #ifdef SET_RDA
 	,
 	"cfg",
@@ -160,8 +170,8 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 	uint8_t rdaID = 0;
 	volatile uint8_t scan = 0;
 	volatile uint8_t seek_up = 1;
-	uint8_t Volume = 4;//6;//8;
-	uint8_t newVolume = 4;//6;//8;
+	uint8_t Volume = 6;//8;
+	uint8_t newVolume = 6;//8;
 	uint8_t BassBoost = 0;
 	uint8_t newBassBoost = 0;
 	bool stereo = false;
@@ -187,33 +197,33 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 #ifdef RUS_SUPPORT
 	static const rec_t list[MAX_LIST] = {
 		//Band:3 65-76
-		{3, 68.5, "Маяк"},// Маяк
-		{3, 72.1, "Шансон"},// Шансон
+		{3,  68.5, "Маяк"},// Маяк
+		{3,  72.1, "Шансон"},// Шансон
 		//Band:2,1 76-108, 87-108
-		{2, 92.8, "Радио_DFM"},//Радио DFM в Калининграде
-		{2, 93.6, "Радио_7"},// Радио 7
-		{2, 94, "Комеди_Радио"},// Комеди Радио
-		{2, 95.1, "Вести_ФМ"},// Вести ФМ
-		{2, 95.5, "Ретро_ФМ"},// Ретро ФМ
-		{2, 96.3, "Русское_Радио"},// Русское Радио
-		{2, 97, "Радио_Вера"},// Радио Книга
-		{2, 97.7, "Серебр.Дождь"},// Серебрянный Дождь
-		{2, 98.5, "Радио_Энергия"},// Радио Энергия
-		{2, 99.5, "Радио_Звезда"},// Радио Звезда
-		{2, 100.1, "Авто_Радио"},// АвтоРадио
-		{2, 100.6, "Русский_Край"},// Русский Край
+		{2,  92.8, "Радио DFM"},//Радио DFM в Калининграде
+		{2,  93.6, "Радио 7"},// Радио 7
+		{2,  94.0, "Комеди Радио"},// Комеди Радио
+		{2,  95.1, "Вести ФМ"},// Вести ФМ
+		{2,  95.5, "Ретро ФМ"},// Ретро ФМ
+		{2,  96.3, "Русское Радио"},// Русское Радио
+		{2,  97.0, "Радио Вера"},// Радио Книга
+		{2,  97.7, "Серебр.Дождь"},// Серебрянный Дождь
+		{2,  98.5, "Радио Энергия"},// Радио Энергия
+		{2,  99.5, "Радио Звезда"},// Радио Звезда
+		{2, 100.1, "Авто Радио"},// АвтоРадио
+		{2, 100.6, "Русский Край"},// Русский Край
 		{2, 100.9, "Монте-Карло"},// Монте-Карло
-		{2, 101.3, "Наше_Радио"},// Наше Радио
-		{2, 101.8, "Бизнес_ФМ"},// Бизнес ФМ
+		{2, 101.3, "Наше Радио"},// Наше Радио
+		{2, 101.8, "Бизнес ФМ"},// Бизнес ФМ
 		{2, 102.5, "Маяк"},// Маяк
-		{2, 102.9, "Любимое_Радио"},// Любимое Радио
-		{2, 103.4, "Студия_21"},// Студия 21
-		{2, 103.9, "Радио_России"},// Радио России
-		{2, 104.5, "Европа_Плюс"},// Европа Плюс
-		{2, 105.2, "Балтик_Плюс"},// Балтик Плюс
-		{2, 105.9, "Дорожное_Радио"},// Дорожное Радио
-		{2, 106.4, "Радио_Максим"},// Радио Максим
-		{2, 107.2, "Радио_КП"}// Комсомольская Правда
+		{2, 102.9, "Любимое Радио"},// Любимое Радио
+		{2, 103.4, "Студия 21"},// Студия 21
+		{2, 103.9, "Радио России"},// Радио России
+		{2, 104.5, "Европа Плюс"},// Европа Плюс
+		{2, 105.2, "Балтик Плюс"},// Балтик Плюс
+		{2, 105.9, "Дорожное Радио"},// Дорожное Радио
+		{2, 106.4, "Радио Максим"},// Радио Максим
+		{2, 107.2, "Радио КП"}// Комсомольская Правда
 	};
 #else
 	static const rec_t list[MAX_LIST] = {
@@ -221,30 +231,30 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 		{3, 68.5, "Majak"},// Маяк
 		{3, 72.1, "Shanson"},// Шансон
 		//Band:2,1 76-108, 87-108
-		{2, 92.8, "RadioDFM"},//Радио DFM в Калининграде
-		{2, 93.6, "Radio7"},// Радио 7
-		{2, 94, "ComedyRadio"},// Комеди Радио
-		{2, 95.1, "VestiFM"},// Вести ФМ
-		{2, 95.5, "RetroFM"},// Ретро ФМ
-		{2, 96.3, "RusRadio"},// Русское Радио
-		{2, 97, "RadioVera"},// Радио Книга
-		{2, 97.7, "SilverRain"},// Серебрянный Дождь
-		{2, 98.5, "RadioEnegry"},// Радио Энергия
-		{2, 99.5, "RadioStar"},// Радио Звезда
-		{2, 100.1, "AutoRadio"},// АвтоРадио
-		{2, 100.6, "RusContry"},// Русский Край
-		{2, 100.9, "MonteCarlo"},// Монте-Карло
-		{2, 101.3, "OurRadio"},// Наше Радио
-		{2, 101.8, "BusinessFM"},// Бизнес ФМ
+		{2, 92.8, "Radio DFM"},//Радио DFM в Калининграде
+		{2, 93.6, "Radio 7"},// Радио 7
+		{2, 94, "Comedy Radio"},// Комеди Радио
+		{2, 95.1, "Vesti FM"},// Вести ФМ
+		{2, 95.5, "Retro FM"},// Ретро ФМ
+		{2, 96.3, "Russian Radio"},// Русское Радио
+		{2, 97, "Radio Vera"},// Радио Книга
+		{2, 97.7, "Silver Rain"},// Серебрянный Дождь
+		{2, 98.5, "Radio Enegry"},// Радио Энергия
+		{2, 99.5, "Radio Star"},// Радио Звезда
+		{2, 100.1, "Auto Radio"},// АвтоРадио
+		{2, 100.6, "Rus.Contry"},// Русский Край
+		{2, 100.9, "Monte-Carlo"},// Монте-Карло
+		{2, 101.3, "Our Radio"},// Наше Радио
+		{2, 101.8, "Business FM"},// Бизнес ФМ
 		{2, 102.5, "Majak"},// Маяк
-		{2, 102.9, "LoveRadio"},// Любимое Радио
-		{2, 103.4, "Studio21"},// Студия 21
-		{2, 103.9, "RadioRussian"},// Радио России
+		{2, 102.9, "Love Radio"},// Любимое Радио
+		{2, 103.4, "Studio 21"},// Студия 21
+		{2, 103.9, "Radio Russia"},// Радио России
 		{2, 104.5, "Europe+"},// Европа Плюс
 		{2, 105.2, "Baltic+"},// Балтик Плюс
-		{2, 105.9, "RoadRadio"},// Дорожное Радио
-		{2, 106.4, "RadioMaxim"},// Радио Максим
-		{2, 107.2, "RadioKP"}// Комсомольская Правда
+		{2, 105.9, "Road Radio"},// Дорожное Радио
+		{2, 106.4, "Radio Maxim"},// Радио Максим
+		{2, 107.2, "Radio KP"}// Комсомольская Правда
 	};
 #endif
 	uint16_t listSize = 0;
@@ -375,7 +385,6 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 #endif
 
 #ifdef SET_JOYSTIC
-	#define jKEY_PIN 15
 	#define corX_PIN 26
 	#define corY_PIN 27
 	#define MIN_VAL 30
@@ -392,18 +401,19 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 	adc_chan_t chanX;
 	adc_chan_t chanY;
 
-	uint32_t start_jkey = 0;
+	//uint32_t start_jkey = 0;
 	bool joy = false;
 #endif
 
-#if defined(SET_IR) || defined(SET_JOYSTIC)
+#if defined(SET_ENCODER) || defined(SET_JOYSTIC) || defined(SET_IR)
 	#define LED_CMD_PIN 16
-
+	//
+	uint32_t start_jkey = 0;
 	uint32_t cmd_tmr = 0;
 	//
 	void cmdLedOn()
 	{
-		////gpio_put(LED_CMD_PIN, cled);
+		//gpio_put(LED_CMD_PIN, cled);
 		cmd_tmr = get_mstmr(_150ms);
 	}
 	//
@@ -411,58 +421,6 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 	{
 	    pio_sm_put_blocking(pio0, 0, pixel_grb << 8u);
 	}
-	/*
-	static inline uint32_t urgb_u32(uint8_t r, uint8_t g, uint8_t b)
-	{
-	    return
-	            ((uint32_t) (r) << 8) |
-	            ((uint32_t) (g) << 16) |
-	            (uint32_t) (b);
-	}
-	void pattern_snakes(uint len, uint t)
-	{
-	    for (uint i = 0; i < len; ++i) {
-	        uint x = (i + (t >> 1)) % 64;
-	        if (x < 10)
-	            put_pixel(urgb_u32(0xff, 0, 0));
-	        else if (x >= 15 && x < 25)
-	            put_pixel(urgb_u32(0, 0xff, 0));
-	        else if (x >= 30 && x < 40)
-	            put_pixel(urgb_u32(0, 0, 0xff));
-	        else
-	            put_pixel(0);
-	    }
-	}
-	void pattern_random(uint len, uint t)
-	{
-	    if (t % 8) return;
-	    for (int i = 0; i < len; ++i) put_pixel(1);//rand());
-	}
-	void pattern_sparkle(uint len, uint t)
-	{
-	    if (t % 8) return;
-	    for (int i = 0; i < len; ++i) put_pixel(rand() % 16 ? 0 : 0xffffffff);
-	}
-	void pattern_greys(uint len, uint t)
-	{
-	    int max = 100; // let's not draw too much current!
-	    t %= max;
-	    for (int i = 0; i < len; ++i) {
-	        put_pixel(t * 0x10101);
-	        if (++t >= max) t = 0;
-	    }
-	}
-	typedef void (*pattern)(uint len, uint t);
-	const struct {
-	    pattern pat;
-	    const char *name;
-	} pattern_table[] = {
-		{pattern_snakes,  "Snakes!"},
-		{pattern_random,  "Random data"},
-		{pattern_sparkle, "Sparkles"},
-		{pattern_greys,   "Greys"},
-	};
-	*/
 #endif
 
 
@@ -474,23 +432,41 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 
 #endif
 
+
+#if defined(SET_JOYSTIC) || defined(SET_ENCODER)
+	#define jKEY_PIN 12
+#endif
+
+#ifdef SET_ENCODER
+	int new_value = 0, old_value = 0;
+	int delta = 0, old_delta = 0;
+	PIO pioe = pio1;
+	const uint sme = 0;
+	// Base pin to connect the A phase of the encoder.
+	// The B phase must be connected to the next pin
+	const uint PIN_AB = 10;// and GP11
+
+#endif
+
+
 //*******************************************************************************************
 //*******************************************************************************************
 //*******************************************************************************************
 
 //-------------------------------------------------------------------------------------------
 
-#ifdef SET_JOYSTIC
+#if defined(SET_JOYSTIC) || defined(SET_ENCODER)
 	//----------------------------------------------------------------------------------------
 	void gpio_callback(uint gpio, uint32_t events)
 	{
 		if (gpio == jKEY_PIN) {
 			if (!gpio_get(gpio)) {
-				start_jkey = get_mstmr(_100ms);
+				start_jkey = get_mstmr(_55ms);//_100ms);
 			} else {
 				if (start_jkey) {
 					if (check_mstmr(start_jkey)) {
 						cmdLedOn();
+						seek_up = 1;
 						evt_t e = {cmdScan, 0};
 						if (!queue_try_add(&evt_fifo, &e)) devError |= devQue;
 						start_jkey = 0;
@@ -499,7 +475,9 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 			}
 		}
 	}
+#endif
 	//----------------------------------------------------------------------------------------
+#ifdef SET_JOYSTIC
 	uint8_t adcAddVal(adc_chan_t *chan, uint16_t val)
 	{
 	int8_t i;
@@ -603,7 +581,7 @@ void showCfg()
 	char *st = (char *)calloc(1, MAX_UART_BUF << 2);
 	if (st) {
 		for (int i = 0; i < MAX_LIST; i++) {
-			sprintf(st+strlen(st), "%u:%.1f:%s\r\n", list[i].band, list[i].freq, list[i].name);
+			sprintf(st+strlen(st), "%u:%.1f:%.*s\r\n", list[i].band, list[i].freq, strlen(list[i].name), list[i].name);
 		}
 		Report(0, "%s", st);
 		free(st);
@@ -736,10 +714,28 @@ static char *errName(uint16_t err)
 bool repeating_timer_callback(struct repeating_timer *t)
 {
 	inc_msCounter();
-
+#if defined(SET_ENCODER) || defined(SET_JOYSTIC) || defined(SET_IR)
 	if (cmd_tmr) {
 		put_pixel(rand() % 10 ? 0 : 0xffff0000);//0xffffffff);//LED_CMD_PIN active
 	}
+#endif
+
+#ifdef SET_ENCODER
+	if (!(get_msCounter() % _100ms)) {
+		new_value = quadrature_encoder_get_count(pioe, sme);
+		if (new_value != old_value) {
+			delta = new_value - old_value;
+			old_value = new_value;
+			//if (delta != old_delta) {
+			//old_delta = delta;
+			evt_t ev = {
+				.cmd = cmdEnc,
+				.attr = delta
+			};
+			if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
+		}
+	}
+#endif
 
 	if (!(get_msCounter() % _1s)) {// 1 seconda
 		seconda++;
@@ -911,10 +907,6 @@ bool read_pulse_cb(struct repeating_timer *t)
     return true;
 }
 //------------------------------------------------------------------------------------------
-
-#endif
-
-//------------------------------------------------------------------------------------------
 int ir_parse(uint32_t value, int *idx)
 {
 int ird = cmdNone;
@@ -1002,6 +994,7 @@ int8_t kid = -1;
 
 	return ird;
 }
+#endif
 //------------------------------------------------------------------------------------------
 int main() {
 
@@ -1013,31 +1006,28 @@ int main() {
     gpio_init(ERR_PIN);
     gpio_set_dir(ERR_PIN, GPIO_OUT);
 
-#ifdef SET_JOYSTIC
+#if defined(SET_JOYSTIC) || defined(SET_ENCODER)
     gpio_init(jKEY_PIN);//#define JKEY_PIN 15
     gpio_set_dir(jKEY_PIN, GPIO_IN);
     gpio_pull_up(jKEY_PIN);
-    //
+
     gpio_set_irq_enabled_with_callback(jKEY_PIN, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+#endif
+#ifdef SET_JOYSTIC
 
     adc_init();
 
 #endif
 
-
-#if defined(SET_IR) || defined(SET_JOYSTIC)
-
-    /*gpio_init(LED_CMD_PIN);
-    gpio_set_dir(LED_CMD_PIN, GPIO_OUT);
-    gpio_pull_up(LED_CMD_PIN);*/
-
+#if defined(SET_ENCODER) || defined(SET_JOYSTIC) || defined(SET_IR)
     PIO pio = pio0;
     int sm = 0;
     ws2812_program_init(pio, sm, pio_add_program(pio, &ws2812_program), LED_CMD_PIN, 800000, true);
-
-
+	#ifdef SET_ENCODER
+    	uint offset = pio_add_program(pioe, &quadrature_encoder_program);
+    	quadrature_encoder_program_init(pioe, sme, offset, PIN_AB, 0);
+	#endif
 #endif
-
 
 #ifdef SET_IR
     gpio_init(IR_PIN);
@@ -1045,9 +1035,10 @@ int main() {
     gpio_pull_up(IR_PIN);
     struct repeating_timer read_timer;
     add_repeating_timer_us(-526, read_pulse_cb, NULL, &read_timer);//-526
-    int idx = -1;
 #endif
     //--------------------------------------------------------------------
+
+    int idx = -1;
 
     for (int8_t i = 0; i < 4; i++) {
     	errLedOn(true);
@@ -1105,8 +1096,8 @@ int main() {
     //--------------------------------------------------------------------
 
 
-    char stz[32];
-    char stx[32];
+    char stz[64];
+    char stx[64];
 #ifdef SET_SSD1306
     //-------------- Initialize ssd1306 display -------------------
     ssd1306_init();
@@ -1164,7 +1155,7 @@ int main() {
     	uint8_t line2 = line1 + lfnt->FontHeight;
     	uint8_t line3 = line2 + lfnt->FontHeight;
     	uint8_t line4 = line3 + lfnt->FontHeight;
-    	uint8_t line5 = line4 + lfnt->FontHeight;
+    	uint8_t line5 = line4 + lfnt->FontHeight + 1;
     	//
     	bool flag_ver = false;
     	uint8_t tmr_ver = 0;
@@ -1178,8 +1169,9 @@ int main() {
 #ifdef SET_RDA
     rda5807_delay(500);
     char st[64];
-    char sta[32];
-    char stb[32];
+    char sta[64];
+    char stb[64];
+    char stn[64];
     rdaID = rda5807_init(&Freq, Band, Step);
     rda5807_delay(500);
 
@@ -1216,19 +1208,37 @@ int main() {
     }
 #endif
 
-
+#ifdef SET_JOYSTIC
     multicore_launch_core1(joystik_task);
+#endif
 
+
+    uint32_t attr = 0;
 
     while (!restart) {
-    	//
-    	//
-    	//
+    	/*
+#ifdef SET_ENCODER
+    	if (check_mstmr(enc_tmr)) {
+    		enc_tmr = get_mstmr(_100ms);
+    		new_value = quadrature_encoder_get_count(pio, sm);
+    		delta = new_value - old_value;
+    		old_value = new_value;
+	#ifdef SET_LCD_UC
+    		sprintf(stz, "pos:%d delta:%d", new_value, delta);
+    		mkLineCenter(stz, mfnt->FontWidth);
+    		UC1609C_Print(1, line5, stz, mfnt, 0, FOREGROUND);
+    		UC1609C_update();
+	#endif
+    		//Report(1, "[ENC] position %8d, delta %6d\n", new_value, delta);
+    	}
+#endif
+    	*/
     	queCnt = queue_get_level(&evt_fifo);
     	if (queCnt) {
     		if (queue_try_remove(&evt_fifo, &ev)) {
     			idx = -1;
     			evt = ev.cmd;
+    			attr = ev.attr;
     			if ((evt > cmdNone) && (evt < cmdSec)) {
     				Report(1, "[que:%d] cmd:%d attr:%lu\n", queCnt, ev.cmd, ev.attr);
 #ifdef SET_SSD1306
@@ -1260,6 +1270,16 @@ int main() {
 #endif
     			}
     			switch (evt) {
+#ifdef SET_ENCODER
+    				case cmdEnc:
+	#ifdef SET_LCD_UC
+    					sprintf(stz, "[que:%u] pos : %d", queCnt, attr);
+    					mkLineCenter(stz, mfnt->FontWidth);
+    					UC1609C_Print(1, line5, stz, mfnt, 0, FOREGROUND);
+    					UC1609C_update();
+	#endif
+    				break;
+#endif
     				case cmdErr:
     					Report(1, "Error input\n");
     				break;
@@ -1436,9 +1456,9 @@ int main() {
     							mkLineWidth(sta, stb, lfnt->FontWidth);
     							showLine(sta, line2, lfnt, false);
     							//
-    							sprintf(sta, "%s", nameStation(Freq));
-    							mkLineCenter(sta, lfnt->FontWidth);
-    							showLine(sta, line3, lfnt, false);
+    							int dlm = sprintf(stn, "%s", nameStation(Freq));
+    							UC1609C_DrawFilledRectangle(1, line3, UC1609C_WIDTH - 4, lfnt->FontHeight - 1, BACKGROUND);
+    							UC1609C_Print(caclX(stn, lfnt->FontWidth), line3, stn, lfnt, 0, FOREGROUND);
     							//
     							UC1609C_DrawFilledRectangle(2, line4, UC1609C_WIDTH - 4, lfnt->FontHeight - 2, BACKGROUND);
     							UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
@@ -1563,9 +1583,9 @@ int main() {
     							mkLineWidth(sta, stb, lfnt->FontWidth);
     							showLine(sta, line2, lfnt, false);
     							//
-    							sprintf(sta, "%s", nameStation(Freq));
-    							mkLineCenter(sta, lfnt->FontWidth);
-    							showLine(sta, line3, lfnt, false);
+    							int dlm = sprintf(stn, "%s", nameStation(Freq));
+    							UC1609C_DrawFilledRectangle(1, line3, UC1609C_WIDTH - 4, lfnt->FontHeight - 1, BACKGROUND);
+    							UC1609C_Print(caclX(stn, lfnt->FontWidth), line3, stn, lfnt, 0, FOREGROUND);
     							//
     							UC1609C_DrawFilledRectangle(2, line4, UC1609C_WIDTH - 4, lfnt->FontHeight - 2, BACKGROUND);
     							UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
@@ -1739,7 +1759,7 @@ int main() {
     	}
 #endif
     	//
-#if defined(SET_IR) || defined(SET_JOYSTIC)
+#if defined(SET_ENCODER) || defined(SET_JOYSTIC) || defined(SET_IR)
     	if (cmd_tmr) {
     		if (check_mstmr(cmd_tmr)) {
     			cmd_tmr = 0;
@@ -1787,13 +1807,14 @@ int main() {
     UC1609C_enable(0);//OFF
 #endif
 
+#ifdef SET_JOYSTIC
     //wait joystic_task closed.....
     uint8_t sch = 255;
     while (joy && sch) {
     	sleep_ms(1);
     };
-
     sleep_ms(100);
+#endif
 
     //restart
     watchdog_reboot(0, SRAM_END, 0);

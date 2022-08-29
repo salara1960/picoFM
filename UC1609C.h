@@ -144,6 +144,7 @@ void UC1609C_DrawFilledTriangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, 
 void UC1609C_DrawCircle(int16_t x0, int16_t y0, int16_t r, uint8_t c);
 void UC1609C_DrawFilledCircle(int16_t x0, int16_t y0, int16_t r, uint8_t c);
 
+int16_t caclX(char *str, uint16_t width);
 char *mkLineCenter(char *str, uint16_t width);
 char *mkLineWidth(char *str1, char *str2, uint16_t width);
 void showLine(char *msg, uint16_t lin, FontDef_t *fnt, bool update);

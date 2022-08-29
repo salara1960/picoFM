@@ -24,10 +24,14 @@
 #include "hardware/adc.h"
 #include "hardware/spi.h"
 #include "hardware/pwm.h"
-//
 #include "hardware/pio.h"
+// for ws2812 support
 #include "hardware/clocks.h"
 #include "ws2812.pio.h"
+// for encoder support
+#include "hardware/timer.h"
+#include "quadrature_encoder.pio.h"
+
 
 //#define SET_SSD1306
 
@@ -54,12 +58,12 @@
 
 #define SET_RDA
 
-#define SET_IR
-
+//#define SET_IR
 #define SET_JOYSTIC
+#define SET_ENCODER
 
 //#define SET_WITH_DMA
-//#define RUS_SUPPORT
+#define RUS_SUPPORT
 
 //------------------------------------------------------------------------------
 
@@ -87,11 +91,22 @@
 	#define MAX_LIST      26//25
 	#define MAX_BAND       4
 	#define MAX_STEP       4
-	#define MAX_SIZE_NAME 16//31
+	#define MAX_SIZE_NAME 31//16//31
 
-	#define MAX_CMDS      16//15//6
+	#ifdef SET_ENCODER
+		#define MAX_CMDS  17//16//15//6
+	#else
+		#define MAX_CMDS  16//15//6
+	#endif
+
 #else
-	#define MAX_CMDS       8
+
+	#ifdef SET_ENCODER
+		#define MAX_CMDS   9
+	#else
+		#define MAX_CMDS   8
+	#endif
+
 #endif
 //
 #ifdef SET_WITH_DMA

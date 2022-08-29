@@ -6,6 +6,8 @@
 
 //------------------------------------------------------------------------------
 
+extern void Report(const uint8_t addTime, const char *fmt, ...);
+
 
 uint8_t buffer[ ( UC1609C_WIDTH * UC1609C_HEIGHT / 8 ) + 1 ]; // буфер кадра, create a full screen buffer (192 * 64/8) + 1
 uint8_t bufferWidth = UC1609C_WIDTH;
@@ -747,18 +749,50 @@ int16_t y = r;
     }
 }
 //-----------------------------------------------------------------------------------------
+int16_t caclX(char *str, uint16_t width)
+{
+int16_t cx = 1;
+
+	uint8_t slen = UC1609C_WIDTH / width;// 192 / 7 = 27
+	uint8_t k = strlen(str);
+	if (k & 1) k++;
+	if (*str > 0x7f) k >>= 1;
+	if (k <= slen) {
+		cx = (slen - k) >> 1;
+	}
+
+	return cx * width;
+}
+//-----------------------------------------------------------------------------------------
 char *mkLineCenter(char *str, uint16_t width)
 {
-char st[32] = {0};
+char st[64] = {0};
+int ch = str[0];
 
-    memset(st, 0x20, sizeof(st));
-    uint8_t slen = UC1609C_WIDTH / width;//16
+    memset(st, ' ', 64);
+    uint8_t slen = UC1609C_WIDTH / width;// 192 / 7 = 27
     uint8_t k = strlen(str);
-    if (k < slen) {
+    uint8_t kk = k;
+    if (*str > 0x7f) {
+    	if (k & 1) {
+    		k >>= 1;
+    		k++;
+    	} else {
+    		k >>= 1;
+    	}
+    }
+    if (k <= slen) {
         uint8_t n = (slen - k) >> 1;
-        memcpy(&st[n], str, k);
-        st[slen] = '\0';
+        if (*str <= 0x7f) {
+        	memcpy(&st[n], str, k);
+        	st[slen] = '\0';
+    	} else {
+        	memcpy(&st[n], str, k << 1);
+        	st[n + kk + (n - 1)] = '\0';
+        }
         strcpy(str, st);
+        //Report(1, "[%s] '%c'/0x%X slen:%u n:%d msg_len:%d st/str_len:%d/%d str:'%s'\n",
+        //		   __func__, ch, (uint8_t)ch, slen, n, k, strlen(st), strlen(str), str);
     }
 
     return str;
@@ -784,7 +818,17 @@ char st[64] = {0};
 //-------------------------------------------------------------------------------------------
 void showLine(char *msg, uint16_t lin, FontDef_t *fnt, bool update)
 {
-	UC1609C_Print(1, lin, msg, fnt, 0, FOREGROUND);
+int16_t x = 1;
+
+	/*if (*msg > 0x7f) {
+		int mx = UC1609C_WIDTH / fnt->FontWidth;
+		int dl = strlen(msg);
+		int sp = (mx - (dl >> 1)) >> 1;
+		x += sp * fnt->FontWidth;
+		Report(1, "[%s] cor_x:%d len_msg:%d font_width:%u\n", __func__, x, dl, fnt->FontWidth);
+	}*/
+
+	UC1609C_Print(x, lin, msg, fnt, 0, FOREGROUND);
 	if (update) UC1609C_update();
 }
 //----------------------------------------------------------------------------------

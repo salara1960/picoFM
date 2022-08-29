@@ -491,6 +491,10 @@ hardware/clocks.h
 /home/alarm/eclipse-workspace-arm/picoFM/hardware/clocks.h
 ws2812.pio.h
 /home/alarm/eclipse-workspace-arm/picoFM/ws2812.pio.h
+hardware/timer.h
+/home/alarm/eclipse-workspace-arm/picoFM/hardware/timer.h
+quadrature_encoder.pio.h
+/home/alarm/eclipse-workspace-arm/picoFM/quadrature_encoder.pio.h
 ssd1306.h
 /home/alarm/eclipse-workspace-arm/picoFM/ssd1306.h
 
@@ -511,6 +515,14 @@ fonts.h
 /home/alarm/eclipse-workspace-arm/picoFM/fonts.h
 UC1609C.h
 /home/alarm/eclipse-workspace-arm/picoFM/UC1609C.h
+
+/home/alarm/eclipse-workspace-arm/picoFM/quadrature_encoder.pio.h
+hardware/pio.h
+/home/alarm/eclipse-workspace-arm/picoFM/hardware/pio.h
+hardware/clocks.h
+/home/alarm/eclipse-workspace-arm/picoFM/hardware/clocks.h
+hardware/gpio.h
+/home/alarm/eclipse-workspace-arm/picoFM/hardware/gpio.h
 
 /home/alarm/eclipse-workspace-arm/picoFM/rda5807.h
 hdr.h

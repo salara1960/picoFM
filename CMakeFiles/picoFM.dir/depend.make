@@ -256,6 +256,7 @@ CMakeFiles/picoFM.dir/UC1609C.c.obj: UC1609C.c
 CMakeFiles/picoFM.dir/UC1609C.c.obj: UC1609C.h
 CMakeFiles/picoFM.dir/UC1609C.c.obj: fonts.h
 CMakeFiles/picoFM.dir/UC1609C.c.obj: hdr.h
+CMakeFiles/picoFM.dir/UC1609C.c.obj: quadrature_encoder.pio.h
 CMakeFiles/picoFM.dir/UC1609C.c.obj: ssd1306.h
 CMakeFiles/picoFM.dir/UC1609C.c.obj: ws2812.pio.h
 CMakeFiles/picoFM.dir/UC1609C.c.obj: generated/pico_base/pico/config_autogen.h
@@ -339,6 +340,7 @@ CMakeFiles/picoFM.dir/fonts.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp
 CMakeFiles/picoFM.dir/fonts.c.obj: fonts.c
 CMakeFiles/picoFM.dir/fonts.c.obj: fonts.h
 CMakeFiles/picoFM.dir/fonts.c.obj: hdr.h
+CMakeFiles/picoFM.dir/fonts.c.obj: quadrature_encoder.pio.h
 CMakeFiles/picoFM.dir/fonts.c.obj: ssd1306.h
 CMakeFiles/picoFM.dir/fonts.c.obj: ws2812.pio.h
 CMakeFiles/picoFM.dir/fonts.c.obj: generated/pico_base/pico/config_autogen.h
@@ -2572,6 +2574,7 @@ CMakeFiles/picoFM.dir/libs.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2
 CMakeFiles/picoFM.dir/libs.c.obj: hdr.h
 CMakeFiles/picoFM.dir/libs.c.obj: libs.c
 CMakeFiles/picoFM.dir/libs.c.obj: libs.h
+CMakeFiles/picoFM.dir/libs.c.obj: quadrature_encoder.pio.h
 CMakeFiles/picoFM.dir/libs.c.obj: ssd1306.h
 CMakeFiles/picoFM.dir/libs.c.obj: ws2812.pio.h
 CMakeFiles/picoFM.dir/libs.c.obj: generated/pico_base/pico/config_autogen.h
@@ -2657,6 +2660,7 @@ CMakeFiles/picoFM.dir/picoFM.c.obj: fonts.h
 CMakeFiles/picoFM.dir/picoFM.c.obj: hdr.h
 CMakeFiles/picoFM.dir/picoFM.c.obj: libs.h
 CMakeFiles/picoFM.dir/picoFM.c.obj: picoFM.c
+CMakeFiles/picoFM.dir/picoFM.c.obj: quadrature_encoder.pio.h
 CMakeFiles/picoFM.dir/picoFM.c.obj: rda5807.h
 CMakeFiles/picoFM.dir/picoFM.c.obj: ssd1306.h
 CMakeFiles/picoFM.dir/picoFM.c.obj: ws2812.pio.h
@@ -2739,6 +2743,7 @@ CMakeFiles/picoFM.dir/rda5807.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/
 CMakeFiles/picoFM.dir/rda5807.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_stdio_uart/include/pico/stdio_uart.h
 CMakeFiles/picoFM.dir/rda5807.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_stdio_usb/include/pico/stdio_usb.h
 CMakeFiles/picoFM.dir/rda5807.c.obj: hdr.h
+CMakeFiles/picoFM.dir/rda5807.c.obj: quadrature_encoder.pio.h
 CMakeFiles/picoFM.dir/rda5807.c.obj: rda5807.c
 CMakeFiles/picoFM.dir/rda5807.c.obj: rda5807.h
 CMakeFiles/picoFM.dir/rda5807.c.obj: ssd1306.h
@@ -2822,6 +2827,7 @@ CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/
 CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_stdio_uart/include/pico/stdio_uart.h
 CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_stdio_usb/include/pico/stdio_usb.h
 CMakeFiles/picoFM.dir/ssd1306.c.obj: hdr.h
+CMakeFiles/picoFM.dir/ssd1306.c.obj: quadrature_encoder.pio.h
 CMakeFiles/picoFM.dir/ssd1306.c.obj: ssd1306.c
 CMakeFiles/picoFM.dir/ssd1306.c.obj: ssd1306.h
 CMakeFiles/picoFM.dir/ssd1306.c.obj: ws2812.pio.h
