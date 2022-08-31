@@ -422,6 +422,10 @@ hardware/uart.h
 pico/stdio.h
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_stdio_usb/include/pico/pico/stdio.h
 
+/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_unique_id/include/pico/unique_id.h
+pico.h
+/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_unique_id/include/pico/pico.h
+
 /home/alarm/eclipse-workspace-arm/picoFM/UC1609C.h
 hdr.h
 /home/alarm/eclipse-workspace-arm/picoFM/hdr.h
@@ -491,10 +495,8 @@ hardware/clocks.h
 /home/alarm/eclipse-workspace-arm/picoFM/hardware/clocks.h
 ws2812.pio.h
 /home/alarm/eclipse-workspace-arm/picoFM/ws2812.pio.h
-hardware/timer.h
-/home/alarm/eclipse-workspace-arm/picoFM/hardware/timer.h
-quadrature_encoder.pio.h
-/home/alarm/eclipse-workspace-arm/picoFM/quadrature_encoder.pio.h
+pico/unique_id.h
+/home/alarm/eclipse-workspace-arm/picoFM/pico/unique_id.h
 ssd1306.h
 /home/alarm/eclipse-workspace-arm/picoFM/ssd1306.h
 
@@ -515,14 +517,6 @@ fonts.h
 /home/alarm/eclipse-workspace-arm/picoFM/fonts.h
 UC1609C.h
 /home/alarm/eclipse-workspace-arm/picoFM/UC1609C.h
-
-/home/alarm/eclipse-workspace-arm/picoFM/quadrature_encoder.pio.h
-hardware/pio.h
-/home/alarm/eclipse-workspace-arm/picoFM/hardware/pio.h
-hardware/clocks.h
-/home/alarm/eclipse-workspace-arm/picoFM/hardware/clocks.h
-hardware/gpio.h
-/home/alarm/eclipse-workspace-arm/picoFM/hardware/gpio.h
 
 /home/alarm/eclipse-workspace-arm/picoFM/rda5807.h
 hdr.h

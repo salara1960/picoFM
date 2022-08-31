@@ -29,7 +29,7 @@ add_executable(picoFM
 
 
 pico_set_program_name(picoFM "picoFM")
-pico_set_program_version(picoFM "0.1")
+pico_set_program_version(picoFM "2.3")
 
 pico_enable_stdio_uart(picoFM 1)
 pico_enable_stdio_usb(picoFM 1)
@@ -39,9 +39,10 @@ pico_enable_stdio_usb(picoFM 1)
 target_link_libraries(picoFM
         pico_stdlib
         pico_multicore
+        pico_unique_id
+        hardware_gpio
         hardware_i2c
         hardware_dma
-        hardware_timer
         hardware_watchdog
         hardware_uart
         hardware_rtc

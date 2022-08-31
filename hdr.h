@@ -29,8 +29,11 @@
 #include "hardware/clocks.h"
 #include "ws2812.pio.h"
 // for encoder support
-#include "hardware/timer.h"
-#include "quadrature_encoder.pio.h"
+//#include "hardware/timer.h"
+//#include "quadrature_encoder.pio.h"
+//
+#include "pico/unique_id.h"
+
 
 
 //#define SET_SSD1306
@@ -94,17 +97,17 @@
 	#define MAX_SIZE_NAME 31//16//31
 
 	#ifdef SET_ENCODER
-		#define MAX_CMDS  17//16//15//6
+		#define MAX_CMDS  20//17//16//15//6
 	#else
-		#define MAX_CMDS  16//15//6
+		#define MAX_CMDS  17//15//6
 	#endif
 
 #else
 
 	#ifdef SET_ENCODER
-		#define MAX_CMDS   9
+		#define MAX_CMDS   12
 	#else
-		#define MAX_CMDS   8
+		#define MAX_CMDS   10
 	#endif
 
 #endif
