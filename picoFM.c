@@ -450,6 +450,7 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 	volatile int16_t ec_counter = 0;
 	volatile int16_t ec_last_counter = 0;
 	bool fix_freq = false;
+	uint32_t ec_tmr = 0;
 #endif
 
 
@@ -470,7 +471,7 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 
 		if ((gpio == jKEY_PIN) || (gpio == ENC_PIN)) {
 			if (!gpio_get(gpio)) {
-				start_jkey = get_mstmr(_55ms);
+				start_jkey = get_mstmr(_65ms);
 			} else {
 				if (start_jkey) {
 					if (check_mstmr(start_jkey)) {
@@ -489,29 +490,35 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 			}
 		} else if (gpio == ENC_PIN_A) {
 			if (!fix_freq) {
-				if (gpio_get(ENC_PIN_B)) ec_counter++;
-									else ec_counter--;
-				if (ec_last_counter != ec_counter) {
-					int cd = cmdNone;
-					if ((ec_last_counter == MIN_ENC_VALUE) && (ec_counter == MAX_ENC_VALUE)) cd = cmdDecFreq;//dec
-					else
-					if ((ec_last_counter == MAX_ENC_VALUE) && (ec_counter == MIN_ENC_VALUE)) cd = cmdIncFreq;//inc
-					else
-					if (ec_last_counter < ec_counter) cd = cmdIncFreq;//inc
-					else
-					if (ec_last_counter > ec_counter) cd = cmdDecFreq;//dec
-					ec_last_counter = ec_counter;
-					if (cd != cmdNone)	{
-						if (cd == cmdIncFreq) {
-							newFreq = Freq + allSteps[Step].freq;
-						} else {
-							newFreq = Freq - allSteps[Step].freq;
+				//if (ec_tmr) {
+					if (check_mstmr(ec_tmr)) {
+						//ec_tmr = 0;
+						if (gpio_get(ENC_PIN_B)) ec_counter++;
+											else ec_counter--;
+						if (ec_last_counter != ec_counter) {
+							int cd = cmdNone;
+							if ((ec_last_counter == MIN_ENC_VALUE) && (ec_counter == MAX_ENC_VALUE)) cd = cmdDecFreq;//dec
+							else
+							if ((ec_last_counter == MAX_ENC_VALUE) && (ec_counter == MIN_ENC_VALUE)) cd = cmdIncFreq;//inc
+							else
+							if (ec_last_counter < ec_counter) cd = cmdIncFreq;//inc
+							else
+							if (ec_last_counter > ec_counter) cd = cmdDecFreq;//dec
+							ec_last_counter = ec_counter;
+							if (cd != cmdNone)	{
+								if (cd == cmdIncFreq) {
+									newFreq = Freq + allSteps[Step].freq;
+								} else {
+									newFreq = Freq - allSteps[Step].freq;
+								}
+								evt_t e = {cmdFreq, 0};
+								memcpy(&e.attr, &newFreq, sizeof(e.attr));
+								if (!queue_try_add(&evt_fifo, &e)) devError |= devQue;
+								ec_tmr = get_mstmr(_150ms);
+							}
 						}
-						evt_t e = {cmdFreq, 0};
-						memcpy(&e.attr, &newFreq, sizeof(e.attr));
-						if (!queue_try_add(&evt_fifo, &e)) devError |= devQue;
 					}
-				}
+				//}
 			}
 		}
 	}
@@ -631,13 +638,12 @@ void showCfg()
 const char *nameStation(float fr, int8_t *ind)
 {
 int8_t ik = -1;
-//uint32_t fin = fr * 10;
-//uint32_t fcon;
+uint32_t fin = fr * 10;
+uint32_t fcon;
 
 	for (int8_t i = 0; i < MAX_LIST; i++) {
-		//fcon = list[i].freq * 10;
-		//if (fcon == fin) {
-		if (list[i].freq == fr) {
+		fcon = list[i].freq * 10;
+		if (fcon == fin) {
 			ik = i;
 			break;
 		}
@@ -1158,7 +1164,7 @@ int main() {
     }
     //
     Report(0,"\n");
-    Report(1, "Start picoRadio app %s (BoardID:%s temp:%.02f C)\n", ver, tmp, temperature);//uart_puts(UART_ID, "Hello, UART!\n");
+    Report(1, "Start picoRadio app %s (BoardID:%s temp:%.02f deg.C)\n", ver, tmp, temperature);//uart_puts(UART_ID, "Hello, UART!\n");
 
     //----------------- Initialize queue for events ----------------------
     queue_init(&evt_fifo, sizeof(evt_t), EVT_FIFO_LENGTH);
@@ -1185,6 +1191,7 @@ int main() {
         gpio_pull_up(ENC_PIN_B);
 
         bool prnFixFreq = false;
+        ec_tmr = get_mstmr(_500ms);
 #endif
 
 
@@ -1349,9 +1356,9 @@ int main() {
     				case cmdTemp:
     					adc_select_input(4);
     					temperature = read_onboard_temperature('C');
-    					Report(1, "[que:%u] onchip temperature:%.02f C\n", queCnt, temperature);
+    					Report(1, "[que:%u] onchip temperature:%.02f deg.C\n", queCnt, temperature);
 #ifdef SET_LCD_UC
-    					sprintf(stz, "Onchip temperature:%.02f C", temperature);
+    					sprintf(stz, "Onchip temperature:%.02f deg.C", temperature);
     					mkLineCenter(stz, mfnt->FontWidth);
     					UC1609C_Print(1, line5, stz, mfnt, 0, FOREGROUND);
     					UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
