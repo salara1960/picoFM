@@ -21,6 +21,7 @@ enum {
 	cmdEpoch,
 	cmdVer,
 	cmdErr,
+	cmdClr,
 	cmdUart,
 	cmdMute,
 	cmdSec,
@@ -84,11 +85,12 @@ enum {
 //const char *ver = "Ver.2.1 28.08.22 multicore";
 //const char *ver = "Ver.2.2 29.08.22 multicore";
 //const char *ver = "Ver.2.3 30.08.22 multicore";// add features : read boardID & read temperature sensor on chip
-const char *ver = "Ver.2.4 31.08.22 multicore";// support encoder EC11 !!!
+//const char *ver = "Ver.2.4 31.08.22 multicore";// support encoder EC11 !!!
+const char *ver = "Ver.2.4.1 31.08.22 multicore";// set system clock to 48MHz !
 
 
 
-volatile static uint32_t epoch = 1661949985;//1661902365;//1661897825;//1661792625;
+volatile static uint32_t epoch = 1661990305;//1661949985;//1661902365;//1661897825;//1661792625;
 //1661767566;//1661726088;//1661699652;//1661684619;//1661641164;//1661614899;//1661536565;
 //1661463575;//1661459555;//1661371110;//1661344350;//1661285299;//1661258255;//1661193099;//1661096209;
 //1661004270;//1660945885;//1660743445;//1660736830;//1660731354;//1660684399;
@@ -111,6 +113,7 @@ const char *s_cmds[MAX_CMDS] = {
 	"epoch:",
 	"ver",
 	"input_err",
+	"clr",
 	"uart",
 	"mute",
 	"sec",
@@ -834,6 +837,7 @@ void uart_rx_callback()
         					case cmdRestart: //"restart" -> restart = 1;
         					case cmdUart:    //"uart" on/off
         					case cmdMute:    //"mute"
+        					case cmdClr:     //"clr"
         					case cmdTemp:    //"temp"
         						evt.cmd = i;
         					break;
@@ -1072,8 +1076,32 @@ float read_onboard_temperature(const char unit)
 
     return -1.0f;
 }
+//--------------------------------------------------------------------
+void show_clocks()
+{
+	uint f_pll_sys = frequency_count_khz(CLOCKS_FC0_SRC_VALUE_PLL_SYS_CLKSRC_PRIMARY);
+	uint f_pll_usb = frequency_count_khz(CLOCKS_FC0_SRC_VALUE_PLL_USB_CLKSRC_PRIMARY);
+	uint f_rosc = frequency_count_khz(CLOCKS_FC0_SRC_VALUE_ROSC_CLKSRC);
+	uint f_clk_sys = frequency_count_khz(CLOCKS_FC0_SRC_VALUE_CLK_SYS);
+	uint f_clk_peri = frequency_count_khz(CLOCKS_FC0_SRC_VALUE_CLK_PERI);
+	uint f_clk_usb = frequency_count_khz(CLOCKS_FC0_SRC_VALUE_CLK_USB);
+	uint f_clk_adc = frequency_count_khz(CLOCKS_FC0_SRC_VALUE_CLK_ADC);
+	uint f_clk_rtc = frequency_count_khz(CLOCKS_FC0_SRC_VALUE_CLK_RTC);
+	Report(1, "All clocks are set to:\n"
+			  "\tpll_sys : %d kHz\n"
+			  "\tpll_usb : %d kHz\n"
+			  "\trosc    : %d kHz\n"
+			  "\tclk_sys : %d kHz\n"
+			  "\tclk_peri: %d kHz\n"
+			  "\tclk_usb : %d kHz\n"
+			  "\tclk_adc : %d kHz\n"
+			  "\tclk_rtc : %d kHz\n",
+			  f_pll_sys, f_pll_usb, f_rosc, f_clk_sys, f_clk_peri, f_clk_usb, f_clk_adc, f_clk_rtc);
+}
 //------------------------------------------------------------------------------------------
 int main() {
+
+	set_sys_clock_48mhz();
 
     stdio_init_all();
 
@@ -1133,8 +1161,14 @@ int main() {
     irq_set_exclusive_handler(UART_IRQ, uart_rx_callback);
     irq_set_enabled(UART_IRQ, true);
     uart_set_irq_enables(UART_ID, true, false);
-    //--------------------------------------------------------------------
 
+    //------------------- Initialize RTC module --------------------------
+    rtc_init();
+    sleep_ms(250);
+    set_sec(epoch + 1);
+    sleep_ms(250);
+
+    //--------------------------------------------------------------------
 #ifdef SET_WITH_DMA
     iniDMA();
 #endif
@@ -1149,11 +1183,6 @@ int main() {
     gpio_pull_up(I2C_SDA_PIN);
     gpio_pull_up(I2C_SCL_PIN);
 
-    //------------------- Initialize RTC module --------------------------
-    rtc_init();
-    sleep_ms(250);
-    set_sec(epoch + 1);
-    sleep_ms(250);
     //--------------------------------------------------------------------
 
     pico_unique_board_id_t board_id;
@@ -1162,9 +1191,13 @@ int main() {
     for (int8_t i = 0; i < PICO_UNIQUE_BOARD_ID_SIZE_BYTES; ++i) {
     	sprintf(tmp+strlen(tmp), "%02X", board_id.id[i]);
     }
-    //
+
+    //--------------------------------------------------------------------
     Report(0,"\n");
     Report(1, "Start picoRadio app %s (BoardID:%s temp:%.02f deg.C)\n", ver, tmp, temperature);//uart_puts(UART_ID, "Hello, UART!\n");
+    //--------------------------------------------------------------------
+
+    show_clocks();
 
     //----------------- Initialize queue for events ----------------------
     queue_init(&evt_fifo, sizeof(evt_t), EVT_FIFO_LENGTH);
@@ -1410,6 +1443,10 @@ int main() {
     						strcat(tmp, "Disable");
     					Report(1, "%s uart\n", tmp);
     					if (uart_enable) uart_enable = false; else uart_enable = true;
+    				break;
+    				case cmdClr:// clear devError and ERR_LED OFF
+    					devError = 0;
+    					errLedOn(false);
     				break;
 #ifdef SET_RDA
     				case cmdCfg:
@@ -1892,7 +1929,7 @@ int main() {
     		if (check_mstmr(cmd_tmr)) {
     			cmd_tmr = 0;
     			//gpio_put(LED_CMD_PIN, 0);//LED_CMD_PIN OFF
-    			for (int8_t i = 0; i < 25; i++) put_pixel(0);
+    			for (int8_t i = 0; i < 16; i++) put_pixel(0);
     		}
     	}
 #endif

@@ -97,7 +97,7 @@
 	#define MAX_SIZE_NAME 31//16//31
 
 	#ifdef SET_ENCODER
-		#define MAX_CMDS  20//17//16//15//6
+		#define MAX_CMDS  21//20//17//16//15//6
 	#else
 		#define MAX_CMDS  17//15//6
 	#endif
