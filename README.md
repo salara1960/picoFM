@@ -1,4 +1,4 @@
-M radio based on Raspberry Pi Pico + RDA5807 + UC1609C + NS8002 + TL1838 + KY-023 + EC11 encoder
+FM radio based on Raspberry Pi Pico + RDA5807 + UC1609C + NS8002 + TL1838 + KY-023 + EC11 encoder
 
 #################################################
 #
@@ -11,12 +11,13 @@ M radio based on Raspberry Pi Pico + RDA5807 + UC1609C + NS8002 + TL1838 + KY-02
 
 ```
 * RDA5807, RF receiver FM
-* Raspberry Pi Pico (Waveshare board)
+* Raspberry Pi Pico (Waveshare-Zero board)
 * UC1609C LCD display 192x64
-* NS8002 chip - audio power amplifier
+* PAM8003 chip - 5W Class-D stereo audio amplifier
 * speaker 8 Om 3 W
 * KY-023 - joystick, control device
 * TL1838 Infrared Receiver
+* EC11 - rotary encoder
 ```
 
 
@@ -32,14 +33,14 @@ M radio based on Raspberry Pi Pico + RDA5807 + UC1609C + NS8002 + TL1838 + KY-02
 
 
 # Функционал:
-* Устройство предназначено для прослушивания радио станций ФМ диапазона (65 - 108 Мгц),
-  а также приема и отображения информации RDS от радио станций FM диапазона.
+* Устройство предназначено для прослушивания радиостанций ФМ диапазона (65 - 108 Мгц),
+  а также приема и отображения информации RDS от радиостанций FM диапазона.
 * ПО построено с использованием программных средств SDK 'pico-sdk'.
-  События обслуживаются в основном цикле программы. Формируются события в callBack-функциях
+  События обслуживаются в основном цикле программы. Формируются события, как правило, в callBack-функциях
   по завершении прерываний от используемых модулей микроконтроллера.
 * Устройство инициализирует некоторые интерфейсы микроконтроллера :
   - ADC : Chan0(GP26) и Chan1(GP27) аналогово-цифровой преобразователь (измеряет напряжение на аналоговых выходах джойстика).
-  - GPIO : подключены три светодиода : GP29 - секундный тик, GP8 - индикатор ошибки на устройстве,
+  - GPIO : подключены два светодиода : GP29 - секундный тик, GP8 - индикатор ошибки на устройстве,
            GP4,GP5,GP6,GP7 (DC,RST,SCK,MOSI) - пины интерфейса SPI0, GP14 - пин приема данных от
            инфракрасного датчика TL1838, GP15 - пин обслуживает кнопку джойстка в режиме прерывания,
            GP10,GP11,GP13 - обслуживают энкодер EC11 в режиме прерывания.
@@ -54,29 +55,40 @@ M radio based on Raspberry Pi Pico + RDA5807 + UC1609C + NS8002 + TL1838 + KY-02
 
 
 ```
-28.08.22 15:14:14 | Start picoRadio application Ver.2.1 28.08.22 multicore
-28.08.22 15:14:14 | Create queue for 16 events OK
-28.08.22 15:14:14 | Start timer with 10 ms period.
-28.08.22 15:14:15 | RDA5807 cID:0x58
-28.08.22 15:14:16 | Start 'joystik_task' function on Core1
-28.08.22 15:14:16 | [que:2] RDS monitoring start
-28.08.22 15:14:16 | [que:1] set new Freq to 95.100 МГц 'VestiFM' Chan:191 Volume:6
+31.08.22 23:58:27 | Start picoRadio app Ver.2.4.1 31.08.22 multicore (BoardID:0xE66138935F374B29 temp:33.69 deg.C)
+31.08.22 23:58:27 | All clocks are set to:
+        pll_sys : 0 kHz
+        pll_usb : 48000 kHz
+        rosc    : 5731 kHz
+        clk_sys : 48000 kHz
+        clk_peri: 48000 kHz
+        clk_usb : 48000 kHz
+        clk_adc : 48000 kHz
+        clk_rtc : 47 kHz
+31.08.22 23:58:27 | Create queue for 16 events OK
+31.08.22 23:58:27 | Start timer with 5 ms period.
+31.08.22 23:58:29 | RDA5807 cID:0x58
+31.08.22 23:58:29 | Start 'joystik_task' function on Core1
+31.08.22 23:58:29 | [que:3] RDS monitoring start
+31.08.22 23:58:29 | [que:2] set new Freq to 95.100 МГц 'Вести ФМ' Chan:191 Volume:6 idx=5
+31.08.22 23:58:29 | [que:1] Freq change deny
 ```
 
 * Через USART1 можно отправлять команды на устройство, например :
 
 ```
 ver
-24.08.22 12:33:11 | [que:1] cmd:3 attr:0
-24.08.22 12:33:11 | Ver.0.8.1 24.08.22
+1.09.22 00:01:48 | [que:1] cmd:3 attr:0
+01.09.22 00:01:48 | Ver.2.4.1 31.08.22 multicore
 
 help
-24.08.22 12:33:44 | [que:1] cmd:0 attr:0
+01.09.22 00:02:21 | [que:1] cmd:0 attr:0
         help
         restart
         epoch:
         ver
         input_err
+        clr
         uart
         mute
         sec
@@ -93,80 +105,95 @@ help
         list
         rds
 
-epoch:1661351278
-24.08.22 12:34:32 | [que:1] cmd:2 attr:1661351278
+epoch:1662032931
+01.09.22 11:48:52 | [que:1] cmd:2 attr:1662032931
 
 mute
-24.08.22 14:28:36 | [que:1] cmd:6 attr:0
-24.08.22 14:28:36 | [que:1] set Mute to 1
+01.09.22 11:49:29 | [que:1] cmd:7 attr:0
+01.09.22 11:49:29 | [que:1] set Mute to 1
 mute
-24.08.22 14:28:45 | [que:1] cmd:6 attr:0
-24.08.22 14:28:45 | [que:1] set Mute to 0
+01.09.22 11:49:31 | [que:1] cmd:7 attr:0
+01.09.22 11:49:31 | [que:1] set Mute to 0
 
 scan
-24.08.22 14:29:26 | [que:1] set new Freq to 95.500 МГц RetroFM (Chan:195) with volume 6
+01.09.22 11:50:35 | [que:1] set new Freq to 95.500 МГц Ретро ФМ Chan:195 Volume:6 idx=6
 
 list
-24.08.22 14:30:15 | Band = newBand = 2 -> goto set newFreq to 96.300 (up = 1)
-24.08.22 14:30:15 | [que:1] set new Freq to 96.300 МГц 'RusRadio' (Chan:203) with volume 6
+01.09.22 11:51:15 | Band = newBand = 2 -> goto set newFreq to 95.500 (up = 1)
+01.09.22 11:51:15 | [que:1] set new Freq to 95.500 МГц 'Ретро ФМ' Chan:195 Volume:6 idx=6
 
 vol:up
-24.08.22 14:31:11 | [que:1] set new Volume to 7
+01.09.22 11:51:48 | [que:1] set new Volume to 7
 vol:down
-24.08.22 14:31:17 | [que:1] set new Volume to 6
+01.09.22 11:51:53 | [que:1] set new Volume to 6
 
 freq:105.9
-24.08.22 14:32:07 | [que:1] set new Freq to 105.900 МГц 'RoadRadio' (Chan:299) with volume 6
+01.09.22 11:52:23 | [que:1] set new Freq to 105.900 МГц 'Дорожное Радио' Chan:299 Volume:6 idx=23
 
 rds
-24.08.22 14:32:36 | [que:1] RDS monitoring stop
+01.09.22 11:52:47 | [que:1] RDS monitoring stop
 rds
-24.08.22 14:32:39 | [que:1] RDS monitoring start
+01.09.22 11:52:50 | [que:1] RDS monitoring start
 
 bass:1
-24.08.22 14:33:47 | [que:1] set new BassBoost to 1
+01.09.22 11:53:17 | [que:1] set new BassBoost to 1
 bass:0
-24.08.22 14:33:53 | [que:1] set new BassBoost to 0
+01.09.22 11:53:21 | [que:1] set new BassBoost to 0
 
 cfg
-3:68.5:Majak
-3:72.1:Shanson
-2:92.8:RadioDFM
-2:93.6:Radio7
-2:94.0:ComedyRadio
-2:95.1:VestiFM
-2:95.5:RetroFM
-2:96.3:RusRadio
-2:97.0:RadioVera
-2:97.7:SilverRain
-2:98.5:RadioEnegry
-2:99.5:RadioStar
-2:100.1:AutoRadio
-2:100.6:RusContry
-2:100.9:MonteCarlo
-2:101.3:OurRadio
-2:101.8:BusinessFM
-2:102.5:Majak
-2:102.9:LoveRadio
-2:103.4:Studio21
-2:103.9:RadioRussian
-2:104.5:Europe+
-2:105.2:Baltic+
-2:105.9:RoadRadio
-2:106.4:RadioMaxim
-2:107.2:RadioKP
+3:68.5:Маяк
+3:72.1:Шансон
+2:92.8:Радио DFM
+2:93.6:Радио 7
+2:94.0:Комеди Радио
+2:95.1:Вести ФМ
+2:95.5:Ретро ФМ
+2:96.3:Русское Радио
+2:97.0:Радио Вера
+2:97.7:Серебр.Дождь
+2:98.5:Радио Энергия
+2:99.5:Радио Звезда
+2:100.1:Авто Радио
+2:100.6:Русский Край
+2:100.9:Монте-Карло
+2:101.3:Наше Радио
+2:101.8:Бизнес ФМ
+2:102.5:Маяк
+2:102.9:Ўбимое Радио
+2:103.4:Студия 21
+2:103.9:Радио России
+2:104.5:Европа Плюс
+2:105.2:Балтик Плюс
+2:105.9:Дорожное Радио
+2:106.4:Радио Максим
+2:107.2:Радио КП
+
+temp
+01.09.22 11:54:29 | [que:1] onchip temperature:30.88 deg.C
+
+01.09.22 11:55:13 | Band = newBand = 2 -> goto set newFreq to 95.100 (up = 0)
+01.09.22 11:55:13 | [que:1] set new Freq to 95.100 МГц 'Вести ФМ' Chan:191 Volume:5 idx=5
 
 restart
-28.08.22 15:32:24 | [que:1] cmd:1 attr:0
-28.08.22 15:32:24 | Queue released
-28.08.22 15:32:24 | Queue released
-28.08.22 15:32:24 | Timer cancelled... 1
+01.09.22 11:55:52 | [que:1] cmd:1 attr:0
+01.09.22 11:55:52 | Queue released
+001.09.22 11:55:52 | Timer cancelled... 1
 
-28.08.22 15:14:14 | Start picoRadio application Ver.2.1 28.08.22 multicore
-28.08.22 15:14:14 | Create queue for 16 events OK
-28.08.22 15:14:14 | Start timer with 10 ms period.
-28.08.22 15:14:15 | RDA5807 cID:0x58
-28.08.22 15:14:16 | Start 'joystik_task' function on Core1
-28.08.22 15:14:16 | [que:2] RDS monitoring start
-28.08.22 15:14:16 | [que:1] set new Freq to 95.100 МГц 'VestiFM' Chan:191 Volume:6
+31.08.22 23:58:27 | Start picoRadio app Ver.2.4.1 31.08.22 multicore (BoardID:0xE66138935F374B29 temp:33.69 deg.C)
+31.08.22 23:58:27 | All clocks are set to:
+        pll_sys : 0 kHz
+        pll_usb : 48000 kHz
+        rosc    : 5726 kHz
+        clk_sys : 48000 kHz
+        clk_peri: 48000 kHz
+        clk_usb : 48000 kHz
+        clk_adc : 48000 kHz
+        clk_rtc : 47 kHz
+31.08.22 23:58:27 | Create queue for 16 events OK
+31.08.22 23:58:27 | Start timer with 5 ms period.
+31.08.22 23:58:29 | RDA5807 cID:0x58
+31.08.22 23:58:29 | Start 'joystik_task' function on Core1
+31.08.22 23:58:29 | [que:3] RDS monitoring start
+31.08.22 23:58:29 | [que:2] set new Freq to 95.100 МГц 'Вести ФМ' Chan:191 Volume:6 idx=5
+31.08.22 23:58:29 | [que:1] Freq change deny
 ```
