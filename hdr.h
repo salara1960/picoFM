@@ -63,7 +63,10 @@
 
 //#define SET_IR
 #define SET_JOYSTIC
-#define SET_ENCODER
+//#define SET_ENCODER
+//#define SET_KBD
+#define SET_KBD_MUX
+
 
 //#define SET_WITH_DMA
 #define RUS_SUPPORT
@@ -88,6 +91,8 @@
 #ifdef SET_RDA
 
 	//#define SET_RDA_FP
+	#define MIN_VOLUME  0
+	#define MAX_VOLUME 15
 
 	#define portRDA  portI2C
 
@@ -99,7 +104,7 @@
 	#ifdef SET_ENCODER
 		#define MAX_CMDS  21//20//17//16//15//6
 	#else
-		#define MAX_CMDS  17//15//6
+		#define MAX_CMDS  18//15//6
 	#endif
 
 #else

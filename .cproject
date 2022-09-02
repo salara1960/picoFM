@@ -194,6 +194,8 @@
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_timer/include"/>
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_gpio/include"/>
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_clocks"/>
+									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include"/>
+									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include"/>
 									<listOptionValue builtIn="false" value="../larm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_timer"/>
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pico-sdk/src/common/pico_stdlib/include"/>
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pico-sdk/src/common/pico_base/include"/>

@@ -86,11 +86,15 @@ enum {
 //const char *ver = "Ver.2.2 29.08.22 multicore";
 //const char *ver = "Ver.2.3 30.08.22 multicore";// add features : read boardID & read temperature sensor on chip
 //const char *ver = "Ver.2.4 31.08.22 multicore";// support encoder EC11 !!!
-const char *ver = "Ver.2.4.1 31.08.22 multicore";// set system clock to 48MHz !
+//const char *ver = "Ver.2.4.1 31.08.22 multicore";// set system clock to 48MHz !
+//const char *ver = "Ver.2.4.2 01.09.22 multicore";
+//const char *ver = "Ver.2.4.3 02.09.22 multicore";//minor changes for keys pressed
+const char *ver = "Ver.2.5 02.09.22 mux_kbd";//add mux_kbd with 6 button
 
 
 
-volatile static uint32_t epoch = 1661990305;//1661949985;//1661902365;//1661897825;//1661792625;
+volatile static uint32_t epoch = 1662156375;//1662151345;//1662114275;//1662038845;
+//1661990305;//1661949985;//1661902365;//1661897825;//1661792625;
 //1661767566;//1661726088;//1661699652;//1661684619;//1661641164;//1661614899;//1661536565;
 //1661463575;//1661459555;//1661371110;//1661344350;//1661285299;//1661258255;//1661193099;//1661096209;
 //1661004270;//1660945885;//1660743445;//1660736830;//1660731354;//1660684399;
@@ -412,7 +416,6 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 	adc_chan_t chanX;
 	adc_chan_t chanY;
 
-	//uint32_t start_jkey = 0;
 	bool joy = false;
 #endif
 
@@ -443,9 +446,9 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 
 
 #ifdef SET_ENCODER
-	#define ENC_PIN 12
-	#define ENC_PIN_A 10
-	#define ENC_PIN_B 11
+	#define ENC_PIN_A  9
+	#define ENC_PIN_B 10
+	#define ENC_PIN   11
 
 	const int16_t MIN_ENC_VALUE = -16383;
 	const int16_t MAX_ENC_VALUE = 16383;
@@ -454,6 +457,31 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 	volatile int16_t ec_last_counter = 0;
 	bool fix_freq = false;
 	uint32_t ec_tmr = 0;
+#endif
+
+#ifdef SET_KBD
+	#define LKEY_PIN 14
+	#define VKEY_PIN 13
+	#define RKEY_PIN 12
+#endif
+#ifdef SET_KBD_MUX
+	#define MUX_S0_PIN   9
+	#define MUX_S1_PIN  10
+	#define MUX_S2_PIN  11
+	#define MUX_KEY_PIN 12
+	#define TOTAL_MUX    8
+enum {//GP9,GP10,GP11
+	listMinus = 0,
+	listPlus,
+	scanMinus,
+	scanPlus,
+	volMinus,
+	volPlus,
+	muteKey,
+	rstKey,
+	chanNone = 255
+};
+	volatile uint8_t muxNum = chanNone;
 #endif
 
 
@@ -468,62 +496,145 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 	void gpio_callback(uint gpio, uint32_t events)
 	{
 		if (!que_start) {
+#ifdef SET_ENCODER
 			ec_counter = ec_last_counter = 0;
+#endif
 			return;
 		}
+#ifdef SET_KBD_MUX
+		uint8_t chan = muxNum;
+#endif
 
-		if ((gpio == jKEY_PIN) || (gpio == ENC_PIN)) {
+		if ((gpio == jKEY_PIN)
+#ifdef SET_KBD
+				|| (gpio == LKEY_PIN)
+					|| (gpio == VKEY_PIN)
+					     ||	(gpio == RKEY_PIN)
+#endif
+#ifdef SET_KBD_MUX
+						 || (gpio == MUX_KEY_PIN)
+#endif
+#ifdef SET_ENCODER
+						 	 || (gpio == ENC_PIN)
+#endif
+							) {
 			if (!gpio_get(gpio)) {
-				start_jkey = get_mstmr(_65ms);
-			} else {
-				if (start_jkey) {
-					if (check_mstmr(start_jkey)) {
-						start_jkey = 0;
-						cmdLedOn();
-						evt_t e;
-						if (gpio == jKEY_PIN) {
+				//
+				if (check_mstmr(start_jkey)) {
+					cmdLedOn();
+					evt_t e = {cmdNone, 0};
+					switch (gpio) {
+						case jKEY_PIN:
 							seek_up = 1;
 							e.cmd = cmdScan;
-						} else {
+						break;
+#ifdef SET_ENCODER
+						case ENC_PIN:
 							e.cmd = cmdEnc;
+						break;
+#endif
+#ifdef SET_KBD
+						case LKEY_PIN:
+							seek_up = 0;
+							e.cmd = cmdList;
+						break;
+						case RKEY_PIN:
+							seek_up = 1;
+							e.cmd = cmdList;
+						break;
+						case VKEY_PIN:
+							newVolume = (Volume + 1) & 0xf;
+							if (!newVolume) newVolume++;
+							e.cmd = cmdVol;
+						break;
+#endif
+#ifdef SET_KBD_MUX
+						case MUX_KEY_PIN:
+						{
+							switch (chan) {
+								case listMinus:
+									seek_up = 0;
+									e.cmd = cmdList;
+								break;
+								case listPlus:
+									seek_up = 1;
+									e.cmd = cmdList;
+								break;
+								case scanMinus:
+									seek_up = 0;
+									e.cmd = cmdScan;
+								break;
+								case scanPlus:
+									seek_up = 1;
+									e.cmd = cmdScan;
+								break;
+								case volMinus:
+									newVolume = Volume - 1;
+									if (newVolume <= MAX_VOLUME) {
+										e.cmd = cmdVol;
+										e.attr = newVolume;
+									}
+								break;
+								case volPlus:
+									newVolume = Volume + 1;
+									if (newVolume <= MAX_VOLUME) {
+										e.cmd = cmdVol;
+										e.attr = newVolume;
+									}
+								break;
+								case muteKey:
+									e.cmd = cmdMute;
+								break;
+								case rstKey:
+									e.cmd = cmdRestart;
+								break;
+							}
 						}
+						break;
+#endif
+					}
+					if (e.cmd != cmdNone)
 						if (!queue_try_add(&evt_fifo, &e)) devError |= devQue;
+					start_jkey = get_mstmr(_75ms);//_40ms
+				}
+				//
+			} else {
+				start_jkey = get_mstmr(_75ms);//_40ms
+			}
+		}
+#ifdef SET_ENCODER
+		else
+			if (gpio == ENC_PIN_A) {
+			if (!fix_freq) {
+				if (check_mstmr(ec_tmr)) {
+					if (gpio_get(ENC_PIN_B)) ec_counter++;
+										else ec_counter--;
+					if (ec_last_counter != ec_counter) {
+						int cd = cmdNone;
+						if ((ec_last_counter == MIN_ENC_VALUE) && (ec_counter == MAX_ENC_VALUE)) cd = cmdDecFreq;
+						else
+						if ((ec_last_counter == MAX_ENC_VALUE) && (ec_counter == MIN_ENC_VALUE)) cd = cmdIncFreq;
+						else
+						if (ec_last_counter < ec_counter) cd = cmdIncFreq;
+						else
+						if (ec_last_counter > ec_counter) cd = cmdDecFreq;
+						ec_last_counter = ec_counter;
+						if (cd != cmdNone)	{
+							if (cd == cmdIncFreq) {
+								newFreq = Freq + allSteps[Step].freq;
+							} else {
+								newFreq = Freq - allSteps[Step].freq;
+							}
+							evt_t e = {cmdFreq, 0};
+							memcpy(&e.attr, &newFreq, sizeof(e.attr));
+							if (!queue_try_add(&evt_fifo, &e)) devError |= devQue;
+							ec_tmr = get_mstmr(_250ms);
+						}
 					}
 				}
 			}
-		} else if (gpio == ENC_PIN_A) {
-			if (!fix_freq) {
-				//if (ec_tmr) {
-					if (check_mstmr(ec_tmr)) {
-						//ec_tmr = 0;
-						if (gpio_get(ENC_PIN_B)) ec_counter++;
-											else ec_counter--;
-						if (ec_last_counter != ec_counter) {
-							int cd = cmdNone;
-							if ((ec_last_counter == MIN_ENC_VALUE) && (ec_counter == MAX_ENC_VALUE)) cd = cmdDecFreq;//dec
-							else
-							if ((ec_last_counter == MAX_ENC_VALUE) && (ec_counter == MIN_ENC_VALUE)) cd = cmdIncFreq;//inc
-							else
-							if (ec_last_counter < ec_counter) cd = cmdIncFreq;//inc
-							else
-							if (ec_last_counter > ec_counter) cd = cmdDecFreq;//dec
-							ec_last_counter = ec_counter;
-							if (cd != cmdNone)	{
-								if (cd == cmdIncFreq) {
-									newFreq = Freq + allSteps[Step].freq;
-								} else {
-									newFreq = Freq - allSteps[Step].freq;
-								}
-								evt_t e = {cmdFreq, 0};
-								memcpy(&e.attr, &newFreq, sizeof(e.attr));
-								if (!queue_try_add(&evt_fifo, &e)) devError |= devQue;
-								ec_tmr = get_mstmr(_150ms);
-							}
-						}
-					}
-				//}
-			}
 		}
+#endif
 	}
 #endif
 	//----------------------------------------------------------------------------------------
@@ -564,7 +675,7 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 
 			if (check_mstmr(jtmr)) {
 
-				jtmr = get_mstmr(_20ms);
+				jtmr = get_mstmr(_25ms);
 
 				adc_select_input(0);
 				valX = adc_read();
@@ -582,7 +693,7 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 						ev.cmd = cmdList;
 						ev.attr = seek_up;
 						if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
-						jtmr = get_mstmr(_120ms);
+						jtmr = get_mstmr(_175ms);
 					}
 				}
 				//
@@ -610,7 +721,7 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 							ev.cmd = cmdVol;
 							ev.attr = newVolume;
 							if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
-							jtmr = get_mstmr(_120ms);
+							jtmr = get_mstmr(_175ms);
 						}
 					}
 				}
@@ -771,12 +882,24 @@ bool repeating_timer_callback(struct repeating_timer *t)
 
 	if (!que_start) return true;
 
-#if defined(SET_ENCODER) || defined(SET_JOYSTIC) || defined(SET_IR)
+#if defined(SET_ENCODER) || defined(SET_JOYSTIC) || defined(SET_IR) || defined(SET_KBD_MUX)
 	if (cmd_tmr) {
-		put_pixel(rand() % 10 ? 0 : 0xffff0000);//0xffffffff);//LED_CMD_PIN active
+		put_pixel(rand() % 10 ? 0 : 0xffff0000);
 	}
 #endif
 
+#ifdef SET_KBD_MUX
+	if (!(get_msCounter() % _50ms)) {
+		muxNum++;
+		if (muxNum >= TOTAL_MUX) muxNum = 0;
+		uint32_t reg = 1ul << MUX_S0_PIN;
+		for (uint8_t i = 0; i < 3; i++) {
+			if ((muxNum>>i) & 1) gpio_set_mask(reg);
+							else gpio_clr_mask(reg);
+			reg <<= 1;
+		}
+	}
+#endif
 #ifdef SET_ENCODER
 	if (!(get_msCounter() % _100ms)) {
 		/*new_value = quadrature_encoder_get_count(pioe, sme);
@@ -884,10 +1007,12 @@ void uart_rx_callback()
         							} else {
         								nv = (uint8_t)atol(uk);
         							}
-        							if ((nv >= 0) && (nv <= 15)) {
+        							nv &= 0xf;
+        							//if ((nv >= 0) && (nv <= 15)) {
         								newVolume = nv;
         								evt.cmd = i;
-        							}
+        								evt.attr = newVolume;
+        							//}
         						}
         					break;
 	#ifdef SET_RDS
@@ -1111,16 +1236,55 @@ int main() {
     gpio_init(ERR_PIN);
     gpio_set_dir(ERR_PIN, GPIO_OUT);
 
-#if defined(SET_JOYSTIC) || defined(SET_ENCODER)
+#ifdef SET_JOYSTIC
     gpio_init(jKEY_PIN);
     gpio_set_dir(jKEY_PIN, GPIO_IN);
     gpio_pull_up(jKEY_PIN);
-    gpio_set_irq_enabled_with_callback(jKEY_PIN, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+    //gpio_set_irq_enabled_with_callback(jKEY_PIN, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+    gpio_set_irq_enabled_with_callback(jKEY_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
+#endif
+#ifdef SET_ENCODER
     gpio_init(ENC_PIN);
     gpio_set_dir(ENC_PIN, GPIO_IN);
     gpio_pull_up(ENC_PIN);
-    gpio_set_irq_enabled_with_callback(ENC_PIN, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+    gpio_set_irq_enabled_with_callback(ENC_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
 #endif
+
+#ifdef SET_KBD
+    gpio_init(LKEY_PIN); //14
+    gpio_set_dir(LKEY_PIN, GPIO_IN);
+    gpio_pull_up(LKEY_PIN);
+    gpio_set_irq_enabled_with_callback(LKEY_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
+    //
+    gpio_init(VKEY_PIN); //13
+    gpio_set_dir(VKEY_PIN, GPIO_IN);
+    gpio_pull_up(VKEY_PIN);
+    gpio_set_irq_enabled_with_callback(VKEY_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
+    //
+    gpio_init(RKEY_PIN); //12
+    gpio_set_dir(RKEY_PIN, GPIO_IN);
+    gpio_pull_up(RKEY_PIN);
+    gpio_set_irq_enabled_with_callback(RKEY_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
+#endif
+#ifdef SET_KBD_MUX
+    gpio_init(MUX_S0_PIN);//GP9
+    gpio_set_dir(MUX_S0_PIN, GPIO_OUT);
+    gpio_pull_down(MUX_S0_PIN);
+    //
+    gpio_init(MUX_S1_PIN);//GP10
+    gpio_set_dir(MUX_S1_PIN, GPIO_OUT);
+    gpio_pull_down(MUX_S1_PIN);
+    //
+    gpio_init(MUX_S2_PIN);//GP11
+    gpio_set_dir(MUX_S2_PIN, GPIO_OUT);
+    gpio_pull_down(MUX_S2_PIN);
+    //
+    gpio_init(MUX_KEY_PIN);//12
+    gpio_set_dir(MUX_KEY_PIN, GPIO_IN);
+    gpio_pull_up(MUX_KEY_PIN);
+    gpio_set_irq_enabled_with_callback(MUX_KEY_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
+#endif
+
 
 
     adc_init();
@@ -1129,10 +1293,10 @@ int main() {
     float temperature = read_onboard_temperature('C');
 
 
-#if defined(SET_ENCODER) || defined(SET_JOYSTIC) || defined(SET_IR)
+#if defined(SET_ENCODER) || defined(SET_JOYSTIC) || defined(SET_IR) || defined(SET_KBD) || defined(SET_KBD_MUX)
     PIO pio = pio0;
     int sm = 0;
-    ws2812_program_init(pio, sm, pio_add_program(pio, &ws2812_program), LED_CMD_PIN, 800000, true);
+    ws2812_program_init(pio, sm, pio_add_program(pio, &ws2812_program), LED_CMD_PIN, 600000, true);
 #endif
 
 #ifdef SET_IR
@@ -1272,11 +1436,12 @@ int main() {
     	UC1609C_clearDisplay();
     	//
     	int dl = sprintf(tmp, "%s", ver);
-    	if (dl > (UC1609C_WIDTH / mfnt->FontWidth - 1)) {
+    	mkLineCenter(tmp, mfnt->FontWidth);
+    	/*if (dl > (UC1609C_WIDTH / mfnt->FontWidth - 1)) {
     		dl = UC1609C_WIDTH / mfnt->FontWidth - 1;
     		tmp[dl] = '\0';
-    	}
-    	uint16_t x = ((UC1609C_WIDTH - (mfnt->FontWidth * dl)) >> 1);
+    	}*/
+    	uint16_t x = 1;//((UC1609C_WIDTH - (mfnt->FontWidth * dl)) >> 1);
     	UC1609C_Print(x, UC1609C_HEIGHT - mfnt->FontHeight, tmp, mfnt, 0, FOREGROUND);
     	//
     	UC1609C_DrawFilledRectangle(0, 0, UC1609C_WIDTH - 1, hfnt->FontHeight - 1, FOREGROUND);
@@ -1669,11 +1834,12 @@ int main() {
     						if (!tmr_ver) {
     							flag_ver = false;
     							dl = sprintf(tmp, "%s", ver);
-    					    	if (dl > (UC1609C_WIDTH / mfnt->FontWidth - 1)) {
+    							mkLineCenter(tmp, mfnt->FontWidth);
+    					    	/*if (dl > (UC1609C_WIDTH / mfnt->FontWidth - 1)) {
     					    		dl = UC1609C_WIDTH / mfnt->FontWidth - 1;
     					    		tmp[dl] = '\0';
-    					    	}
-    					    	x = ((UC1609C_WIDTH - (mfnt->FontWidth * dl)) >> 1);
+    					    	}*/
+    					    	x = 1;//((UC1609C_WIDTH - (mfnt->FontWidth * dl)) >> 1);
     					    	UC1609C_Print(x, UC1609C_HEIGHT - mfnt->FontHeight, tmp, mfnt, 0, FOREGROUND);
     						}
     					}
@@ -1762,11 +1928,13 @@ int main() {
     						}
     					}
 #endif
+#ifdef SET_ENCODER
     					if (!prnFixFreq) {
     						prnFixFreq = true;
     						ev.cmd = cmdEnc;
     						if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
     					}
+#endif
     				}
     				break;
     				case cmdHelp:
@@ -1929,7 +2097,7 @@ int main() {
     		if (check_mstmr(cmd_tmr)) {
     			cmd_tmr = 0;
     			//gpio_put(LED_CMD_PIN, 0);//LED_CMD_PIN OFF
-    			for (int8_t i = 0; i < 16; i++) put_pixel(0);
+    			for (int8_t i = 0; i < 64; i++) put_pixel(0);
     		}
     	}
 #endif
