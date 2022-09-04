@@ -22,7 +22,6 @@ pico_sdk_init()
 add_executable(picoFM
         picoFM.c
         libs.c
-        ssd1306.c
         rda5807.c
         fonts.c
         UC1609C.c)
@@ -53,9 +52,9 @@ target_link_libraries(picoFM
         hardware_pll
         hardware_clocks
         )
-        
+
 #        //hardware_pio
-        
+
 
 pico_add_extra_outputs(picoFM)
 

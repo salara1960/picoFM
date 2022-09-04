@@ -253,7 +253,6 @@ CMakeFiles/picoFM.dir/UC1609C.c.obj: UC1609C.c
 CMakeFiles/picoFM.dir/UC1609C.c.obj: UC1609C.h
 CMakeFiles/picoFM.dir/UC1609C.c.obj: fonts.h
 CMakeFiles/picoFM.dir/UC1609C.c.obj: hdr.h
-CMakeFiles/picoFM.dir/UC1609C.c.obj: ssd1306.h
 CMakeFiles/picoFM.dir/UC1609C.c.obj: generated/pico_base/pico/config_autogen.h
 CMakeFiles/picoFM.dir/UC1609C.c.obj: generated/pico_base/pico/version.h
 
@@ -332,7 +331,6 @@ CMakeFiles/picoFM.dir/fonts.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp
 CMakeFiles/picoFM.dir/fonts.c.obj: fonts.c
 CMakeFiles/picoFM.dir/fonts.c.obj: fonts.h
 CMakeFiles/picoFM.dir/fonts.c.obj: hdr.h
-CMakeFiles/picoFM.dir/fonts.c.obj: ssd1306.h
 CMakeFiles/picoFM.dir/fonts.c.obj: generated/pico_base/pico/config_autogen.h
 CMakeFiles/picoFM.dir/fonts.c.obj: generated/pico_base/pico/version.h
 
@@ -2531,7 +2529,6 @@ CMakeFiles/picoFM.dir/libs.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2
 CMakeFiles/picoFM.dir/libs.c.obj: hdr.h
 CMakeFiles/picoFM.dir/libs.c.obj: libs.c
 CMakeFiles/picoFM.dir/libs.c.obj: libs.h
-CMakeFiles/picoFM.dir/libs.c.obj: ssd1306.h
 CMakeFiles/picoFM.dir/libs.c.obj: generated/pico_base/pico/config_autogen.h
 CMakeFiles/picoFM.dir/libs.c.obj: generated/pico_base/pico/version.h
 
@@ -2613,7 +2610,6 @@ CMakeFiles/picoFM.dir/picoFM.c.obj: hdr.h
 CMakeFiles/picoFM.dir/picoFM.c.obj: libs.h
 CMakeFiles/picoFM.dir/picoFM.c.obj: picoFM.c
 CMakeFiles/picoFM.dir/picoFM.c.obj: rda5807.h
-CMakeFiles/picoFM.dir/picoFM.c.obj: ssd1306.h
 CMakeFiles/picoFM.dir/picoFM.c.obj: generated/pico_base/pico/config_autogen.h
 CMakeFiles/picoFM.dir/picoFM.c.obj: generated/pico_base/pico/version.h
 
@@ -2692,87 +2688,8 @@ CMakeFiles/picoFM.dir/rda5807.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/
 CMakeFiles/picoFM.dir/rda5807.c.obj: hdr.h
 CMakeFiles/picoFM.dir/rda5807.c.obj: rda5807.c
 CMakeFiles/picoFM.dir/rda5807.c.obj: rda5807.h
-CMakeFiles/picoFM.dir/rda5807.c.obj: ssd1306.h
 CMakeFiles/picoFM.dir/rda5807.c.obj: generated/pico_base/pico/config_autogen.h
 CMakeFiles/picoFM.dir/rda5807.c.obj: generated/pico_base/pico/version.h
-
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/boards/include/boards/pico.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico/assert.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico/config.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico/error.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico/types.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_binary_info/include/pico/binary_info.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_binary_info/include/pico/binary_info/code.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_binary_info/include/pico/binary_info/defs.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_binary_info/include/pico/binary_info/structure.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_stdlib/include/pico/stdlib.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/critical_section.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/lock_core.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/mutex.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/sem.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/include/pico/sync.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_time/include/pico/time.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_util/include/pico/util/datetime.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_util/include/pico/util/queue.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/platform_defs.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/adc.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/addressmap.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/clocks.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/dma.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/dreq.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/i2c.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/intctrl.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/io_bank0.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/m0plus.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/pads_bank0.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/pwm.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/rtc.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/sio.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/spi.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/timer.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/uart.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/watchdog.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/adc.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/clocks.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/dma.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/i2c.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/interp.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/iobank0.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/padsbank0.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/pwm.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/rtc.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/sio.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/spi.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/timer.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/uart.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/watchdog.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/cmsis/include/cmsis/rename_exceptions.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_adc/include/hardware/adc.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_base/include/hardware/address_mapped.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_clocks/include/hardware/clocks.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_dma/include/hardware/dma.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_gpio/include/hardware/gpio.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_i2c/include/hardware/i2c.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/include/hardware/irq.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pwm/include/hardware/pwm.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/include/hardware/rtc.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/include/hardware/spi.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_sync/include/hardware/sync.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_timer/include/hardware/timer.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_uart/include/hardware/uart.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_watchdog/include/hardware/watchdog.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_multicore/include/pico/multicore.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_platform/include/pico/platform.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_stdio/include/pico/stdio.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_stdio_uart/include/pico/stdio_uart.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_stdio_usb/include/pico/stdio_usb.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_unique_id/include/pico/unique_id.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: hdr.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: ssd1306.c
-CMakeFiles/picoFM.dir/ssd1306.c.obj: ssd1306.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: generated/pico_base/pico/config_autogen.h
-CMakeFiles/picoFM.dir/ssd1306.c.obj: generated/pico_base/pico/version.h
 
 CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_standard_link/new_delete.cpp.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_standard_link/new_delete.cpp
 

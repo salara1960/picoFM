@@ -29,24 +29,11 @@
 
 
 
-//#define SET_SSD1306
-
-
 #define portI2C i2c1
 
+#define portSPI spi0
 
-#ifdef SET_SSD1306
-	#define portOLED portI2C
-
-	#include "ssd1306.h"
-
-    #define OLED_128x32
-    #define OLED_ADDR _u(0x3C)
-#else
-	#define portSPI spi0
-
-	#define SET_LCD_UC
-#endif
+#define SET_LCD_UC
 
 //------------------------------------------------------------------------------
 
@@ -84,12 +71,12 @@
 #define MAX_BAND       4
 #define MAX_STEP       4
 #define MAX_SIZE_NAME 31//16//31
-#define MAX_MENU       5
+#define MAX_MENU       7//6
 
 #ifdef SET_ENCODER
-	#define MAX_CMDS  21//20//17//16//15//6
+	#define MAX_CMDS  22//21//20//17//16//15//6
 #else
-	#define MAX_CMDS  18//15//6
+	#define MAX_CMDS  19//18//15//6
 #endif
 
 //

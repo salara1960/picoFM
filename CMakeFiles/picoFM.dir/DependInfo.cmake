@@ -195,7 +195,6 @@ set(CMAKE_DEPENDS_CHECK_C
   "/home/alarm/eclipse-workspace-arm/picoFM/libs.c" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/libs.c.obj"
   "/home/alarm/eclipse-workspace-arm/picoFM/picoFM.c" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/picoFM.c.obj"
   "/home/alarm/eclipse-workspace-arm/picoFM/rda5807.c" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/rda5807.c.obj"
-  "/home/alarm/eclipse-workspace-arm/picoFM/ssd1306.c" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/ssd1306.c.obj"
   )
 set(CMAKE_C_COMPILER_ID "GNU")
 

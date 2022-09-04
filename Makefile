@@ -2137,33 +2137,6 @@ rda5807.c.s:
 	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/rda5807.c.s
 .PHONY : rda5807.c.s
 
-ssd1306.obj: ssd1306.c.obj
-
-.PHONY : ssd1306.obj
-
-# target to build an object file
-ssd1306.c.obj:
-	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/ssd1306.c.obj
-.PHONY : ssd1306.c.obj
-
-ssd1306.i: ssd1306.c.i
-
-.PHONY : ssd1306.i
-
-# target to preprocess a source file
-ssd1306.c.i:
-	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/ssd1306.c.i
-.PHONY : ssd1306.c.i
-
-ssd1306.s: ssd1306.c.s
-
-.PHONY : ssd1306.s
-
-# target to generate assembly for a file
-ssd1306.c.s:
-	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/ssd1306.c.s
-.PHONY : ssd1306.c.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -2395,9 +2368,6 @@ help:
 	@echo "... rda5807.obj"
 	@echo "... rda5807.i"
 	@echo "... rda5807.s"
-	@echo "... ssd1306.obj"
-	@echo "... ssd1306.i"
-	@echo "... ssd1306.s"
 .PHONY : help
 
 

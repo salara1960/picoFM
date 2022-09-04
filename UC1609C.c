@@ -802,6 +802,12 @@ void showLine(char *msg, uint16_t lin, FontDef_t *fnt, bool update, uint8_t back
 	if (update) UC1609C_update();
 }
 //-------------------------------------------------------------------------------------------
+void showLineMenu(int16_t cx, char *msg, uint16_t lin, FontDef_t *fnt, bool update, uint8_t back)
+{
+	UC1609C_Print(cx, lin, msg, fnt, 0, back);
+	if (update) UC1609C_update();
+}
+//-------------------------------------------------------------------------------------------
 void clrLines(uint16_t lin, uint8_t cnt, uint8_t update, uint8_t fh, uint8_t inv)
 {
 	if (!cnt) return;

@@ -467,8 +467,6 @@ hardware/clocks.h
 /home/alarm/eclipse-workspace-arm/picoFM/hardware/clocks.h
 pico/unique_id.h
 /home/alarm/eclipse-workspace-arm/picoFM/pico/unique_id.h
-ssd1306.h
-/home/alarm/eclipse-workspace-arm/picoFM/ssd1306.h
 
 /home/alarm/eclipse-workspace-arm/picoFM/libs.h
 hdr.h
@@ -479,8 +477,6 @@ hdr.h
 /home/alarm/eclipse-workspace-arm/picoFM/hdr.h
 libs.h
 /home/alarm/eclipse-workspace-arm/picoFM/libs.h
-ssd1306.h
-/home/alarm/eclipse-workspace-arm/picoFM/ssd1306.h
 rda5807.h
 /home/alarm/eclipse-workspace-arm/picoFM/rda5807.h
 fonts.h
@@ -489,10 +485,6 @@ UC1609C.h
 /home/alarm/eclipse-workspace-arm/picoFM/UC1609C.h
 
 /home/alarm/eclipse-workspace-arm/picoFM/rda5807.h
-hdr.h
-/home/alarm/eclipse-workspace-arm/picoFM/hdr.h
-
-/home/alarm/eclipse-workspace-arm/picoFM/ssd1306.h
 hdr.h
 /home/alarm/eclipse-workspace-arm/picoFM/hdr.h
 

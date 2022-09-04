@@ -79,7 +79,6 @@ file(REMOVE_RECURSE
   "CMakeFiles/picoFM.dir/libs.c.obj"
   "CMakeFiles/picoFM.dir/picoFM.c.obj"
   "CMakeFiles/picoFM.dir/rda5807.c.obj"
-  "CMakeFiles/picoFM.dir/ssd1306.c.obj"
   "picoFM.elf"
   "picoFM.pdb"
 )
