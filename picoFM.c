@@ -4,9 +4,7 @@
 #ifdef SET_SSD1306
 	#include "ssd1306.h"
 #endif
-#ifdef SET_RDA
-    #include "rda5807.h"
-#endif
+#include "rda5807.h"
 #ifdef SET_LCD_UC
 	#include "fonts.h"
 	#include "UC1609C.h"
@@ -29,10 +27,9 @@ enum {
 #ifdef SET_ENCODER
 	,
 	cmdEnc,
-	cmdIncFreq,
-	cmdDecFreq
+	cmdInc,
+	cmdDec
 #endif
-#ifdef SET_RDA
 	,
 	cmdCfg,
 	cmdScan,
@@ -42,7 +39,6 @@ enum {
 	cmdFreq,
 	cmdList,
 	cmdRds
-#endif
 };
 
 /**/
@@ -57,9 +53,7 @@ enum {
 	,
 	devDma = 32
 #endif
-#ifdef SET_RDA
 	,dev_RDA = 64
-#endif
 };
 
 #ifdef SET_WITH_DMA
@@ -89,28 +83,20 @@ enum {
 //const char *ver = "Ver.2.4.1 31.08.22 multicore";// set system clock to 48MHz !
 //const char *ver = "Ver.2.4.2 01.09.22 multicore";
 //const char *ver = "Ver.2.4.3 02.09.22 multicore";//minor changes for keys pressed
-const char *ver = "Ver.2.5 02.09.22 mux_kbd";//add mux_kbd with 6 button
+//const char *ver = "Ver.2.5 02.09.22 mux_kbd";//add mux_kbd with 6 button
+//const char *ver = "Ver.2.5.1 03.09.22 encoder";
+const char *ver = "Ver.2.6 03.09.22 encoder";// new encoder mode support !!!
 
 
 
-volatile static uint32_t epoch = 1662156375;//1662151345;//1662114275;//1662038845;
+
+volatile static uint32_t epoch = 1662249805;//1662246985;//1662209185;//1662156375;//1662151345;//1662114275;//1662038845;
 //1661990305;//1661949985;//1661902365;//1661897825;//1661792625;
 //1661767566;//1661726088;//1661699652;//1661684619;//1661641164;//1661614899;//1661536565;
 //1661463575;//1661459555;//1661371110;//1661344350;//1661285299;//1661258255;//1661193099;//1661096209;
 //1661004270;//1660945885;//1660743445;//1660736830;//1660731354;//1660684399;
 //1660657998;//1660601220;//1660576465;//1660563510;//1660506862;//1660505693;//1660494699;
 
-volatile uint16_t devError = devOk;
-volatile uint16_t last_devError = devOk;
-volatile uint32_t seconda = 0;
-int tZone = 0;//2;
-volatile uint8_t restart = 0;
-//
-uint8_t rxByte = 0;
-uint16_t rxInd = 0;
-char rxBuf[MAX_UART_BUF] = {0};
-bool uart_enable = true;
-//
 const char *s_cmds[MAX_CMDS] = {
 	"help",
 	"restart",
@@ -128,7 +114,6 @@ const char *s_cmds[MAX_CMDS] = {
 	"encinc",
 	"encdec"
 #endif
-#ifdef SET_RDA
 	,
 	"cfg",
 	"scan",
@@ -138,22 +123,7 @@ const char *s_cmds[MAX_CMDS] = {
 	"freq:",
 	"list",
 	"rds"
-#endif
 };
-
-char tmp[128];
-
-queue_t evt_fifo;
-typedef struct {
-	int cmd;
-	uint32_t attr;
-} evt_t;
-const int EVT_FIFO_LENGTH = 16;
-bool que_start = false;
-
-bool led = true;
-const uint LED_PIN = 29;
-const uint ERR_PIN = 8;//14;
 
 const uint16_t all_devErr[MAX_ERR_CODE] = {
 	devMem,
@@ -164,50 +134,96 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 #ifdef SET_WITH_DMA
 	,devDma
 #endif
-#ifdef SET_RDA
 	,devRDA
-#endif
 };
 
+volatile uint16_t devError = devOk;
+volatile uint16_t last_devError = devOk;
+volatile uint32_t seconda = 0;
+int tZone = 0;//2;
+volatile uint8_t restart = 0;
+//
+uint8_t rxByte = 0;
+uint16_t rxInd = 0;
+char rxBuf[MAX_UART_BUF] = {0};
+bool uart_enable = true;
+//
+queue_t evt_fifo;
+typedef struct {
+	int cmd;
+	uint32_t attr;
+} evt_t;
+const int EVT_FIFO_LENGTH = 16;
+bool que_start = false;
 
-#ifdef SET_RDA
-	//
-	float Freq = 76.0;
-	float newFreq = 95.1;
-	float lBand = 0.0;
-	float rBand = 0.0;
-	uint8_t Band = 2;// :2
-	uint8_t newBand = 2;
-	uint8_t Step = 0;// 100 КГц
-	uint8_t newStep = 0;
-	uint16_t Chan = 0;
-	uint8_t RSSI = 0;
-	uint8_t rdaID = 0;
-	volatile uint8_t scan = 0;
-	volatile uint8_t seek_up = 1;
-	uint8_t Volume = 6;//8;
-	uint8_t newVolume = 6;//8;
-	uint8_t BassBoost = 0;
-	uint8_t newBassBoost = 0;
-	bool stereo = false;
-	uint8_t noMute = 1;
-	uint8_t dataRDS[8] = {0};
-	bool syncRds = false;
-	bool readyRds = false;
-	//
-	const char *allBands[MAX_BAND] = {
-		"87-108 MHz",// (US/Europe)",
-		"76-91 MHz", // (Japan)",
-		"76-108 MHz",// (world wide)",
-		"65-76 MHz"  // (East Europe) or 50-65MHz"
-	};
-	const step_t allSteps[MAX_STEP] = {
-		{0.1, "100"},
-		{0.2, "200"},
-		{0.05, "50"},
-		{0.025, "25"}
-	};
-	const char *noneStation = "???";
+char tmp[128];
+
+bool led = true;
+const uint LED_PIN = 29;
+const uint ERR_PIN = 8;//14;
+
+const uint LED_CMD_PIN = 14;//16
+uint32_t start_jkey = 0;
+uint32_t cmd_tmr = 0;
+
+//   for RDA support
+float Freq = 76.0;
+float newFreq = 95.1;
+float lBand = 0.0;
+float rBand = 0.0;
+uint8_t Band = 2;// :2
+uint8_t newBand = 2;
+uint8_t Step = 0;// 100 КГц
+uint8_t newStep = 0;
+uint16_t Chan = 0;
+uint8_t RSSI = 0;
+uint8_t rdaID = 0;
+volatile uint8_t scan = 0;
+volatile uint8_t seek_up = 1;
+uint8_t Volume = 3;//6;//8;
+uint8_t newVolume = 3;//6;//8;
+uint8_t BassBoost = 0;
+uint8_t newBassBoost = 0;
+bool stereo = false;
+uint8_t noMute = 1;
+uint8_t dataRDS[8] = {0};
+bool syncRds = false;
+bool readyRds = false;
+//
+
+enum {
+	iNone = -1,
+	iExit,
+	iList,
+	iScan,
+	iVolume,
+	iBass
+};
+
+bool menuAct = false;
+int8_t encMode = iNone;
+int8_t indMenu = -1;
+const char *allMenu[MAX_MENU] = {
+	"Exit   ",
+	"List   ",
+	"Scan   ",
+	"Volume ",
+	"Bass   "
+};
+
+const char *allBands[MAX_BAND] = {
+	"87-108 MHz",// (US/Europe)",
+	"76-91 MHz", // (Japan)",
+	"76-108 MHz",// (world wide)",
+	"65-76 MHz"  // (East Europe) or 50-65MHz"
+};
+const step_t allSteps[MAX_STEP] = {
+	{0.1, "100"},
+	{0.2, "200"},
+	{0.05, "50"},
+	{0.025, "25"}
+};
+const char *noneStation = "???";
 #ifdef RUS_SUPPORT
 	static const rec_t list[MAX_LIST] = {
 		//Band:3 65-76
@@ -271,20 +287,20 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 		{2, 107.2, "Radio KP"}// Комсомольская Правда
 	};
 #endif
-	uint16_t listSize = 0;
-	//
-	#ifdef SET_RDS
+uint16_t listSize = 0;
+//
+#ifdef SET_RDS
 
-		#pragma pack(push,1)
-		typedef struct {
-			uint16_t blockA;
-			uint16_t blockB;
-			uint16_t blockC;
-			uint16_t blockD;
-		} blocks_t;
-		#pragma pack(pop)
+	#pragma pack(push,1)
+	typedef struct {
+		uint16_t blockA;
+		uint16_t blockB;
+		uint16_t blockC;
+		uint16_t blockD;
+	} blocks_t;
+	#pragma pack(pop)
 
-		const char *namePTy[MAX_SPTY] = {
+	const char *namePTy[MAX_SPTY] = {
 				"No program type or undefined",
 				"News",
 				"Current affairs",
@@ -317,86 +333,18 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 				"Documentary",
 				"Alarm test",
 				"Alarm"
-		};
-		uint16_t sID = 0; // ID радиостанции
-		uint16_t MaybeThisIDIsReal = 0; // Предыдущее значение ID
-		uint8_t IDRepeatCounter = 0; // Счетчик повторений ID
-		uint8_t errLevelB, errLevelC, errLevelD, groupType, groupVer;
-		uint8_t PTy = 255;
-		bool PTy_printed = false;
-		char PSName[9]; // Значение PSName
-		char PSName_prev[9];
-		uint8_t PSNameUpdated = 0; // Для отслеживания изменений в PSName
-	#endif
+	};
+	uint16_t sID = 0; // ID радиостанции
+	uint16_t MaybeThisIDIsReal = 0; // Предыдущее значение ID
+	uint8_t IDRepeatCounter = 0; // Счетчик повторений ID
+	uint8_t errLevelB, errLevelC, errLevelD, groupType, groupVer;
+	uint8_t PTy = 255;
+	bool PTy_printed = false;
+	char PSName[9]; // Значение PSName
+	char PSName_prev[9];
+	uint8_t PSNameUpdated = 0; // Для отслеживания изменений в PSName
 #endif
 
-
-#ifdef SET_IR
-
-	#define IR_PIN 14
-	#define BIT_LENGTH 32
-	#define MAX_IRED_KEY 21
-
-	enum {
-		key_ch_minus = 0,
-		key_ch,
-		key_ch_plus,
-		key_left,
-		key_right,
-		key_sp,
-		key_minus,
-		key_plus,
-		key_eq,
-		key_100,
-		key_200,
-		key_0,
-		key_1,
-		key_2,
-		key_3,
-		key_4,
-		key_5,
-		key_6,
-		key_7,
-		key_8,
-		key_9
-	};
-
-	typedef struct {
-		char name[8];
-		uint32_t code;
-	} one_key_t;
-
-	const one_key_t keyAll[MAX_IRED_KEY] = {
-			{"irCH-",   0xffa25d},
-			{"irCH",    0xff629d},
-			{"irCH+",   0xffe21d},
-			{"irLEFT",  0xff22dd},
-			{"irRIGHT", 0xFF02FD},
-			{"irSP",    0xFFC23D},
-			{"ir-",     0xFFE01F},
-			{"ir+",     0xFFA857},
-			{"irEQ",    0xFF906F},
-			{"ir100+",  0xFF9867},
-			{"ir200+",  0xFFB04F},
-			{"ir0",     0xFF6897},
-			{"ir1",     0xFF30CF},
-			{"ir2",     0xFF18E7},
-			{"ir3",     0xFF7A85},
-			{"ir4",     0xFF10EF},
-			{"ir5",     0xFF38C7},
-			{"ir6",     0xFF5AA5},
-			{"ir7",     0xFF42BD},
-			{"ir8",     0xFF4AB5},
-			{"ir9",     0xFF52AD},
-	};
-
-	uint cont_zero = 0;
-	uint cont_one = 0;
-	int cont_decode = BIT_LENGTH - 1;
-	long decode = 0;
-	bool flag_decode = 0;
-	evt_t ei = {-1, 0};
-#endif
 
 #ifdef SET_JOYSTIC
 	#define jKEY_PIN 15
@@ -419,29 +367,21 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 	bool joy = false;
 #endif
 
-#if defined(SET_ENCODER) || defined(SET_JOYSTIC) || defined(SET_IR)
-	#define LED_CMD_PIN 16
-	//
-	uint32_t start_jkey = 0;
-	uint32_t cmd_tmr = 0;
-	//
-	void cmdLedOn()
-	{
-		//gpio_put(LED_CMD_PIN, cled);
-		cmd_tmr = get_mstmr(_150ms);
-	}
-	//
-	static inline void put_pixel(uint32_t pixel_grb)
-	{
-	    pio_sm_put_blocking(pio0, 0, pixel_grb << 8u);
-	}
-#endif
-
-
 #ifdef SET_LCD_UC
+
+	enum {
+		line1 = 0,
+		line2,
+		line3,
+		line4,
+		line5
+	};
 	FontDef_t *mfnt = NULL;
 	FontDef_t *lfnt = NULL;
 	FontDef_t *hfnt = NULL;
+
+	uint8_t lines[5] = {0};
+
 #endif
 
 
@@ -459,28 +399,23 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 	uint32_t ec_tmr = 0;
 #endif
 
-#ifdef SET_KBD
-	#define LKEY_PIN 14
-	#define VKEY_PIN 13
-	#define RKEY_PIN 12
-#endif
 #ifdef SET_KBD_MUX
 	#define MUX_S0_PIN   9
 	#define MUX_S1_PIN  10
 	#define MUX_S2_PIN  11
 	#define MUX_KEY_PIN 12
 	#define TOTAL_MUX    8
-enum {//GP9,GP10,GP11
-	listMinus = 0,
-	listPlus,
-	scanMinus,
-	scanPlus,
-	volMinus,
-	volPlus,
-	muteKey,
-	rstKey,
-	chanNone = 255
-};
+	enum {//GP9,GP10,GP11
+		listMinus = 0,
+		listPlus,
+		scanMinus,
+		scanPlus,
+		volMinus,
+		volPlus,
+		muteKey,
+		rstKey,
+		chanNone = 255
+	};
 	volatile uint8_t muxNum = chanNone;
 #endif
 
@@ -489,6 +424,12 @@ enum {//GP9,GP10,GP11
 //*******************************************************************************************
 //*******************************************************************************************
 
+//-------------------------------------------------------------------------------------------
+void cmdLedOn()
+{
+	gpio_put(LED_CMD_PIN, 1);
+	cmd_tmr = get_mstmr(_150ms);
+}
 //-------------------------------------------------------------------------------------------
 
 #if defined(SET_JOYSTIC) || defined(SET_ENCODER)
@@ -506,11 +447,6 @@ enum {//GP9,GP10,GP11
 #endif
 
 		if ((gpio == jKEY_PIN)
-#ifdef SET_KBD
-				|| (gpio == LKEY_PIN)
-					|| (gpio == VKEY_PIN)
-					     ||	(gpio == RKEY_PIN)
-#endif
 #ifdef SET_KBD_MUX
 						 || (gpio == MUX_KEY_PIN)
 #endif
@@ -531,21 +467,6 @@ enum {//GP9,GP10,GP11
 #ifdef SET_ENCODER
 						case ENC_PIN:
 							e.cmd = cmdEnc;
-						break;
-#endif
-#ifdef SET_KBD
-						case LKEY_PIN:
-							seek_up = 0;
-							e.cmd = cmdList;
-						break;
-						case RKEY_PIN:
-							seek_up = 1;
-							e.cmd = cmdList;
-						break;
-						case VKEY_PIN:
-							newVolume = (Volume + 1) & 0xf;
-							if (!newVolume) newVolume++;
-							e.cmd = cmdVol;
 						break;
 #endif
 #ifdef SET_KBD_MUX
@@ -605,34 +526,29 @@ enum {//GP9,GP10,GP11
 #ifdef SET_ENCODER
 		else
 			if (gpio == ENC_PIN_A) {
-			if (!fix_freq) {
+			//if (!fix_freq) {
+			//if (encMode >= 0) {
 				if (check_mstmr(ec_tmr)) {
 					if (gpio_get(ENC_PIN_B)) ec_counter++;
 										else ec_counter--;
 					if (ec_last_counter != ec_counter) {
 						int cd = cmdNone;
-						if ((ec_last_counter == MIN_ENC_VALUE) && (ec_counter == MAX_ENC_VALUE)) cd = cmdDecFreq;
+						if ((ec_last_counter == MIN_ENC_VALUE) && (ec_counter == MAX_ENC_VALUE)) cd = cmdDec;
 						else
-						if ((ec_last_counter == MAX_ENC_VALUE) && (ec_counter == MIN_ENC_VALUE)) cd = cmdIncFreq;
+						if ((ec_last_counter == MAX_ENC_VALUE) && (ec_counter == MIN_ENC_VALUE)) cd = cmdInc;
 						else
-						if (ec_last_counter < ec_counter) cd = cmdIncFreq;
+						if (ec_last_counter < ec_counter) cd = cmdInc;
 						else
-						if (ec_last_counter > ec_counter) cd = cmdDecFreq;
+						if (ec_last_counter > ec_counter) cd = cmdDec;
 						ec_last_counter = ec_counter;
 						if (cd != cmdNone)	{
-							if (cd == cmdIncFreq) {
-								newFreq = Freq + allSteps[Step].freq;
-							} else {
-								newFreq = Freq - allSteps[Step].freq;
-							}
-							evt_t e = {cmdFreq, 0};
-							memcpy(&e.attr, &newFreq, sizeof(e.attr));
+							evt_t e = {cd, 0};
 							if (!queue_try_add(&evt_fifo, &e)) devError |= devQue;
 							ec_tmr = get_mstmr(_250ms);
 						}
 					}
 				}
-			}
+			//}
 		}
 #endif
 	}
@@ -733,10 +649,9 @@ enum {//GP9,GP10,GP11
 	}
 	//----------------------------------------------------------------------------------------
 #endif
-//-------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
-#ifdef SET_RDA
-//------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void showCfg()
 {
 	char *st = (char *)calloc(1, MAX_UART_BUF << 2);
@@ -847,8 +762,6 @@ void rds_init()
 //-------------------------------------------------------------------------------------------
 #endif
 
-#endif
-
 //-------------------------------------------------------------------------------------------
 static char *errName(uint16_t err)
 {
@@ -867,10 +780,8 @@ static char *errName(uint16_t err)
 		case devDma:// = 0x20,
 			return "devDma";
 #endif
-#ifdef SET_RDA
 		case devRDA:// = 0x40
 			return "devRDA";
-#endif
 	}
 
 	return "???";
@@ -882,12 +793,6 @@ bool repeating_timer_callback(struct repeating_timer *t)
 
 	if (!que_start) return true;
 
-#if defined(SET_ENCODER) || defined(SET_JOYSTIC) || defined(SET_IR) || defined(SET_KBD_MUX)
-	if (cmd_tmr) {
-		put_pixel(rand() % 10 ? 0 : 0xffff0000);
-	}
-#endif
-
 #ifdef SET_KBD_MUX
 	if (!(get_msCounter() % _50ms)) {
 		muxNum++;
@@ -898,27 +803,6 @@ bool repeating_timer_callback(struct repeating_timer *t)
 							else gpio_clr_mask(reg);
 			reg <<= 1;
 		}
-	}
-#endif
-#ifdef SET_ENCODER
-	if (!(get_msCounter() % _100ms)) {
-		/*new_value = quadrature_encoder_get_count(pioe, sme);
-		if (new_value != old_value) {
-			delta = new_value - old_value;
-			old_value = new_value;
-			//if (delta != old_delta) {
-			//old_delta = delta;
-			evt_t ev = {
-				.cmd = cmdEnc,
-				.attr = delta
-			};
-			if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
-		}*/
-		/*evt_t ev = {
-			.cmd = cmdEnc,
-			.attr = ec_a_cnt
-		};
-		if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;*/
 	}
 #endif
 
@@ -964,7 +848,6 @@ void uart_rx_callback()
         					case cmdTemp:    //"temp"
         						evt.cmd = i;
         					break;
-#ifdef SET_RDA
         					case cmdCfg:     //"cfg"
         						evt.cmd = i;
         					break;
@@ -1015,11 +898,10 @@ void uart_rx_callback()
         							//}
         						}
         					break;
-	#ifdef SET_RDS
+#ifdef SET_RDS
 							case cmdRds:     //"rds"
 								evt.cmd = i;
 							break;
-	#endif
 #endif
         					case cmdEpoch:   //"epoch:1657191323"
         						if (strlen(uk) >= 10) {
@@ -1056,134 +938,21 @@ void uart_rx_callback()
 }
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------
-
-#ifdef SET_IR
-
-//------------------------------------------------------------------------------------------
-bool read_pulse_cb(struct repeating_timer *t)
+void refreshMenu()
 {
-    if (gpio_get(IR_PIN)) {
-        if (!flag_decode && cont_zero > 15 && cont_decode == BIT_LENGTH - 1) flag_decode = 1;
-        cont_zero = 0;
-        if (cont_one <= 21) cont_one++;
-    } else {
-        if (flag_decode){
-            if (cont_one == 1) {
-                cont_decode--;
-                //printf("0");
-            } else if(cont_one >= 2 && cont_decode != BIT_LENGTH - 1) {
-                if (!decode) cont_decode = 23;
-                if (cont_decode < 24) decode += pow(2, cont_decode);
-                //printf("1");
-                cont_decode--;
-            }
-        }
-        cont_zero++;
-        cont_one = 0;
-    }
-    if (cont_decode < 0 || cont_one > 20 || cont_zero > 20) {
-        flag_decode = 0;
-        cont_decode = BIT_LENGTH - 1;
-        if (decode) {
-        	ei.cmd = decode;
-        	if (!queue_try_add(&evt_fifo, &ei)) devError |= devQue;
-        }
-        decode = 0;
-        cont_zero = cont_one = 0;
-    }
+#ifdef SET_LCD_UC
+	uint8_t inv = FOREGROUND;
+	char st[64];
 
-    return true;
-}
-//------------------------------------------------------------------------------------------
-int ir_parse(uint32_t value, int *idx)
-{
-int ird = cmdNone;
-
-int8_t kid = -1;
-
-	for (int8_t i = 0; i < MAX_IRED_KEY; i++) {
-		if (value == keyAll[i].code) {
-			kid = i;
-			cmdLedOn();
-			break;
-		}
+	for (int8_t l = 0; l < 4; l++) {
+		if (indMenu == l) inv = BACKGROUND; else inv = FOREGROUND;
+		sprintf(st, " %s", allMenu[l]);
+		showLine(st, lines[l], lfnt, false, inv);
 	}
-	*idx = kid;
-	if (kid == -1) {
-		cmd_tmr = 0;
-		return ird;
-	}
-
-	switch (kid) {
-		case key_ch:
-			ird = cmdRestart;
-		break;
-		case key_ch_plus:
-			seek_up = 1;
-			ird = cmdScan;
-		break;
-		case key_ch_minus:
-			seek_up = 0;
-			ird = cmdScan;
-		break;
-		case key_minus:
-			if (Volume) {
-				newVolume = Volume - 1;
-				ird = cmdVol;
-			}
-		break;
-		case key_plus:
-			if (Volume < 15) {
-				newVolume = Volume + 1;
-				ird = cmdVol;
-			}
-		break;
-		case key_left:
-			seek_up = 0;
-			ird = cmdList;
-		break;
-		case key_right:
-			seek_up = 1;
-			ird = cmdList;
-		break;
-		case key_eq:// enable/disable print via uart
-			ird = cmdMute;
-		break;
-		case key_sp:
-			newBassBoost = (BassBoost + 1)  & 1;
-			ird = cmdBass;
-		break;
-		case key_100://bandUp();
-			if (Band < MAX_BAND) {
-				newBand = Band + 1;
-				ird = cmdBand;
-			}
-		break;
-		case key_200://bandDown();
-			if (Band) {
-				newBand = Band - 1;
-				ird = cmdBand;
-			}
-		break;
-		case key_0:
-		case key_1:
-		case key_2:
-		case key_3:
-		case key_4:
-		case key_5:
-		case key_6:
-		case key_7:
-		case key_8:
-		case key_9:
-			newFreq = list[kid - key_0 + 2].freq;//for band=2 only !!!
-			ird = cmdFreq;
-		break;
-	}
-
-	return ird;
-}
+	UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
+	UC1609C_update();
 #endif
+}
 //------------------------------------------------------------------------------------------
 float read_onboard_temperature(const char unit)
 {
@@ -1236,6 +1005,10 @@ int main() {
     gpio_init(ERR_PIN);
     gpio_set_dir(ERR_PIN, GPIO_OUT);
 
+    gpio_init(LED_CMD_PIN);//GP9
+    gpio_set_dir(LED_CMD_PIN, GPIO_OUT);
+    gpio_pull_up(LED_CMD_PIN);
+
 #ifdef SET_JOYSTIC
     gpio_init(jKEY_PIN);
     gpio_set_dir(jKEY_PIN, GPIO_IN);
@@ -1250,22 +1023,6 @@ int main() {
     gpio_set_irq_enabled_with_callback(ENC_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
 #endif
 
-#ifdef SET_KBD
-    gpio_init(LKEY_PIN); //14
-    gpio_set_dir(LKEY_PIN, GPIO_IN);
-    gpio_pull_up(LKEY_PIN);
-    gpio_set_irq_enabled_with_callback(LKEY_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
-    //
-    gpio_init(VKEY_PIN); //13
-    gpio_set_dir(VKEY_PIN, GPIO_IN);
-    gpio_pull_up(VKEY_PIN);
-    gpio_set_irq_enabled_with_callback(VKEY_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
-    //
-    gpio_init(RKEY_PIN); //12
-    gpio_set_dir(RKEY_PIN, GPIO_IN);
-    gpio_pull_up(RKEY_PIN);
-    gpio_set_irq_enabled_with_callback(RKEY_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
-#endif
 #ifdef SET_KBD_MUX
     gpio_init(MUX_S0_PIN);//GP9
     gpio_set_dir(MUX_S0_PIN, GPIO_OUT);
@@ -1285,27 +1042,11 @@ int main() {
     gpio_set_irq_enabled_with_callback(MUX_KEY_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
 #endif
 
-
-
     adc_init();
     adc_set_temp_sensor_enabled(true);
     adc_select_input(4);
     float temperature = read_onboard_temperature('C');
 
-
-#if defined(SET_ENCODER) || defined(SET_JOYSTIC) || defined(SET_IR) || defined(SET_KBD) || defined(SET_KBD_MUX)
-    PIO pio = pio0;
-    int sm = 0;
-    ws2812_program_init(pio, sm, pio_add_program(pio, &ws2812_program), LED_CMD_PIN, 600000, true);
-#endif
-
-#ifdef SET_IR
-    gpio_init(IR_PIN);
-    gpio_set_dir(IR_PIN, GPIO_IN);
-    gpio_pull_up(IR_PIN);
-    struct repeating_timer read_timer;
-    add_repeating_timer_us(-526, read_pulse_cb, NULL, &read_timer);//-526
-#endif
     //--------------------------------------------------------------------
 
     int idx = -1;
@@ -1318,6 +1059,7 @@ int main() {
     }
 
     //-------------------------- uart0 config ----------------------------
+
     uart_init(UART_ID, BAUD_RATE);
     gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
     gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
@@ -1327,6 +1069,7 @@ int main() {
     uart_set_irq_enables(UART_ID, true, false);
 
     //------------------- Initialize RTC module --------------------------
+
     rtc_init();
     sleep_ms(250);
     set_sec(epoch + 1);
@@ -1339,6 +1082,7 @@ int main() {
 
 
     //--------------------- i2c master config ----------------------------
+
     bi_decl(bi_2pins_with_func(I2C_SDA_PIN, I2C_SCL_PIN, GPIO_FUNC_I2C));
     bi_decl(bi_program_description("picoFM Radio"));
     i2c_init(portRDA, 400 * 1000);
@@ -1357,18 +1101,22 @@ int main() {
     }
 
     //--------------------------------------------------------------------
+
     Report(0,"\n");
     Report(1, "Start picoRadio app %s (BoardID:%s temp:%.02f deg.C)\n", ver, tmp, temperature);//uart_puts(UART_ID, "Hello, UART!\n");
+
     //--------------------------------------------------------------------
 
     show_clocks();
 
     //----------------- Initialize queue for events ----------------------
+
     queue_init(&evt_fifo, sizeof(evt_t), EVT_FIFO_LENGTH);
     Report(1, "Create queue for %d events OK\n", EVT_FIFO_LENGTH);
     que_start = true;
 
     //---------------- Setup and start periodic timer --------------------
+
     struct repeating_timer timer;
     int32_t period = 5;//10;
     if (add_repeating_timer_ms(period * -1, repeating_timer_callback, NULL, &timer)) {
@@ -1376,6 +1124,7 @@ int main() {
     } else {
     	devError |= devTik;
     }
+
     //--------------------------------------------------------------------
 
 #ifdef SET_ENCODER
@@ -1406,8 +1155,7 @@ int main() {
     ssd1306_text_xy(stx, 1, 4, false);
     //-------------------------------------------------------------
 #else
-
-	#ifdef SET_LCD_UC
+    #ifdef SET_LCD_UC
 
     	spi_init(portSPI, 12000 * 1000);//set SCK to 12Mhz !
     	gpio_set_function(LCD_MOSI_PIN, GPIO_FUNC_SPI);
@@ -1437,22 +1185,18 @@ int main() {
     	//
     	int dl = sprintf(tmp, "%s", ver);
     	mkLineCenter(tmp, mfnt->FontWidth);
-    	/*if (dl > (UC1609C_WIDTH / mfnt->FontWidth - 1)) {
-    		dl = UC1609C_WIDTH / mfnt->FontWidth - 1;
-    		tmp[dl] = '\0';
-    	}*/
-    	uint16_t x = 1;//((UC1609C_WIDTH - (mfnt->FontWidth * dl)) >> 1);
+    	uint16_t x = 1;
     	UC1609C_Print(x, UC1609C_HEIGHT - mfnt->FontHeight, tmp, mfnt, 0, FOREGROUND);
     	//
     	UC1609C_DrawFilledRectangle(0, 0, UC1609C_WIDTH - 1, hfnt->FontHeight - 1, FOREGROUND);
     	UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
     	UC1609C_update();
     	//
-    	uint8_t line1 = hfnt->FontHeight + 1;
-    	uint8_t line2 = line1 + lfnt->FontHeight;
-    	uint8_t line3 = line2 + lfnt->FontHeight;
-    	uint8_t line4 = line3 + lfnt->FontHeight;
-    	uint8_t line5 = line4 + lfnt->FontHeight + 1;
+    	uint8_t lfr = lfnt->FontHeight;
+    	for (int8_t i = 0; i < 5; i++) {
+    		lines[i] = hfnt->FontHeight + 1 + (i * lfr);
+    	}
+    	lines[line5]++;
     	//
     	bool flag_ver = false;
     	uint8_t tmr_ver = 0;
@@ -1463,7 +1207,6 @@ int main() {
     int queCnt = 0;
     int next_evt = cmdNone;
 
-#ifdef SET_RDA
     rda5807_delay(500);
     char st[64];
     char sta[64];
@@ -1503,7 +1246,7 @@ int main() {
     	ev.attr = 0;
     	if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
     }
-#endif
+
 
 #ifdef SET_JOYSTIC
     multicore_launch_core1(joystik_task);
@@ -1531,23 +1274,11 @@ int main() {
 #ifdef SET_LCD_UC
     				sprintf(stz, "cmd : %s", s_cmds[evt]);
     				mkLineCenter(stz, mfnt->FontWidth);
-    				UC1609C_Print(1, line5, stz, mfnt, 0, FOREGROUND);
+    				UC1609C_Print(1, lines[line5], stz, mfnt, 0, FOREGROUND);
     				UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
     				UC1609C_update();
     				flag_ver = true;
     				tmr_ver = 10;
-#endif
-    			} else {
-#ifdef SET_IR
-    				if (evt > cmdRds) {
-    					evt = ir_parse(ev.cmd, &idx);
-    					if (evt == -1) {
-    						sprintf(tmp, "CODE:0x%X", ev.cmd);
-    					} else {
-    						sprintf(tmp, "irKEY: %s", keyAll[idx].name);
-    					}
-    					Report(1, "[que:%u] %s\r\n", queCnt, tmp);
-    				}
 #endif
     			}
     			switch (evt) {
@@ -1558,7 +1289,7 @@ int main() {
 #ifdef SET_LCD_UC
     					sprintf(stz, "Onchip temperature:%.02f deg.C", temperature);
     					mkLineCenter(stz, mfnt->FontWidth);
-    					UC1609C_Print(1, line5, stz, mfnt, 0, FOREGROUND);
+    					UC1609C_Print(1, lines[line5], stz, mfnt, 0, FOREGROUND);
     					UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
     					UC1609C_update();
     					flag_ver = true;
@@ -1567,34 +1298,151 @@ int main() {
     				break;
 #ifdef SET_ENCODER
     				case cmdEnc:
-    					if (fix_freq) fix_freq = false; else fix_freq = true;
-    					ec_counter = ec_last_counter = 0;
-    					if (fix_freq) {
-    						strcpy(stz, "Freq change deny");
-    					} else {
-    						strcpy(stz, "Freq change allow");
-    					}
-    					Report(1, "[que:%u] %s\n", queCnt, stz);
+    				{
+    					bool snd = false;
 	#ifdef SET_LCD_UC
-    					mkLineCenter(stz, mfnt->FontWidth);
-    					UC1609C_Print(1, line5, stz, mfnt, 0, FOREGROUND);
-    					UC1609C_update();
-    					flag_ver = true;
-    					tmr_ver = 10;
-	#endif
-    				break;
-    				case cmdIncFreq:
-    				case cmdDecFreq:
-    					newFreq = Freq;
-    					if (evt == cmdIncFreq) {
-    						Report(1, "[que:%u] incFreq %.3f + step %s МГц = %.3f\n", queCnt, newFreq, allSteps[Step].name, newFreq + allSteps[Step].freq);
-    						newFreq += allSteps[Step].freq;
-    					} else {
-    						Report(1, "[que:%u] decFreq %.3f - step %s МГц = %.3f\n", queCnt, newFreq, allSteps[Step].name, newFreq - allSteps[Step].freq);
-    						newFreq -= allSteps[Step].freq;
+    					switch (indMenu) {
+    						case iNone://start menu
+    							menuAct = true;
+    							indMenu = 0;
+    							Report(1, "[que:%u] Goto Menu\n", queCnt);
+    							clrLines(lines[line1], 4, 1, lfnt->FontHeight, BACKGROUND);//FOREGROUND);
+    							refreshMenu();
+    						break;
+    						case iExit://exit from menu
+    							menuAct = false;
+    							Report(1, "[que:%u] Exit from Menu\n", queCnt);
+    							clrLines(lines[line1], 4, 1, lfnt->FontHeight, BACKGROUND);
+    							indMenu = -1;
+    							newFreq = Freq;
+    							ev.cmd = cmdFreq;
+    							snd = true;
+    							//
+    							tmr_ver = 1;
+    							flag_ver = true;
+    							//
+    						break;
+    						case iList://set encMode to List
+    							indMenu = iExit;
+    							encMode = iList;
+    							ev.cmd = cmdEnc;
+    							snd = true;
+    						break;
+    						case iScan://set encMode to Scan
+    							indMenu = iExit;
+    							encMode = iScan;
+    							ev.cmd = cmdEnc;
+    							snd = true;
+    						break;
+    						case iVolume://set encMode to Volume
+    							indMenu = iExit;
+    							encMode = iVolume;
+    							ev.cmd = cmdEnc;
+    							snd = true;
+    						break;
+    						case iBass://set encMode to Bass
+    							indMenu = iExit;
+    							encMode = iBass;
+    							ev.cmd = cmdEnc;
+    							snd = true;
+    						break;
     					}
-    					ev.cmd = cmdFreq;
-    					if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
+	#endif
+    					if (snd) {
+    						ev.attr = 0;
+    						if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
+    					}
+    				}
+    				break;
+    				case cmdInc:
+    				{
+    					bool ref = false;
+    					if (menuAct) {
+    						if (indMenu >= 3) {
+    							break;
+    						} else {
+    							indMenu++;
+    							ref = true;
+    						}
+    					} else {
+    						bool snd = false;
+    						switch (encMode) {
+    							case iList:
+    								seek_up = 1;
+    								ev.cmd = cmdList;
+    								snd = true;
+    							break;
+    							case iScan:
+    								seek_up = 1;
+    								ev.cmd = cmdScan;
+    								snd = true;
+    							break;
+    							case iVolume:
+    								newVolume = Volume + 1;
+    								if (newVolume > 15) newVolume = 1;
+    								ev.cmd = cmdVol;
+    								snd = true;
+    							break;
+    							case iBass:
+    								if (!BassBoost) {
+    									newBassBoost = BassBoost + 1;
+    									ev.cmd = cmdBass;
+    									snd = true;
+    								}
+    							break;
+    						}
+    						if (snd) {
+    							ev.attr = 0;
+    							if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
+    						}
+    					}
+    					if (ref) refreshMenu();
+    				}
+    				break;
+    				case cmdDec:
+    				{
+    					bool ref = false;
+    					if (menuAct) {
+    						if (!indMenu) {
+    							break;
+    						} else {
+    							indMenu--;
+    							ref = true;
+    						}
+    					} else {
+    						bool snd = false;
+    						switch (encMode) {
+    							case iList:
+    								seek_up = 0;
+    								ev.cmd = cmdList;
+    								snd = true;
+    							break;
+    							case iScan:
+    								seek_up = 0;
+    								ev.cmd = cmdScan;
+    								snd = true;
+    							break;
+    							case iVolume:
+    								newVolume = (Volume - 1) & 0xf;
+    								if (!newVolume) newVolume = 1;
+    								ev.cmd = cmdVol;
+    								snd = true;
+    							break;
+    							case iBass:
+    								if (BassBoost) {
+    									newBassBoost = BassBoost - 1;
+    									ev.cmd = cmdBass;
+    									snd = true;
+    								}
+    							break;
+    						}
+    						if (snd) {
+    							ev.attr = 0;
+    							if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
+    						}
+    					}
+    					if (ref) refreshMenu();
+    				}
     				break;
 #endif
     				case cmdErr:
@@ -1613,14 +1461,13 @@ int main() {
     					devError = 0;
     					errLedOn(false);
     				break;
-#ifdef SET_RDA
     				case cmdCfg:
     					showCfg();
     				break;
     				case cmdMute:
     					noMute = (~noMute) & 1;
     					rda5807_Set_Mute(noMute);
-	#ifdef SET_SSD1306
+#ifdef SET_SSD1306
     					if (noMute)
     						sprintf(st, "Bas:%u Vol:%u", BassBoost, Volume);
     					else
@@ -1628,14 +1475,14 @@ int main() {
     					mkLineCenter(st, FONT_WIDTH);
     					ssd1306_clear_lines(4, 1);
     					ssd1306_text_xy(st, 1, 4, false);
-	#endif
-	#ifdef SET_LCD_UC
+#endif
+#ifdef SET_LCD_UC
     					sprintf(sta, "BASS:%u", BassBoost);
     					sprintf(stb, "VOLUME:%u", Volume);
     					if (!noMute) strcat(stb, " Mute");
     					mkLineWidth(sta, stb, lfnt->FontWidth);
-    					showLine(sta, line2, lfnt, true);
-	#endif
+    					showLine(sta, lines[line2], lfnt, true, FOREGROUND);
+#endif
     					Report(1, "[que:%u] set Mute to %u\r\n", queCnt, (~noMute) & 1);
     				break;
     				case cmdList:
@@ -1654,17 +1501,17 @@ int main() {
     					if (newBand != Band) {
     						Band = newBand;
     						if (!rda5807_Set_Band(Band)) {
-	#ifdef SET_SSD1306
+#ifdef SET_SSD1306
     							sprintf(stb, "FM Band:%s", allBands[Band]);
     							mkLineCenter(stb, FONT_WIDTH);
     							ssd1306_clear_lines(4, 1);
     							ssd1306_text_xy(stb, 1, 4, false);
-	#endif
-	#ifdef SET_LCD_UC
+#endif
+#ifdef SET_LCD_UC
     							sprintf(stb, "FM Band:%s", allBands[Band]);
     							mkLineCenter(stb, lfnt->FontWidth);
-    							showLine(stb, line4, lfnt, true);
-	#endif
+    							showLine(stb, lines[line4], lfnt, true, FOREGROUND);
+#endif
     							Report(1, "[que:%u] set new band=%u '%s'\n", queCnt, Band, allBands[Band]);
     							if (next_evt == evt) {
     								if ((Freq < lBand) || (Freq > rBand)) {
@@ -1692,7 +1539,7 @@ int main() {
     					if (newBassBoost != BassBoost) {
     						BassBoost = newBassBoost;
     						rda5807_SetBassBoost(BassBoost);
-	#ifdef SET_SSD1306
+#ifdef SET_SSD1306
     						if (noMute)
     							sprintf(st, "Bas:%u Vol:%u", BassBoost, Volume);
     						else
@@ -1700,104 +1547,97 @@ int main() {
     						mkLineCenter(st, FONT_WIDTH);
     						ssd1306_clear_lines(4, 1);
     						ssd1306_text_xy(st, 1, 4, false);
-	#endif
-	#ifdef SET_LCD_UC
+#endif
+#ifdef SET_LCD_UC
     						sprintf(sta, "BASS:%u", BassBoost);
     						sprintf(stb, "VOLUME:%u", Volume);
     						if (!noMute) strcat(stb, " Mute");
     						mkLineWidth(sta, stb, lfnt->FontWidth);
-    						showLine(sta, line2, lfnt, true);
-	#endif
+    						showLine(sta, lines[line2], lfnt, true, FOREGROUND);
+#endif
     						Report(1, "[que:%u] set new BassBoost to %u\n", queCnt, BassBoost);
     					} else {
     						Report(1, "[que:%u] BassBoost already set to %u\n", queCnt, BassBoost);
     					}
     					break;
     				case cmdVol:
-    					if (newVolume != Volume) {
-    						Volume = newVolume;
-    						rda5807_SetVolume(Volume);
-	#ifdef SET_SSD1306
+    					Volume = newVolume;
+    					rda5807_SetVolume(Volume);
+#ifdef SET_SSD1306
+    					if (noMute)
+    						sprintf(st, "Bas:%u Vol:%u", BassBoost, Volume);
+    					else
+    						sprintf(st, "Bas:%u Vol:%u M", BassBoost, Volume);
+    					mkLineCenter(st, FONT_WIDTH);
+    					ssd1306_clear_lines(4, 1);
+    					ssd1306_text_xy(st, 1, 4, false);
+#endif
+#ifdef SET_LCD_UC
+    					sprintf(sta, "BASS:%u", BassBoost);
+    					sprintf(stb, "VOLUME:%u", Volume);
+    					if (!noMute) strcat(stb, " Mute");
+    					mkLineWidth(sta, stb, lfnt->FontWidth);
+    					showLine(sta, lines[line2], lfnt, true, FOREGROUND);
+#endif
+    					Report(1, "[que:%u] set new Volume to %u\n", queCnt, Volume);
+    				break;
+    				case cmdFreq:
+    					if ((newFreq >= lBand) && (newFreq <= rBand)) {
+    						Freq = newFreq;
+    						uint16_t fr = (uint16_t)(Freq * 10);
+    						rda5807_SetFreq_In100Khz(fr);
+    						rda5807_Get_ChanRssiFlag(&Chan, &RSSI, &stereo);
+    						int8_t idx = -1;
+#ifdef SET_SSD1306
+    						if (stereo)
+    							sprintf(st, "S:%u F:%.2f S", RSSI, Freq);
+    						else
+    							sprintf(st, "S:%u F:%.2f", RSSI, Freq);
+    						mkLineCenter(st, FONT_WIDTH);
+    						ssd1306_clear_lines(2, 3);
+    						ssd1306_text_xy(st, 1, 2, false);
+    						sprintf(sta, "%s", nameStation(Freq, &idx));
+    						mkLineCenter(sta, FONT_WIDTH);
+    						ssd1306_text_xy(sta, 1, 3, false);
     						if (noMute)
     							sprintf(st, "Bas:%u Vol:%u", BassBoost, Volume);
     						else
     							sprintf(st, "Bas:%u Vol:%u M", BassBoost, Volume);
     						mkLineCenter(st, FONT_WIDTH);
-    						ssd1306_clear_lines(4, 1);
     						ssd1306_text_xy(st, 1, 4, false);
-	#endif
-	#ifdef SET_LCD_UC
+#endif
+#ifdef SET_LCD_UC
+    						sprintf(sta, "RSSI:%u", RSSI);
+    						stb[0] = '\0';
+    						if (stereo) strcpy(stb, "Stereo ");
+    						sprintf(stb+strlen(stb), "FREQ:%.2f", Freq);
+    						mkLineWidth(sta, stb, lfnt->FontWidth);
+    						showLine(sta, lines[line1], lfnt, false, FOREGROUND);
+    						//
     						sprintf(sta, "BASS:%u", BassBoost);
     						sprintf(stb, "VOLUME:%u", Volume);
     						if (!noMute) strcat(stb, " Mute");
     						mkLineWidth(sta, stb, lfnt->FontWidth);
-    						showLine(sta, line2, lfnt, true);
-	#endif
-    						Report(1, "[que:%u] set new Volume to %u\n", queCnt, Volume);
-    					} else {
-    						Report(1, "[que:%u] Volume already set to %u\n", queCnt, Volume);
-    					}
-    				break;
-    				case cmdFreq:
-    					if ((newFreq >= lBand) && (newFreq <= rBand)) {
-    						if (newFreq != Freq) {
-    							Freq = newFreq;
-    							uint16_t fr = (uint16_t)(Freq * 10);
-    							rda5807_SetFreq_In100Khz(fr);
-    							rda5807_Get_ChanRssiFlag(&Chan, &RSSI, &stereo);
-    							int8_t idx = -1;
-	#ifdef SET_SSD1306
-    							if (stereo)
-    								sprintf(st, "S:%u F:%.2f S", RSSI, Freq);
-    							else
-    								sprintf(st, "S:%u F:%.2f", RSSI, Freq);
-    							mkLineCenter(st, FONT_WIDTH);
-    							ssd1306_clear_lines(2, 3);
-    							ssd1306_text_xy(st, 1, 2, false);
-    							sprintf(sta, "%s", nameStation(Freq, &idx));
-    							mkLineCenter(sta, FONT_WIDTH);
-    							ssd1306_text_xy(sta, 1, 3, false);
-								if (noMute)
-    								sprintf(st, "Bas:%u Vol:%u", BassBoost, Volume);
-    							else
-    								sprintf(st, "Bas:%u Vol:%u M", BassBoost, Volume);
-    							mkLineCenter(st, FONT_WIDTH);
-    							ssd1306_text_xy(st, 1, 4, false);
-	#endif
-	#ifdef SET_LCD_UC
-    							sprintf(sta, "RSSI:%u", RSSI);
-    							stb[0] = '\0';
-    							if (stereo) strcpy(stb, "Stereo ");
-    							sprintf(stb+strlen(stb), "FREQ:%.2f", Freq);
-    							mkLineWidth(sta, stb, lfnt->FontWidth);
-    							showLine(sta, line1, lfnt, false);
-    							//
-    							sprintf(sta, "BASS:%u", BassBoost);
-    							sprintf(stb, "VOLUME:%u", Volume);
-    							if (!noMute) strcat(stb, " Mute");
-    							mkLineWidth(sta, stb, lfnt->FontWidth);
-    							showLine(sta, line2, lfnt, false);
-    							//
-    							int dlm = sprintf(stn, "%s", nameStation(Freq, &idx));
-    							UC1609C_DrawFilledRectangle(1, line3, UC1609C_WIDTH - 4, lfnt->FontHeight - 1, BACKGROUND);
-    							UC1609C_Print(caclX(stn, lfnt->FontWidth), line3, stn, lfnt, 0, FOREGROUND);
-    							//
-    							UC1609C_DrawFilledRectangle(2, line4, UC1609C_WIDTH - 4, lfnt->FontHeight - 2, BACKGROUND);
-    							UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
-    							UC1609C_update();
-	#endif
-    							Report(1, "[que:%u] set new Freq to %.3f МГц '%s' Chan:%u Volume:%u idx=%d\n",
-    									  queCnt, Freq, nameStation(Freq, NULL), Chan, Volume, idx);
-    #ifdef SET_RDS
-    							if (rdsFlag) {
-    								rds_init();
-    								rdsTime = get_mstmr(rdsWait);
-    							}
-	#endif
+    						showLine(sta, lines[line2], lfnt, false, FOREGROUND);
+    						//
+    						int dlm = sprintf(stn, "%s", nameStation(Freq, &idx));
+    						clrLines(lines[line3], 2, 0, lfnt->FontHeight, BACKGROUND);
+    						UC1609C_Print(caclX(stn, lfnt->FontWidth), lines[line3], stn, lfnt, 0, FOREGROUND);
+    						//
+    						UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
+    						UC1609C_update();
+#endif
+    						Report(1, "[que:%u] set new Freq to %.3f МГц '%s' Chan:%u Volume:%u idx=%d\n",
+    								  queCnt, Freq, nameStation(Freq, NULL), Chan, Volume, idx);
+#ifdef SET_RDS
+    						if (rdsFlag) {
+    							rds_init();
+    							rdsTime = get_mstmr(rdsWait);
     						}
+#endif
     					}
     				break;
-	#ifdef SET_RDS
+#ifdef SET_RDS
     				case cmdRds:
     					rds_init();
     					if (!rdsFlag) {
@@ -1810,7 +1650,6 @@ int main() {
     						rdsTime = 0;
     					}
     				break;
-	#endif
 #endif
     				case cmdSec:
     				{
@@ -1829,29 +1668,31 @@ int main() {
     					uint16_t x = ((UC1609C_WIDTH - (hfnt->FontWidth * dl)) >> 1);
     					UC1609C_Print(x, 0, stx, hfnt, 0, BACKGROUND);
     					//
+    					//
     					if (flag_ver) {
     						tmr_ver--;
     						if (!tmr_ver) {
     							flag_ver = false;
-    							dl = sprintf(tmp, "%s", ver);
+    							if (encMode == iNone) {
+    								dl = sprintf(tmp, "%s", ver);
+    							} else {
+    								dl = sprintf(tmp, "encMode : %s", allMenu[encMode]);
+    							}
     							mkLineCenter(tmp, mfnt->FontWidth);
-    					    	/*if (dl > (UC1609C_WIDTH / mfnt->FontWidth - 1)) {
-    					    		dl = UC1609C_WIDTH / mfnt->FontWidth - 1;
-    					    		tmp[dl] = '\0';
-    					    	}*/
-    					    	x = 1;//((UC1609C_WIDTH - (mfnt->FontWidth * dl)) >> 1);
-    					    	UC1609C_Print(x, UC1609C_HEIGHT - mfnt->FontHeight, tmp, mfnt, 0, FOREGROUND);
+    							UC1609C_Print(1, UC1609C_HEIGHT - mfnt->FontHeight, tmp, mfnt, 0, FOREGROUND);
     						}
     					}
     					UC1609C_update();
 #endif
-#ifdef SET_RDA
+    					//
+    					if (indMenu >= 0) break;
+    					//
     					if (!scan) {
     						uint16_t sig = rda5807_rssi();
     						if (sig != RSSI) {
     							RSSI = sig;
     							stereo = rda5807_Get_StereoMonoFlag();
-	#ifdef SET_SSD1306
+#ifdef SET_SSD1306
     							if (stereo)
     								sprintf(st, "S:%u F:%.2f S", RSSI, Freq);
     							else
@@ -1859,15 +1700,15 @@ int main() {
     							mkLineCenter(st, FONT_WIDTH);
     							ssd1306_clear_lines(2, 1);
     							ssd1306_text_xy(st, 1, 2, false);
-	#endif
-	#ifdef SET_LCD_UC
+#endif
+#ifdef SET_LCD_UC
     							sprintf(sta, "RSSI:%u", RSSI);
     							stb[0] = '\0';
     							if (stereo) strcpy(stb, "Stereo ");
     							sprintf(stb+strlen(stb), "FREQ:%.2f", Freq);
     							mkLineWidth(sta, stb, lfnt->FontWidth);
-    							showLine(sta, line1, lfnt, true);
-	#endif
+    							showLine(sta, lines[line1], lfnt, true, FOREGROUND);
+#endif
     						}
     					} else {
     						if (rda5807_Get_SeekTuneReadyFlag()) {
@@ -1876,7 +1717,7 @@ int main() {
     							Freq /= 10;
     							rda5807_Get_ChanRssiFlag(&Chan, &RSSI, &stereo);
     							int8_t idx = -1;
-	#ifdef SET_SSD1306
+#ifdef SET_SSD1306
     							if (stereo)
     								sprintf(st, "S:%u F:%.2f S", RSSI, Freq);
     							else
@@ -1893,29 +1734,28 @@ int main() {
     								sprintf(st, "Bas:%u Vol:%u M", BassBoost, Volume);
     							mkLineCenter(st, FONT_WIDTH);
     							ssd1306_text_xy(st, 1, 4, false);
-	#endif
-    #ifdef SET_LCD_UC
+#endif
+#ifdef SET_LCD_UC
     							sprintf(sta, "RSSI:%u", RSSI);
     							stb[0] = '\0';
     							if (stereo) strcpy(stb, "Stereo ");
     							sprintf(stb+strlen(stb), " FREQ:%.2f", Freq);
     							mkLineWidth(sta, stb, lfnt->FontWidth);
-    							showLine(sta, line1, lfnt, false);
+    							showLine(sta, lines[line1], lfnt, false, FOREGROUND);
     							//
     							sprintf(sta, "BASS:%u", BassBoost);
     							sprintf(stb, "VOLUME:%u", Volume);
     							if (!noMute) strcat(stb, "_Mute");
     							mkLineWidth(sta, stb, lfnt->FontWidth);
-    							showLine(sta, line2, lfnt, false);
+    							showLine(sta, lines[line2], lfnt, false, FOREGROUND);
     							//
     							int dlm = sprintf(stn, "%s", nameStation(Freq, &idx));
-    							UC1609C_DrawFilledRectangle(1, line3, UC1609C_WIDTH - 4, lfnt->FontHeight - 1, BACKGROUND);
-    							UC1609C_Print(caclX(stn, lfnt->FontWidth), line3, stn, lfnt, 0, FOREGROUND);
+    							clrLines(lines[line3], 2, 0, lfnt->FontHeight, BACKGROUND);
+    							UC1609C_Print(caclX(stn, lfnt->FontWidth), lines[line3], stn, lfnt, 0, FOREGROUND);
     							//
-    							UC1609C_DrawFilledRectangle(2, line4, UC1609C_WIDTH - 4, lfnt->FontHeight - 2, BACKGROUND);
     							UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
     							UC1609C_update();
-	#endif
+#endif
     							Report(1, "[que:%u] set new Freq to %.3f МГц %s Chan:%u Volume:%u idx=%d\n",
     									  queCnt, Freq, nameStation(Freq, NULL), Chan, Volume, idx);
     							//
@@ -1927,14 +1767,6 @@ int main() {
     					#endif
     						}
     					}
-#endif
-#ifdef SET_ENCODER
-    					if (!prnFixFreq) {
-    						prnFixFreq = true;
-    						ev.cmd = cmdEnc;
-    						if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
-    					}
-#endif
     				}
     				break;
     				case cmdHelp:
@@ -2039,7 +1871,7 @@ int main() {
 	#endif
 	#ifdef SET_LCD_UC
     								mkLineCenter(st, lfnt->FontWidth);
-    								UC1609C_Print(1, line4, st, lfnt, 0, FOREGROUND);
+    								UC1609C_Print(1, lines[line4], st, lfnt, 0, FOREGROUND);
     								UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
     								UC1609C_update();
 	#endif
@@ -2092,15 +1924,12 @@ int main() {
     	}
 #endif
     	//
-#if defined(SET_ENCODER) || defined(SET_JOYSTIC) || defined(SET_IR)
     	if (cmd_tmr) {
     		if (check_mstmr(cmd_tmr)) {
     			cmd_tmr = 0;
-    			//gpio_put(LED_CMD_PIN, 0);//LED_CMD_PIN OFF
-    			for (int8_t i = 0; i < 64; i++) put_pixel(0);
+    			gpio_put(LED_CMD_PIN, 0);//LED_CMD_PIN OFF
     		}
     	}
-#endif
     	//
     	if (devError) {
     		errLedOn(true);
@@ -2146,7 +1975,7 @@ int main() {
     while (joy && sch) {
     	sleep_ms(1);
     };
-    sleep_ms(100);
+    sleep_ms(10);
 #endif
 
     //restart

@@ -1022,19 +1022,6 @@ CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardw
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.c.s"
 	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.c -o CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.c.s
 
-CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.obj: CMakeFiles/picoFM.dir/flags.make
-CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.obj: /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles --progress-num=$(CMAKE_PROGRESS_82) "Building C object CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.obj"
-	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.obj   -c /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c
-
-CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.i"
-	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c > CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.i
-
-CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.s"
-	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c -o CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.s
-
 # Object files for target picoFM
 picoFM_OBJECTS = \
 "CMakeFiles/picoFM.dir/picoFM.c.obj" \
@@ -1117,8 +1104,7 @@ picoFM_OBJECTS = \
 "CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_dma/dma.c.obj" \
 "CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/rtc.c.obj" \
 "CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_adc/adc.c.obj" \
-"CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.c.obj" \
-"CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.obj"
+"CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.c.obj"
 
 # External object files for target picoFM
 picoFM_EXTERNAL_OBJECTS =
@@ -1204,11 +1190,10 @@ picoFM.elf: CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_
 picoFM.elf: CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/rtc.c.obj
 picoFM.elf: CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_adc/adc.c.obj
 picoFM.elf: CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.c.obj
-picoFM.elf: CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.obj
 picoFM.elf: CMakeFiles/picoFM.dir/build.make
 picoFM.elf: pico-sdk/src/rp2_common/boot_stage2/bs2_default_padded_checksummed.S
 picoFM.elf: CMakeFiles/picoFM.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles --progress-num=$(CMAKE_PROGRESS_83) "Linking CXX executable picoFM.elf"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles --progress-num=$(CMAKE_PROGRESS_82) "Linking CXX executable picoFM.elf"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/picoFM.dir/link.txt --verbose=$(VERBOSE)
 	/usr/bin/arm-none-eabi-objcopy -Oihex /home/alarm/eclipse-workspace-arm/picoFM/picoFM.elf picoFM.hex
 	/usr/bin/arm-none-eabi-objcopy -Obinary /home/alarm/eclipse-workspace-arm/picoFM/picoFM.elf picoFM.bin

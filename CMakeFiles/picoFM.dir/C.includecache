@@ -152,8 +152,6 @@ hardware/platform_defs.h
 
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/pads_bank0.h
 
-/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/pio.h
-
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/pwm.h
 
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/rtc.h
@@ -209,12 +207,6 @@ hardware/address_mapped.h
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/hardware/address_mapped.h
 hardware/regs/pads_bank0.h
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/hardware/regs/pads_bank0.h
-
-/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/pio.h
-hardware/address_mapped.h
-/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/hardware/address_mapped.h
-hardware/regs/pio.h
-/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/hardware/regs/pio.h
 
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/pwm.h
 hardware/address_mapped.h
@@ -321,24 +313,6 @@ hardware/regs/intctrl.h
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/include/hardware/hardware/regs/intctrl.h
 hardware/regs/m0plus.h
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/include/hardware/hardware/regs/m0plus.h
-
-/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include/hardware/pio.h
-pico.h
-/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include/hardware/pico.h
-hardware/address_mapped.h
-/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include/hardware/hardware/address_mapped.h
-hardware/structs/pio.h
-/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include/hardware/hardware/structs/pio.h
-hardware/gpio.h
-/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include/hardware/hardware/gpio.h
-hardware/regs/dreq.h
-/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include/hardware/hardware/regs/dreq.h
-hardware/pio_instructions.h
-/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include/hardware/hardware/pio_instructions.h
-
-/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include/hardware/pio_instructions.h
-pico.h
-/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include/hardware/pico.h
 
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pwm/include/hardware/pwm.h
 pico.h
@@ -489,12 +463,8 @@ hardware/spi.h
 /home/alarm/eclipse-workspace-arm/picoFM/hardware/spi.h
 hardware/pwm.h
 /home/alarm/eclipse-workspace-arm/picoFM/hardware/pwm.h
-hardware/pio.h
-/home/alarm/eclipse-workspace-arm/picoFM/hardware/pio.h
 hardware/clocks.h
 /home/alarm/eclipse-workspace-arm/picoFM/hardware/clocks.h
-ws2812.pio.h
-/home/alarm/eclipse-workspace-arm/picoFM/ws2812.pio.h
 pico/unique_id.h
 /home/alarm/eclipse-workspace-arm/picoFM/pico/unique_id.h
 ssd1306.h
@@ -525,14 +495,6 @@ hdr.h
 /home/alarm/eclipse-workspace-arm/picoFM/ssd1306.h
 hdr.h
 /home/alarm/eclipse-workspace-arm/picoFM/hdr.h
-
-/home/alarm/eclipse-workspace-arm/picoFM/ws2812.pio.h
-hardware/pio.h
-/home/alarm/eclipse-workspace-arm/picoFM/hardware/pio.h
-hardware/clocks.h
-/home/alarm/eclipse-workspace-arm/picoFM/hardware/clocks.h
-hardware/clocks.h
-/home/alarm/eclipse-workspace-arm/picoFM/hardware/clocks.h
 
 generated/pico_base/pico/config_autogen.h
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/boards/include/boards/pico.h

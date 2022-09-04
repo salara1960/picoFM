@@ -82,22 +82,7 @@ void UC1609C_init( void )
 	UC1609C_reset();
 	
 	CS_SELECT();
-/*
-	_Delay( 10 );
-	UC1609C_sendCommand( UC1609C_TEMP_COMP_REG, UC1609C_TEMP_COMP_SET ); // Temperature Compensation Register, TC[1:0] = 00b= -0.00%/ C
-	//--------------------------------------------------------------------------------------------------------------------------
-	//UC1609C_sendCommand( UC1609C_ADDRESS_CONTROL, UC1609_ADDRESS_SET );// set RAM address control for UC1609
-	UC1609C_sendCommand( UC1609C_ADDRESS_CONTROL, UC1609C_ADDRESS_SET ); // set RAM address control for UC1609C
-	//--------------------------------------------------------------------------------------------------------------------------
-	UC1609C_sendCommand( UC1609C_FRAMERATE_REG, UC1609C_FRAMERATE_SET );
-	UC1609C_sendCommand( UC1609C_BIAS_RATIO, UC1609C_BIAS_RATIO_SET );   // set bias ratio to default
-	UC1609C_sendCommand( UC1609C_POWER_CONTROL,  UC1609C_PC_SET ); 
-	_Delay(100);														 //  mS delay
-	UC1609C_sendCommand( UC1609C_GN_PM, 0 );	// set gain and potentiometer - double byte command
-	UC1609C_sendCommand( UC1609C_GN_PM, 0x1E );	// Контрасность по умолчанию, default = 0x49 , range 0x00 to 0xFE set gain and potentiometer
-	UC1609C_sendCommand( UC1609C_DISPLAY_ON, 0x01 );					 // turn on display
-	UC1609C_sendCommand( UC1609C_LCD_CONTROL, UC1609C_ROTATION_NORMAL ); // Ротация по умолчанию, rotate to normal
-*/
+
 	uint8_t dat[] = {
 		UC1609C_TEMP_COMP_REG | UC1609C_TEMP_COMP_SET,
 		UC1609C_ADDRESS_CONTROL | UC1609C_ADDRESS_SET,
@@ -122,10 +107,7 @@ void UC1609C_init( void )
 void UC1609C_contrast (uint8_t bits) 
 {
 	CS_SELECT();//HAL_GPIO_WritePin( CS_GPIO_Port, CS_Pin, GPIO_PIN_RESET );
-/*
-	UC1609C_sendCommand( UC1609C_GN_PM, 0 );
-	UC1609C_sendCommand( UC1609C_GN_PM, bits );	// Контрасность по умолчанию, default = 0x49 , range 0x00 to 0xFE set gain and potentiometer
-*/
+
 	uint8_t dat[] = {UC1609C_GN_PM | 0, UC1609C_GN_PM | bits};
 	UC1609C_sendCommands(dat, sizeof(dat));
 	
@@ -457,7 +439,7 @@ void UC1609C_Print(int16_t x, int16_t y, char *str, FontDef_t *Font, uint8_t mul
 					str++;
 					// проверяем второй байт там сам символ
 					if ((uint8_t)*str == 0x81) { buff_char = 0xA8; break; }// байт символа Ё ( если нужнф еще символы добавляем тут и в функции DrawChar() )
-					if ((uint8_t)*str >= 0x90 && (uint8_t)*str <= 0xBF){ buff_char = (*str) + 0x30; }// байт символов А...Я а...п  делаем здвиг на +48
+					if ((uint8_t)*str >= 0x90 && (uint8_t)*str <= 0xBF) { buff_char = (*str) + 0x30; }// байт символов А...Я а...п  делаем здвиг на +48
 				break;
 				case 0xD1:
 					// увеличиваем массив так как нам нужен второй байт
@@ -489,8 +471,8 @@ void UC1609C_DrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint8_t c)
 {
 int16_t dx, dy, sx, sy, err, e2, i, tmp;
 	
-	if (x0 >= UC1609C_WIDTH) x0 = UC1609C_WIDTH - 1;
-	if (x1 >= UC1609C_WIDTH) x1 = UC1609C_WIDTH - 1;
+	if (x0 >= UC1609C_WIDTH)  x0 = UC1609C_WIDTH - 1;
+	if (x1 >= UC1609C_WIDTH)  x1 = UC1609C_WIDTH - 1;
 	if (y0 >= UC1609C_HEIGHT) y0 = UC1609C_HEIGHT - 1;
 	if (y1 >= UC1609C_HEIGHT) y1 = UC1609C_HEIGHT - 1;
 	
@@ -791,8 +773,6 @@ int ch = str[0];
         	st[n + kk + (n - 1)] = '\0';
         }
         strcpy(str, st);
-        //Report(1, "[%s] '%c'/0x%X slen:%u n:%d msg_len:%d st/str_len:%d/%d str:'%s'\n",
-        //		   __func__, ch, (uint8_t)ch, slen, n, k, strlen(st), strlen(str), str);
     }
 
     return str;
@@ -816,22 +796,21 @@ char st[64] = {0};
     return str1;
 }
 //-------------------------------------------------------------------------------------------
-void showLine(char *msg, uint16_t lin, FontDef_t *fnt, bool update)
+void showLine(char *msg, uint16_t lin, FontDef_t *fnt, bool update, uint8_t back)
 {
-int16_t x = 1;
-
-	/*if (*msg > 0x7f) {
-		int mx = UC1609C_WIDTH / fnt->FontWidth;
-		int dl = strlen(msg);
-		int sp = (mx - (dl >> 1)) >> 1;
-		x += sp * fnt->FontWidth;
-		Report(1, "[%s] cor_x:%d len_msg:%d font_width:%u\n", __func__, x, dl, fnt->FontWidth);
-	}*/
-
-	UC1609C_Print(x, lin, msg, fnt, 0, FOREGROUND);
+	UC1609C_Print(1, lin, msg, fnt, 0, back);
 	if (update) UC1609C_update();
 }
-//----------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
+void clrLines(uint16_t lin, uint8_t cnt, uint8_t update, uint8_t fh, uint8_t inv)
+{
+	if (!cnt) return;
+
+	if (cnt > 4) cnt = 4;
+	UC1609C_DrawFilledRectangle(1, lin, UC1609C_WIDTH - 4, fh * cnt, inv);
+	if (update) UC1609C_update();
+}
+//-------------------------------------------------------------------------------------------
 
 
 #endif

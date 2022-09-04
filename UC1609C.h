@@ -68,7 +68,6 @@
 #define UC1609C_HEIGHT	UC1609C_height
 
 
-
 #define ABS(x)   ((x) > 0 ? (x) : -(x))
 
 
@@ -147,7 +146,8 @@ void UC1609C_DrawFilledCircle(int16_t x0, int16_t y0, int16_t r, uint8_t c);
 int16_t caclX(char *str, uint16_t width);
 char *mkLineCenter(char *str, uint16_t width);
 char *mkLineWidth(char *str1, char *str2, uint16_t width);
-void showLine(char *msg, uint16_t lin, FontDef_t *fnt, bool update);
+void showLine(char *msg, uint16_t lin, FontDef_t *fnt, bool update, uint8_t back);
+void clrLines(uint16_t lin, uint8_t cnt, uint8_t update, uint8_t fh, uint8_t inv);
 
 #endif  // SET_LCD_UC
 	

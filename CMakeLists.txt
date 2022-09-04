@@ -50,10 +50,12 @@ target_link_libraries(picoFM
         hardware_adc
         hardware_spi
         hardware_pwm
-        hardware_pio
-        hardware_clocks
         hardware_pll
+        hardware_clocks
         )
+        
+#        //hardware_pio
+        
 
 pico_add_extra_outputs(picoFM)
 

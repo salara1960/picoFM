@@ -4,7 +4,6 @@
 
 #include "hdr.h"
 
-#ifdef SET_RDA
 
 #define SET_RDS
 
@@ -374,7 +373,5 @@ bool rda5807_Get_RDSReady();
 uint16_t rda5807_Get_reg(uint8_t reg);
 void rda5807_Set_Step(uint8_t step);
 
-
-#endif
 
 #endif

@@ -1192,33 +1192,6 @@ home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/irq_handler_ch
 	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/irq_handler_chain.S.obj
 .PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/irq_handler_chain.S.obj
 
-home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.obj: home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.obj
-
-.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.obj
-
-# target to build an object file
-home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.obj:
-	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.obj
-.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.obj
-
-home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.i: home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.i
-
-.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.i
-
-# target to preprocess a source file
-home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.i:
-	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.i
-.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.i
-
-home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.s: home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.s
-
-.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.s
-
-# target to generate assembly for a file
-home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.s:
-	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.s
-.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.s
-
 home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pll/pll.obj: home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pll/pll.c.obj
 
 .PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pll/pll.obj
@@ -2317,9 +2290,6 @@ help:
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/irq.i"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/irq.s"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/irq_handler_chain.obj"
-	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.obj"
-	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.i"
-	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.s"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pll/pll.obj"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pll/pll.i"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pll/pll.s"

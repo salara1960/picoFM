@@ -125,7 +125,6 @@ set(CMAKE_ASM_TARGET_INCLUDE_PATH
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_adc/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pwm/include"
-  "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include"
   )
 set(CMAKE_DEPENDS_CHECK_C
   "/home/alarm/eclipse-workspace-arm/picoFM/UC1609C.c" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/UC1609C.c.obj"
@@ -165,7 +164,6 @@ set(CMAKE_DEPENDS_CHECK_C
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_gpio/gpio.c" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_gpio/gpio.c.obj"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_i2c/i2c.c" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_i2c/i2c.c.obj"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/irq.c" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/irq.c.obj"
-  "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.obj"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pll/pll.c" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pll/pll.c.obj"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/rtc.c" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/rtc.c.obj"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.c" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.c.obj"
@@ -306,7 +304,6 @@ set(CMAKE_C_TARGET_INCLUDE_PATH
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_adc/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pwm/include"
-  "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include"
   )
 set(CMAKE_DEPENDS_CHECK_CXX
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_standard_link/new_delete.cpp" "/home/alarm/eclipse-workspace-arm/picoFM/CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_standard_link/new_delete.cpp.obj"
@@ -418,7 +415,6 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_adc/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/include"
   "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pwm/include"
-  "/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include"
   )
 
 # Targets to which this target links.

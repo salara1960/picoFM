@@ -208,7 +208,6 @@ CMakeFiles/picoFM.dir/UC1609C.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/io_bank0.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/m0plus.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/pads_bank0.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/pio.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/pwm.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/rtc.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/sio.h
@@ -223,7 +222,6 @@ CMakeFiles/picoFM.dir/UC1609C.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/interp.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/iobank0.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/padsbank0.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/pio.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/pwm.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/rtc.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/sio.h
@@ -239,8 +237,6 @@ CMakeFiles/picoFM.dir/UC1609C.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_gpio/include/hardware/gpio.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_i2c/include/hardware/i2c.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/include/hardware/irq.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include/hardware/pio.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include/hardware/pio_instructions.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pwm/include/hardware/pwm.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/include/hardware/rtc.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/include/hardware/spi.h
@@ -259,7 +255,6 @@ CMakeFiles/picoFM.dir/UC1609C.c.obj
  /home/alarm/eclipse-workspace-arm/picoFM/fonts.h
  /home/alarm/eclipse-workspace-arm/picoFM/hdr.h
  /home/alarm/eclipse-workspace-arm/picoFM/ssd1306.h
- /home/alarm/eclipse-workspace-arm/picoFM/ws2812.pio.h
  generated/pico_base/pico/config_autogen.h
  generated/pico_base/pico/version.h
 CMakeFiles/picoFM.dir/fonts.c.obj
@@ -293,7 +288,6 @@ CMakeFiles/picoFM.dir/fonts.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/io_bank0.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/m0plus.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/pads_bank0.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/pio.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/pwm.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/rtc.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/sio.h
@@ -308,7 +302,6 @@ CMakeFiles/picoFM.dir/fonts.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/interp.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/iobank0.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/padsbank0.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/pio.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/pwm.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/rtc.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/sio.h
@@ -324,8 +317,6 @@ CMakeFiles/picoFM.dir/fonts.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_gpio/include/hardware/gpio.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_i2c/include/hardware/i2c.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/include/hardware/irq.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include/hardware/pio.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include/hardware/pio_instructions.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pwm/include/hardware/pwm.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/include/hardware/rtc.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/include/hardware/spi.h
@@ -343,7 +334,6 @@ CMakeFiles/picoFM.dir/fonts.c.obj
  /home/alarm/eclipse-workspace-arm/picoFM/fonts.h
  /home/alarm/eclipse-workspace-arm/picoFM/hdr.h
  /home/alarm/eclipse-workspace-arm/picoFM/ssd1306.h
- /home/alarm/eclipse-workspace-arm/picoFM/ws2812.pio.h
  generated/pico_base/pico/config_autogen.h
  generated/pico_base/pico/version.h
 CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/lib/tinyusb/src/class/audio/audio_device.c.obj
@@ -1660,36 +1650,6 @@ CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardw
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_platform/include/pico/platform.h
  generated/pico_base/pico/config_autogen.h
  generated/pico_base/pico/version.h
-CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c.obj
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/boards/include/boards/pico.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico/assert.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico/config.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico/error.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico/types.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/platform_defs.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/addressmap.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/dreq.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/io_bank0.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/pads_bank0.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/pio.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/sio.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/interp.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/iobank0.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/padsbank0.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/pio.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/sio.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/cmsis/include/cmsis/rename_exceptions.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_base/include/hardware/address_mapped.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_claim/include/hardware/claim.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_gpio/include/hardware/gpio.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include/hardware/pio.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include/hardware/pio_instructions.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/pio.c
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_sync/include/hardware/sync.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_platform/include/pico/platform.h
- generated/pico_base/pico/config_autogen.h
- generated/pico_base/pico/version.h
 CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pll/pll.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/boards/include/boards/pico.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico.h
@@ -2527,7 +2487,6 @@ CMakeFiles/picoFM.dir/libs.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/io_bank0.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/m0plus.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/pads_bank0.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/pio.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/pwm.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/rtc.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/sio.h
@@ -2542,7 +2501,6 @@ CMakeFiles/picoFM.dir/libs.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/interp.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/iobank0.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/padsbank0.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/pio.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/pwm.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/rtc.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/sio.h
@@ -2558,8 +2516,6 @@ CMakeFiles/picoFM.dir/libs.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_gpio/include/hardware/gpio.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_i2c/include/hardware/i2c.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/include/hardware/irq.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include/hardware/pio.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include/hardware/pio_instructions.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pwm/include/hardware/pwm.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/include/hardware/rtc.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/include/hardware/spi.h
@@ -2577,7 +2533,6 @@ CMakeFiles/picoFM.dir/libs.c.obj
  /home/alarm/eclipse-workspace-arm/picoFM/libs.c
  /home/alarm/eclipse-workspace-arm/picoFM/libs.h
  /home/alarm/eclipse-workspace-arm/picoFM/ssd1306.h
- /home/alarm/eclipse-workspace-arm/picoFM/ws2812.pio.h
  generated/pico_base/pico/config_autogen.h
  generated/pico_base/pico/version.h
 CMakeFiles/picoFM.dir/picoFM.c.obj
@@ -2611,7 +2566,6 @@ CMakeFiles/picoFM.dir/picoFM.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/io_bank0.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/m0plus.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/pads_bank0.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/pio.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/pwm.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/rtc.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/sio.h
@@ -2626,7 +2580,6 @@ CMakeFiles/picoFM.dir/picoFM.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/interp.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/iobank0.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/padsbank0.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/pio.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/pwm.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/rtc.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/sio.h
@@ -2642,8 +2595,6 @@ CMakeFiles/picoFM.dir/picoFM.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_gpio/include/hardware/gpio.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_i2c/include/hardware/i2c.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/include/hardware/irq.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include/hardware/pio.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include/hardware/pio_instructions.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pwm/include/hardware/pwm.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/include/hardware/rtc.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/include/hardware/spi.h
@@ -2664,7 +2615,6 @@ CMakeFiles/picoFM.dir/picoFM.c.obj
  /home/alarm/eclipse-workspace-arm/picoFM/picoFM.c
  /home/alarm/eclipse-workspace-arm/picoFM/rda5807.h
  /home/alarm/eclipse-workspace-arm/picoFM/ssd1306.h
- /home/alarm/eclipse-workspace-arm/picoFM/ws2812.pio.h
  generated/pico_base/pico/config_autogen.h
  generated/pico_base/pico/version.h
 CMakeFiles/picoFM.dir/rda5807.c.obj
@@ -2698,7 +2648,6 @@ CMakeFiles/picoFM.dir/rda5807.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/io_bank0.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/m0plus.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/pads_bank0.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/pio.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/pwm.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/rtc.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/sio.h
@@ -2713,7 +2662,6 @@ CMakeFiles/picoFM.dir/rda5807.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/interp.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/iobank0.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/padsbank0.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/pio.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/pwm.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/rtc.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/sio.h
@@ -2729,8 +2677,6 @@ CMakeFiles/picoFM.dir/rda5807.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_gpio/include/hardware/gpio.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_i2c/include/hardware/i2c.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/include/hardware/irq.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include/hardware/pio.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include/hardware/pio_instructions.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pwm/include/hardware/pwm.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/include/hardware/rtc.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/include/hardware/spi.h
@@ -2748,7 +2694,6 @@ CMakeFiles/picoFM.dir/rda5807.c.obj
  /home/alarm/eclipse-workspace-arm/picoFM/rda5807.c
  /home/alarm/eclipse-workspace-arm/picoFM/rda5807.h
  /home/alarm/eclipse-workspace-arm/picoFM/ssd1306.h
- /home/alarm/eclipse-workspace-arm/picoFM/ws2812.pio.h
  generated/pico_base/pico/config_autogen.h
  generated/pico_base/pico/version.h
 CMakeFiles/picoFM.dir/ssd1306.c.obj
@@ -2782,7 +2727,6 @@ CMakeFiles/picoFM.dir/ssd1306.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/io_bank0.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/m0plus.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/pads_bank0.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/pio.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/pwm.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/rtc.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/sio.h
@@ -2797,7 +2741,6 @@ CMakeFiles/picoFM.dir/ssd1306.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/interp.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/iobank0.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/padsbank0.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/pio.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/pwm.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/rtc.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/sio.h
@@ -2813,8 +2756,6 @@ CMakeFiles/picoFM.dir/ssd1306.c.obj
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_gpio/include/hardware/gpio.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_i2c/include/hardware/i2c.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/include/hardware/irq.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include/hardware/pio.h
- /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pio/include/hardware/pio_instructions.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pwm/include/hardware/pwm.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/include/hardware/rtc.h
  /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/include/hardware/spi.h
@@ -2831,7 +2772,6 @@ CMakeFiles/picoFM.dir/ssd1306.c.obj
  /home/alarm/eclipse-workspace-arm/picoFM/hdr.h
  /home/alarm/eclipse-workspace-arm/picoFM/ssd1306.c
  /home/alarm/eclipse-workspace-arm/picoFM/ssd1306.h
- /home/alarm/eclipse-workspace-arm/picoFM/ws2812.pio.h
  generated/pico_base/pico/config_autogen.h
  generated/pico_base/pico/version.h
 CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_standard_link/new_delete.cpp.obj

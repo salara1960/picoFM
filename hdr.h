@@ -24,14 +24,7 @@
 #include "hardware/adc.h"
 #include "hardware/spi.h"
 #include "hardware/pwm.h"
-#include "hardware/pio.h"
-// for ws2812 support
 #include "hardware/clocks.h"
-#include "ws2812.pio.h"
-// for encoder support
-//#include "hardware/timer.h"
-//#include "quadrature_encoder.pio.h"
-//
 #include "pico/unique_id.h"
 
 
@@ -59,14 +52,9 @@
 
 #define SET_PICO
 
-#define SET_RDA
-
-//#define SET_IR
 #define SET_JOYSTIC
-//#define SET_ENCODER
-//#define SET_KBD
-#define SET_KBD_MUX
-
+#define SET_ENCODER
+//#define SET_KBD_MUX
 
 //#define SET_WITH_DMA
 #define RUS_SUPPORT
@@ -75,10 +63,8 @@
 
 #define MAX_UART_BUF 256
 
-#if defined(SET_RDA) || defined(SET_SSD1306)
-	#define I2C_SDA_PIN 2//PICO_DEFAULT_I2C_SDA_PIN
-	#define I2C_SCL_PIN 3//PICO_DEFAULT_I2C_SCL_PIN
-#endif
+#define I2C_SDA_PIN 2//PICO_DEFAULT_I2C_SDA_PIN
+#define I2C_SCL_PIN 3//PICO_DEFAULT_I2C_SCL_PIN
 
 #ifdef SET_LCD_UC
 	#define LCD_DC_PIN 4
@@ -88,47 +74,29 @@
 	#define LCD_MOSI_PIN 7
 #endif
 
-#ifdef SET_RDA
+//#define SET_RDA_FP
+#define MIN_VOLUME  0
+#define MAX_VOLUME 15
 
-	//#define SET_RDA_FP
-	#define MIN_VOLUME  0
-	#define MAX_VOLUME 15
+#define portRDA  portI2C
 
-	#define portRDA  portI2C
+#define MAX_LIST      26//25
+#define MAX_BAND       4
+#define MAX_STEP       4
+#define MAX_SIZE_NAME 31//16//31
+#define MAX_MENU       5
 
-	#define MAX_LIST      26//25
-	#define MAX_BAND       4
-	#define MAX_STEP       4
-	#define MAX_SIZE_NAME 31//16//31
-
-	#ifdef SET_ENCODER
-		#define MAX_CMDS  21//20//17//16//15//6
-	#else
-		#define MAX_CMDS  18//15//6
-	#endif
-
+#ifdef SET_ENCODER
+	#define MAX_CMDS  21//20//17//16//15//6
 #else
-
-	#ifdef SET_ENCODER
-		#define MAX_CMDS   12
-	#else
-		#define MAX_CMDS   10
-	#endif
-
+	#define MAX_CMDS  18//15//6
 #endif
+
 //
 #ifdef SET_WITH_DMA
-	#ifdef SET_RDA
-		#define MAX_ERR_CODE 7
-	#else
-		#define MAX_ERR_CODE 6
-	#endif
+	#define MAX_ERR_CODE 7
 #else
-	#ifdef SET_RDA
-		#define MAX_ERR_CODE 6
-	#else
-		#define MAX_ERR_CODE 5
-	#endif
+	#define MAX_ERR_CODE 6
 #endif
 //
 #define UART_ID 	 uart0
