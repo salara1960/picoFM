@@ -39,6 +39,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/irq.c.obj"
   "CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_irq/irq_handler_chain.S.obj"
   "CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pll/pll.c.obj"
+  "CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rosc/rosc.c.obj"
   "CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/rtc.c.obj"
   "CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_spi/spi.c.obj"
   "CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_sync/sync.c.obj"
@@ -79,6 +80,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/picoFM.dir/libs.c.obj"
   "CMakeFiles/picoFM.dir/picoFM.c.obj"
   "CMakeFiles/picoFM.dir/rda5807.c.obj"
+  "CMakeFiles/picoFM.dir/sleep.c.obj"
   "picoFM.elf"
   "picoFM.pdb"
 )

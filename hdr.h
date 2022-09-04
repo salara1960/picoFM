@@ -25,6 +25,7 @@
 #include "hardware/spi.h"
 #include "hardware/pwm.h"
 #include "hardware/clocks.h"
+#include "hardware/rosc.h"
 #include "pico/unique_id.h"
 
 
@@ -71,7 +72,7 @@
 #define MAX_BAND       4
 #define MAX_STEP       4
 #define MAX_SIZE_NAME 31//16//31
-#define MAX_MENU       7//6
+#define MAX_MENU       8//7//6
 
 #ifdef SET_ENCODER
 	#define MAX_CMDS  22//21//20//17//16//15//6

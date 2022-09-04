@@ -1219,6 +1219,33 @@ home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pll/pll.c.s:
 	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pll/pll.c.s
 .PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pll/pll.c.s
 
+home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rosc/rosc.obj: home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rosc/rosc.c.obj
+
+.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rosc/rosc.obj
+
+# target to build an object file
+home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rosc/rosc.c.obj:
+	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rosc/rosc.c.obj
+.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rosc/rosc.c.obj
+
+home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rosc/rosc.i: home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rosc/rosc.c.i
+
+.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rosc/rosc.i
+
+# target to preprocess a source file
+home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rosc/rosc.c.i:
+	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rosc/rosc.c.i
+.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rosc/rosc.c.i
+
+home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rosc/rosc.s: home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rosc/rosc.c.s
+
+.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rosc/rosc.s
+
+# target to generate assembly for a file
+home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rosc/rosc.c.s:
+	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rosc/rosc.c.s
+.PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rosc/rosc.c.s
+
 home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/rtc.obj: home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/rtc.c.obj
 
 .PHONY : home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/rtc.obj
@@ -2137,6 +2164,33 @@ rda5807.c.s:
 	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/rda5807.c.s
 .PHONY : rda5807.c.s
 
+sleep.obj: sleep.c.obj
+
+.PHONY : sleep.obj
+
+# target to build an object file
+sleep.c.obj:
+	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/sleep.c.obj
+.PHONY : sleep.c.obj
+
+sleep.i: sleep.c.i
+
+.PHONY : sleep.i
+
+# target to preprocess a source file
+sleep.c.i:
+	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/sleep.c.i
+.PHONY : sleep.c.i
+
+sleep.s: sleep.c.s
+
+.PHONY : sleep.s
+
+# target to generate assembly for a file
+sleep.c.s:
+	$(MAKE) -f CMakeFiles/picoFM.dir/build.make CMakeFiles/picoFM.dir/sleep.c.s
+.PHONY : sleep.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -2266,6 +2320,9 @@ help:
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pll/pll.obj"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pll/pll.i"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_pll/pll.s"
+	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rosc/rosc.obj"
+	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rosc/rosc.i"
+	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rosc/rosc.s"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/rtc.obj"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/rtc.i"
 	@echo "... home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rtc/rtc.s"
@@ -2368,6 +2425,9 @@ help:
 	@echo "... rda5807.obj"
 	@echo "... rda5807.i"
 	@echo "... rda5807.s"
+	@echo "... sleep.obj"
+	@echo "... sleep.i"
+	@echo "... sleep.s"
 .PHONY : help
 
 

@@ -24,7 +24,8 @@ add_executable(picoFM
         libs.c
         rda5807.c
         fonts.c
-        UC1609C.c)
+        UC1609C.c
+        sleep.c)
 
 
 pico_set_program_name(picoFM "picoFM")
@@ -51,6 +52,7 @@ target_link_libraries(picoFM
         hardware_pwm
         hardware_pll
         hardware_clocks
+        hardware_rosc
         )
 
 #        //hardware_pio

@@ -82,6 +82,8 @@
 /home/alarm/eclipse-workspace-arm/picoFM/pico-sdk/src/rp2_common/hardware_watchdog/CMakeFiles/edit_cache.dir
 /home/alarm/eclipse-workspace-arm/picoFM/pico-sdk/src/rp2_common/hardware_xosc/CMakeFiles/rebuild_cache.dir
 /home/alarm/eclipse-workspace-arm/picoFM/pico-sdk/src/rp2_common/hardware_xosc/CMakeFiles/edit_cache.dir
+/home/alarm/eclipse-workspace-arm/picoFM/pico-sdk/src/rp2_common/hardware_rosc/CMakeFiles/rebuild_cache.dir
+/home/alarm/eclipse-workspace-arm/picoFM/pico-sdk/src/rp2_common/hardware_rosc/CMakeFiles/edit_cache.dir
 /home/alarm/eclipse-workspace-arm/picoFM/pico-sdk/src/rp2_common/pico_bootrom/CMakeFiles/rebuild_cache.dir
 /home/alarm/eclipse-workspace-arm/picoFM/pico-sdk/src/rp2_common/pico_bootrom/CMakeFiles/edit_cache.dir
 /home/alarm/eclipse-workspace-arm/picoFM/pico-sdk/src/rp2_common/pico_platform/CMakeFiles/rebuild_cache.dir
@@ -137,6 +139,8 @@
 /home/alarm/eclipse-workspace-arm/picoFM/pico-sdk/src/rp2_common/pico_fix/rp2040_usb_device_enumeration/CMakeFiles/edit_cache.dir
 /home/alarm/eclipse-workspace-arm/picoFM/pico-sdk/src/rp2_common/pico_runtime/CMakeFiles/edit_cache.dir
 /home/alarm/eclipse-workspace-arm/picoFM/pico-sdk/src/rp2_common/pico_runtime/CMakeFiles/rebuild_cache.dir
+/home/alarm/eclipse-workspace-arm/picoFM/pico-sdk/src/rp2_common/pico_sleep/CMakeFiles/rebuild_cache.dir
+/home/alarm/eclipse-workspace-arm/picoFM/pico-sdk/src/rp2_common/pico_sleep/CMakeFiles/edit_cache.dir
 /home/alarm/eclipse-workspace-arm/picoFM/pico-sdk/src/rp2040/CMakeFiles/rebuild_cache.dir
 /home/alarm/eclipse-workspace-arm/picoFM/pico-sdk/src/rp2040/CMakeFiles/edit_cache.dir
 /home/alarm/eclipse-workspace-arm/picoFM/pico-sdk/src/rp2040/hardware_regs/CMakeFiles/rebuild_cache.dir
