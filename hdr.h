@@ -29,14 +29,12 @@
 #include "pico/unique_id.h"
 
 
+//------------------------------------------------------------------------------
+
 
 #define portI2C i2c1
 
 #define portSPI spi0
-
-#define SET_LCD_UC
-
-//------------------------------------------------------------------------------
 
 #define SET_PICO
 
@@ -54,13 +52,11 @@
 #define I2C_SDA_PIN 2//PICO_DEFAULT_I2C_SDA_PIN
 #define I2C_SCL_PIN 3//PICO_DEFAULT_I2C_SCL_PIN
 
-#ifdef SET_LCD_UC
-	#define LCD_DC_PIN 4
-	//#define LCD_CS_PIN 5
-	#define LCD_RST_PIN 5
-	#define LCD_SCK_PIN  6
-	#define LCD_MOSI_PIN 7
-#endif
+#define LCD_DC_PIN 4
+//#define LCD_CS_PIN 5
+#define LCD_RST_PIN 5
+#define LCD_SCK_PIN  6
+#define LCD_MOSI_PIN 7
 
 //#define SET_RDA_FP
 #define MIN_VOLUME  0
@@ -72,7 +68,7 @@
 #define MAX_BAND       4
 #define MAX_STEP       4
 #define MAX_SIZE_NAME 31//16//31
-#define MAX_MENU       8//7//6
+#define MAX_MENU       9//8//7//6
 
 #ifdef SET_ENCODER
 	#define MAX_CMDS  22//21//20//17//16//15//6

@@ -1,12 +1,9 @@
 #include "hdr.h"
-
-#ifdef SET_LCD_UC
-
 #include "UC1609C.h"
 
 //------------------------------------------------------------------------------
 
-extern void Report(const uint8_t addTime, const char *fmt, ...);
+//extern void Report(const uint8_t addTime, const char *fmt, ...);
 
 
 uint8_t buffer[ ( UC1609C_WIDTH * UC1609C_HEIGHT / 8 ) + 1 ]; // буфер кадра, create a full screen buffer (192 * 64/8) + 1
@@ -818,5 +815,3 @@ void clrLines(uint16_t lin, uint8_t cnt, uint8_t update, uint8_t fh, uint8_t inv
 }
 //-------------------------------------------------------------------------------------------
 
-
-#endif

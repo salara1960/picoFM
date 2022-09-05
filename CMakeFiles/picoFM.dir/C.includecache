@@ -502,6 +502,12 @@ fonts.h
 UC1609C.h
 /home/alarm/eclipse-workspace-arm/picoFM/UC1609C.h
 
+/home/alarm/eclipse-workspace-arm/picoFM/rda5807.c
+hdr.h
+/home/alarm/eclipse-workspace-arm/picoFM/hdr.h
+rda5807.h
+/home/alarm/eclipse-workspace-arm/picoFM/rda5807.h
+
 /home/alarm/eclipse-workspace-arm/picoFM/rda5807.h
 hdr.h
 /home/alarm/eclipse-workspace-arm/picoFM/hdr.h

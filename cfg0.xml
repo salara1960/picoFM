@@ -39,6 +39,7 @@
       <includepath>/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rosc/include</includepath>
       <includepath>/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_xosc/include</includepath>
       <includepath>/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_sync/include</includepath>
+      <includepath>/home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_util/include</includepath>
     </language>
     <language id="org.eclipse.cdt.core.gcc" name="C Source File">
       <includepath>/home/alarm/PICO/pico-sdk/src/common</includepath>
@@ -80,14 +81,12 @@
       <includepath>/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rosc/include</includepath>
       <includepath>/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_xosc/include</includepath>
       <includepath>/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_sync/include</includepath>
+      <includepath>/home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_util/include</includepath>
     </language>
     <language id="org.eclipse.cdt.core.g++" name="C++ Source File">
-      <includepath>/home/alarm/PICO/pico-sdk/src/common</includepath>
-      <includepath>/home/alarm/PICO/pico-sdk/src/rp2_common/hardware_watchdog/include</includepath>
-      <includepath>/home/alarm/PICO/pico-sdk/src/common/pico_util/include/pico/util</includepath>
-      <includepath>/home/alarm/PICO/pico-sdk/src/host/hardware_gpio/include</includepath>
       <includepath>/home/alarm/PICO/pi-pico/pico/pico-sdk/src/boards/include/boards</includepath>
-      <includepath>/home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_time/include/pico</includepath>
+      <includepath>/home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_time/include</includepath>
+      <includepath>/home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_util/include</includepath>
       <includepath>/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs</includepath>
       <includepath>/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs</includepath>
       <includepath>/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_dma/include</includepath>
@@ -110,17 +109,6 @@
       <includepath>/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_sleep/include</includepath>
       <includepath>/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include</includepath>
       <includepath>/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include</includepath>
-      <includepath>larm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_timer</includepath>
-      <includepath>/home/alarm/PICO/pico-sdk/src/common/pico_stdlib/include</includepath>
-      <includepath>/home/alarm/PICO/pico-sdk/src/common/pico_base/include</includepath>
-      <includepath>/home/alarm/PICO/pico-sdk/src/common/pico_time/include</includepath>
-      <includepath>/home/alarm/PICO/pico-sdk/src/common/pico_binary_info/include</includepath>
-      <includepath>/home/alarm/PICO/pico-sdk/src/host/pico_multicore/include</includepath>
-      <includepath>/home/alarm/PICO/pico-sdk/src/rp2_common/hardware_i2c/include</includepath>
-      <includepath>/home/alarm/PICO/pico-sdk/src/rp2_common/hardware_rtc/include</includepath>
-      <includepath>/home/alarm/PICO/pico-sdk/src/rp2_common/hardware_gpio/include</includepath>
-      <includepath>/home/alarm/PICO/pico-sdk/src/rp2_common/hardware_irq/include</includepath>
-      <includepath>/home/alarm/PICO/pico-sdk/src/rp2_common/pico_unique_id/include</includepath>
     </language>
     <language name="Object File"/>
   </section>

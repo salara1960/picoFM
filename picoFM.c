@@ -2,14 +2,13 @@
 #include "sleep.h"
 #include "libs.h"
 #include "rda5807.h"
+#include "fonts.h"
+#include "UC1609C.h"
 
-#ifdef SET_LCD_UC
-	#include "fonts.h"
-	#include "UC1609C.h"
-#endif
 //------------------------------------------------------------------------------------------
 //         picotool load -v -x picoFM.uf2 -t uf2
 //------------------------------------------------------------------------------------------
+
 enum {
 	cmdNone = -1,
 	cmdHelp = 0,
@@ -40,7 +39,6 @@ enum {
 	cmdShowFreq
 };
 
-/**/
 enum {
 	devOk = 0,
 	devMem = 1,
@@ -58,7 +56,7 @@ enum {
 #ifdef SET_WITH_DMA
 	uint16_t devDMA = devDma;
 #endif
-/**/
+
 
 //const char *ver = "Version 0.1";
 //const char *ver = "Ver.0.2 15.08.22";// add queue for events
@@ -85,12 +83,13 @@ enum {
 //const char *ver = "Ver.2.5 02.09.22 mux_kbd";//add mux_kbd with 6 button
 //const char *ver = "Ver.2.5.1 03.09.22 encoder";
 //const char *ver = "Ver.2.6 03.09.22 encoder";// new encoder mode support !!!
-const char *ver = "Ver.2.7 04.09.22 encoder";// remove ssd1306 support and add sleep mode
+//const char *ver = "Ver.2.7 04.09.22 encoder";// remove ssd1306 support and add sleep mode
+const char *ver = "Ver.2.8 05.09.22 encoder";// add contrast mode to control menu
 
 
 
 
-volatile static uint32_t epoch = 1662368495;//1662331845;//1662327755;//1662295275;//1662288820;
+volatile static uint32_t epoch = 1662373645;//1662368495;//1662331845;//1662327755;//1662295275;//1662288820;
 //1662251055;//1662246985;//1662209185;//1662156375;//1662151345;//1662114275;//1662038845;
 //1661990305;//1661949985;//1661902365;//1661897825;//1661792625;
 //1661767566;//1661726088;//1661699652;//1661684619;//1661641164;//1661614899;//1661536565;
@@ -164,7 +163,7 @@ char tmp[128];
 bool led = true;
 const uint LED_PIN = 29;
 const uint ERR_PIN = 8;//14;
-
+const uint LCD_HIDE_PIN = 12;
 const uint LED_CMD_PIN = 14;//16
 uint32_t start_jkey = 0;
 uint32_t cmd_tmr = 0;
@@ -194,6 +193,7 @@ bool syncRds = false;
 bool readyRds = false;
 //
 
+//---   for Menu   ---
 enum {
 	iNone = -1,
 	iExit,
@@ -202,10 +202,21 @@ enum {
 	iFreq,
 	iVolume,
 	iBass,
+	iContrast,
 	iRestart,
 	iSleep
 };
-
+enum {
+	line1 = 0,
+	line2,
+	line3,
+	line4,
+	line5
+};
+FontDef_t *mfnt = NULL;
+FontDef_t *lfnt = NULL;
+FontDef_t *hfnt = NULL;
+uint8_t lines[5] = {0};
 bool menuAct = false;
 int8_t encMode = iNone;
 int8_t indMenu = -1;
@@ -216,9 +227,12 @@ const char *allMenu[MAX_MENU] = {
 	"  Freq  ",
 	" Volume ",
 	"  Bass  ",
+	"Contrast",
 	" Restart",
-	" Sleep  "
+	"  Sleep "
 };
+
+//---------------
 
 const char *allBands[MAX_BAND] = {
 	"87-108 MHz",// (US/Europe)",
@@ -376,21 +390,6 @@ uint16_t listSize = 0;
 	bool joy = false;
 #endif
 
-#ifdef SET_LCD_UC
-	enum {
-		line1 = 0,
-		line2,
-		line3,
-		line4,
-		line5
-	};
-	FontDef_t *mfnt = NULL;
-	FontDef_t *lfnt = NULL;
-	FontDef_t *hfnt = NULL;
-
-	uint8_t lines[5] = {0};
-#endif
-
 
 #ifdef SET_ENCODER
 	#define ENC_PIN_A  9
@@ -432,6 +431,9 @@ uint16_t listSize = 0;
 //*******************************************************************************************
 
 //-------------------------------------------------------------------------------------------
+//   Функция зажигает светодиод нового события (от JOYSTIC, ENCODER, KBD_MUX)
+//   Светодиод будет потушен через 150 ms
+//
 void cmdLedOn()
 {
 	gpio_put(LED_CMD_PIN, 1);
@@ -441,6 +443,9 @@ void cmdLedOn()
 
 #if defined(SET_JOYSTIC) || defined(SET_ENCODER)
 	//----------------------------------------------------------------------------------------
+	//   CallBack-функция вызывается по завершению прерывания от определенных пинов
+	//   Обслуживает кнопки джойстика и энкодера, помещая соответствующее сообщение в очередь
+	//
 	void gpio_callback(uint gpio, uint32_t events)
 	{
 		if (!que_start) {
@@ -467,18 +472,18 @@ void cmdLedOn()
 					cmdLedOn();
 					evt_t e = {cmdNone, 0};
 					switch (gpio) {
-						case jKEY_PIN:
+						case jKEY_PIN:// нажата кнопка джойстика
 							seek_up = 1;
 							e.cmd = cmdScan;
 						break;
 #ifdef SET_ENCODER
-						case ENC_PIN:
+						case ENC_PIN:// нажата кнопка энкодера
 							e.cmd = cmdEnc;
 							if (sleepON) for (int i = 0; i < 1000; i++) {}
 						break;
 #endif
 #ifdef SET_KBD_MUX
-						case MUX_KEY_PIN:
+						case MUX_KEY_PIN:// нажата кнопка на клавиатуре
 						{
 							switch (chan) {
 								case listMinus:
@@ -532,39 +537,38 @@ void cmdLedOn()
 			}
 		}
 #ifdef SET_ENCODER
-		else
-			if (gpio == ENC_PIN_A) {
-				if (sleepON) return;
+		else if (gpio == ENC_PIN_A) {// блок обслудивания данных от энкодера (каналы А и В)
+			if (sleepON) return;
 
-			//if (!fix_freq) {
-			//if (encMode >= 0) {
-				if (check_mstmr(ec_tmr)) {
-					if (gpio_get(ENC_PIN_B)) ec_counter++;
-										else ec_counter--;
-					if (ec_last_counter != ec_counter) {
-						int cd = cmdNone;
-						if ((ec_last_counter == MIN_ENC_VALUE) && (ec_counter == MAX_ENC_VALUE)) cd = cmdDec;
-						else
-						if ((ec_last_counter == MAX_ENC_VALUE) && (ec_counter == MIN_ENC_VALUE)) cd = cmdInc;
-						else
-						if (ec_last_counter < ec_counter) cd = cmdInc;
-						else
-						if (ec_last_counter > ec_counter) cd = cmdDec;
-						ec_last_counter = ec_counter;
-						if (cd != cmdNone)	{
-							evt_t e = {cd, 0};
-							if (!queue_try_add(&evt_fifo, &e)) devError |= devQue;
-							ec_tmr = get_mstmr(_250ms);
-						}
+			if (check_mstmr(ec_tmr)) {
+				if (gpio_get(ENC_PIN_B)) ec_counter++;
+									else ec_counter--;
+				if (ec_last_counter != ec_counter) {
+					int cd = cmdNone;
+					if ((ec_last_counter == MIN_ENC_VALUE) && (ec_counter == MAX_ENC_VALUE)) cd = cmdDec;
+					else
+					if ((ec_last_counter == MAX_ENC_VALUE) && (ec_counter == MIN_ENC_VALUE)) cd = cmdInc;
+					else
+					if (ec_last_counter < ec_counter) cd = cmdInc;
+					else
+					if (ec_last_counter > ec_counter) cd = cmdDec;
+					ec_last_counter = ec_counter;
+					if (cd != cmdNone)	{
+						evt_t e = {cd, 0};
+						if (!queue_try_add(&evt_fifo, &e)) devError |= devQue;
+						ec_tmr = get_mstmr(_250ms);
 					}
 				}
-			//}
+			}
 		}
 #endif
 	}
 #endif
 	//----------------------------------------------------------------------------------------
 #ifdef SET_JOYSTIC
+	//   Функция добавляет очередной замер в буффер для последующей фильтрации
+	//   (поиск среднего в скользящем окне размерностью MAX_ADC_BUF замеров)
+	//
 	uint8_t adcAddVal(adc_chan_t *chan, uint16_t val)
 	{
 	int8_t i;
@@ -580,6 +584,9 @@ void cmdLedOn()
 	    return chan->counter;
 	}
 	//----------------------------------------------------------------------------------------
+	//   Функция обслуживает джойстик - формирует соответствующие события в очереди
+	//   Выполняется вторым ядром rp pico
+	//
 	void joystik_task()// Loop for check event from jostic
 	{
 		joy = true;
@@ -660,10 +667,12 @@ void cmdLedOn()
 		joy = false;
 	}
 	//----------------------------------------------------------------------------------------
+
 #endif
-//--------------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------
+//   Функция выводит на печать список радио станций из листа (лист для Калининграда)
+//
 void showCfg()
 {
 	char *st = (char *)calloc(1, MAX_UART_BUF << 2);
@@ -676,6 +685,9 @@ void showCfg()
 	}
 }
 //-------------------------------------------------------------------------------------------
+//   Функция возврвщает текстовое название радио станции и её индекс в листе
+//   по заданной частоте, есди такая существует в листе
+//
 const char *nameStation(float fr, int8_t *ind)
 {
 int8_t ik = -1;
@@ -695,6 +707,9 @@ uint32_t fcon;
 			 else return noneStation;
 }
 //-------------------------------------------------------------------------------------------
+//   Функция возвращает следубщую частоту, относительно текущей, радио станции из лист
+//   согласно направлению поиска - вперёд или назад по списку листа
+//
 float getNextList(float fr, uint8_t up, uint8_t *band)
 {
 float ret = fr;
@@ -738,6 +753,8 @@ int8_t ik = -1;
 //-------------------------------------------------------------------------------------------
 #ifdef SET_RDS
 //-------------------------------------------------------------------------------------------
+//   Функция декодирует значения год, месяц и день из данных RDS
+//
 void MJDDecode(unsigned long MJD, uint16_t *y, uint8_t *m, uint8_t *d)
 {
 unsigned long L = 2400000 + MJD + 68570;
@@ -756,6 +773,8 @@ unsigned long N = (L * 4) / 146097;
 	*d = day;
 }
 //-------------------------------------------------------------------------------------------
+//   Функция инициализирует служебные переменные для чтения и декодирования данных RDS
+//
 void rds_init()
 {
 //
@@ -774,6 +793,8 @@ void rds_init()
 #endif
 
 //-------------------------------------------------------------------------------------------
+//   Функция возвращает текстовое название ошибки (от какого модуля произошла ошибка)
+//
 static char *errName(uint16_t err)
 {
 	switch (err) {
@@ -798,6 +819,9 @@ static char *errName(uint16_t err)
 	return "???";
 }
 //------------------------------------------------------------------------------------------
+//   CallBack-функция вызывается по завершению прерывания от таймера
+//   Функция ведёт внутренние часы (с перидом в 5 ms), а также обслуживает кнопки клавиатуры
+//
 bool repeating_timer_callback(struct repeating_timer *t)
 {
 	inc_msCounter();
@@ -836,6 +860,9 @@ bool repeating_timer_callback(struct repeating_timer *t)
     return true;
 }
 //------------------------------------------------------------------------------------------
+//   CallBack-функция вызывается по приёму символа с интерфейса uart0
+//   Функция принимает команду и помещает в очередь соответствующее событие
+//
 void uart_rx_callback()
 {
     if (uart_is_readable(UART_ID)) {
@@ -905,11 +932,9 @@ void uart_rx_callback()
         								nv = (uint8_t)atol(uk);
         							}
         							nv &= 0xf;
-        							//if ((nv >= 0) && (nv <= 15)) {
-        								newVolume = nv;
-        								evt.cmd = i;
-        								evt.attr = newVolume;
-        							//}
+        							newVolume = nv;
+        							evt.cmd = i;
+        							evt.attr = newVolume;
         						}
         					break;
 #ifdef SET_RDS
@@ -954,19 +979,23 @@ void uart_rx_callback()
 }
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
+//   Функция обновляет экранное меню на дисплее UC1609C
+//
 void refreshMenu()
 {
-#ifdef SET_LCD_UC
-	uint8_t inv = FOREGROUND;
-	char st[64];
-	int16_t cx = (UC1609C_WIDTH - ((strlen(allMenu[0]) * lfnt->FontWidth) << 1)) >> 1;
-	uint8_t lin = 255;
+uint8_t inv = FOREGROUND;
+char st[64];
+int16_t tp = MAX_MENU / 4;
+if (MAX_MENU % 4) tp++;
+int16_t cx = (UC1609C_WIDTH - ((strlen(allMenu[0]) * lfnt->FontWidth) * tp)) >> 1;
+uint8_t lin = 255;
+int16_t lone = strlen(allMenu[0]);
 
 	for (int8_t l = 0; l < MAX_MENU; l++) {
 		if (indMenu == l) inv = BACKGROUND; else inv = FOREGROUND;
 		sprintf(st, "%s", allMenu[l]);
-		if (l == 4) {
-			cx += (strlen(allMenu[l]) * lfnt->FontWidth) + 1;
+		if ((!(l % 4)) && l) {
+			cx += (lone * lfnt->FontWidth) + 1;
 			lin = 0;
 		} else {
 			lin++;
@@ -975,9 +1004,11 @@ void refreshMenu()
 	}
 	UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
 	UC1609C_update();
-#endif
 }
-//------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------
+//   Функция возвращает значение температуры с внутреннего датчика в градусах
+//   Цельсия или Фаренгейта или значение -1 при ошибке задания входного параметра
+//
 float read_onboard_temperature(const char unit)
 {
     // 12-bit conversion, assume max value == ADC_VREF == 3.3V
@@ -1016,7 +1047,7 @@ void show_clocks()
 			  "\tclk_rtc : %d kHz\n",
 			  f_pll_sys, f_pll_usb, f_rosc, f_clk_sys, f_clk_peri, f_clk_usb, f_clk_adc, f_clk_rtc);
 }
-//------------------------------------------------------------------------------------------
+//**************************************************************************************************
 int main() {
 
 	set_sys_clock_48mhz();
@@ -1124,6 +1155,12 @@ int main() {
 
     //--------------------------------------------------------------------
 
+	gpio_init(LCD_HIDE_PIN);
+	gpio_set_dir(LCD_HIDE_PIN, GPIO_OUT);
+	gpio_put(LCD_HIDE_PIN, 0);//for show/hide display ; 0-show, 1-hide
+
+	//--------------------------------------------------------------------
+
     Report(0,"\n");
     Report(1, "Start picoRadio app %s (BoardID:%s temp:%.02f deg.C)\n", ver, tmp, temperature);//uart_puts(UART_ID, "Hello, UART!\n");
 
@@ -1163,51 +1200,50 @@ int main() {
 #endif
 
 
-#ifdef SET_LCD_UC
-    	spi_init(portSPI, 12000 * 1000);//set SCK to 12Mhz !
-    	gpio_set_function(LCD_MOSI_PIN, GPIO_FUNC_SPI);
-        gpio_set_function(LCD_SCK_PIN, GPIO_FUNC_SPI);
-        bi_decl(bi_2pins_with_func(LCD_MOSI_PIN, LCD_SCK_PIN, GPIO_FUNC_SPI));
-        gpio_init(LCD_DC_PIN);
-        gpio_set_dir(LCD_DC_PIN, GPIO_OUT);
-        gpio_put(LCD_DC_PIN, 0);//for send command
-        gpio_init(LCD_RST_PIN);
-        gpio_set_dir(LCD_RST_PIN, GPIO_OUT);
-        gpio_put(LCD_RST_PIN, 1);//no reset
+    spi_init(portSPI, 12000 * 1000);//set SCK to 12Mhz !
+    gpio_set_function(LCD_MOSI_PIN, GPIO_FUNC_SPI);
+    gpio_set_function(LCD_SCK_PIN, GPIO_FUNC_SPI);
+    bi_decl(bi_2pins_with_func(LCD_MOSI_PIN, LCD_SCK_PIN, GPIO_FUNC_SPI));
+    gpio_init(LCD_DC_PIN);
+    gpio_set_dir(LCD_DC_PIN, GPIO_OUT);
+    gpio_put(LCD_DC_PIN, 0);//for send command
+    gpio_init(LCD_RST_PIN);
+    gpio_set_dir(LCD_RST_PIN, GPIO_OUT);
+    gpio_put(LCD_RST_PIN, 1);//no reset
 
-		#ifdef FONT_6x8
-  			mfnt = &Font_6x8;
-		#endif
-		#ifdef FONT_7x9
-  			lfnt = &Font_7x9;
-		#endif
-		#ifdef FONT_11x18
-  			hfnt = &Font_11x18;
-		#endif
-    	//
-    	UC1609C_init();
-    	UC1609C_enable(1);
-    	UC1609C_contrast(50);
-    	UC1609C_clearDisplay();
-    	//
-    	int dl = sprintf(tmp, "%s", ver);
-    	mkLineCenter(tmp, mfnt->FontWidth);
-    	uint16_t x = 1;
-    	UC1609C_Print(x, UC1609C_HEIGHT - mfnt->FontHeight, tmp, mfnt, 0, FOREGROUND);
-    	//
-    	UC1609C_DrawFilledRectangle(0, 0, UC1609C_WIDTH - 1, hfnt->FontHeight - 1, FOREGROUND);
-    	UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
-    	UC1609C_update();
-    	//
-    	uint8_t lfr = lfnt->FontHeight;
-    	for (int8_t i = 0; i < 5; i++) {
-    		lines[i] = hfnt->FontHeight + 1 + (i * lfr);
-    	}
-    	lines[line5]++;
-    	//
-    	bool flag_ver = false;
-    	uint8_t tmr_ver = 0;
+#ifdef FONT_6x8
+    mfnt = &Font_6x8;
 #endif
+#ifdef FONT_7x9
+    lfnt = &Font_7x9;
+#endif
+#ifdef FONT_11x18
+    hfnt = &Font_11x18;
+#endif
+    //
+    UC1609C_init();
+    UC1609C_enable(1);//display ON
+    uint8_t contrast = 50;
+    UC1609C_contrast(contrast);
+    UC1609C_clearDisplay();
+    //
+    int dl = sprintf(tmp, "%s", ver);
+    mkLineCenter(tmp, mfnt->FontWidth);
+    uint16_t x = 1;
+    UC1609C_Print(x, UC1609C_HEIGHT - mfnt->FontHeight, tmp, mfnt, 0, FOREGROUND);
+    //
+    UC1609C_DrawFilledRectangle(0, 0, UC1609C_WIDTH - 1, hfnt->FontHeight - 1, FOREGROUND);
+    UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
+    UC1609C_update();
+    //
+    uint8_t lfr = lfnt->FontHeight;
+    for (int8_t i = 0; i < 5; i++) {
+    	lines[i] = hfnt->FontHeight + 1 + (i * lfr);
+    }
+    lines[line5]++;
+    //
+    bool flag_ver = false;
+    uint8_t tmr_ver = 0;
 
     evt_t ev;
     int evt;
@@ -1273,7 +1309,6 @@ int main() {
     			attr = ev.attr;
     			if ((evt > cmdNone) && (evt < cmdSec)) {
     				Report(1, "[que:%d] cmd:%d attr:%lu\n", queCnt, ev.cmd, ev.attr);
-#ifdef SET_LCD_UC
     				sprintf(stz, "cmd : %s", s_cmds[evt]);
     				mkLineCenter(stz, mfnt->FontWidth);
     				UC1609C_Print(1, lines[line5], stz, mfnt, 0, FOREGROUND);
@@ -1281,14 +1316,12 @@ int main() {
     				UC1609C_update();
     				flag_ver = true;
     				tmr_ver = 10;
-#endif
     			}
     			switch (evt) {
     				case cmdTemp:
     					adc_select_input(4);
     					temperature = read_onboard_temperature('C');
     					Report(1, "[que:%u] onchip temperature:%.02f deg.C\n", queCnt, temperature);
-#ifdef SET_LCD_UC
     					sprintf(stz, "Onchip temperature:%.02f deg.C", temperature);
     					mkLineCenter(stz, mfnt->FontWidth);
     					UC1609C_Print(1, lines[line5], stz, mfnt, 0, FOREGROUND);
@@ -1296,19 +1329,18 @@ int main() {
     					UC1609C_update();
     					flag_ver = true;
     					tmr_ver = 10;
-#endif
     				break;
 #ifdef SET_ENCODER
     				case cmdEnc:
     				{
     					if (sleepON) {//exit from sleep mode
     						UC1609C_enable(sleepON);//1 - ON    0 - OFF
+    						gpio_put(LCD_HIDE_PIN, 0);
     						sleepON = false;
     						indMenu = iExit;
     						Report(1, "Exit from sleep mode !\n");
     					}
     					bool snd = false;
-	#ifdef SET_LCD_UC
     					switch (indMenu) {
     						case iNone://start menu
     							menuAct = true;
@@ -1369,8 +1401,13 @@ int main() {
     							snd = true;
     							sleep_tmr = 2;
     						break;
+    						case iContrast:
+    							indMenu = iExit;
+    							encMode = iContrast;
+    							ev.cmd = cmdEnc;
+    							snd = true;
+    						break;
     					}
-	#endif
     					if (snd) {
     						ev.attr = 0;
     						if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
@@ -1417,6 +1454,15 @@ int main() {
     									ev.cmd = cmdBass;
     									snd = true;
     								}
+    							break;
+    							case iContrast:
+    								contrast++;
+    								UC1609C_contrast(contrast);
+    								sprintf(stz, "contrast:%u", contrast);
+    								mkLineCenter(stz, lfnt->FontWidth);
+    								UC1609C_Print(1, lines[line4], stz, lfnt, 0, FOREGROUND);
+    								UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
+    								UC1609C_update();
     							break;
     						}
     						if (snd) {
@@ -1468,6 +1514,15 @@ int main() {
     									snd = true;
     								}
     							break;
+    							case iContrast:
+    								contrast--;
+    								UC1609C_contrast(contrast);
+    								sprintf(stz, "contrast:%u", contrast);
+    								mkLineCenter(stz, lfnt->FontWidth);
+    								UC1609C_Print(1, lines[line4], stz, lfnt, 0, FOREGROUND);
+    								UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
+    								UC1609C_update();
+    							break;
     						}
     						if (snd) {
     							ev.attr = 0;
@@ -1498,13 +1553,11 @@ int main() {
     				case cmdMute:
     					noMute = (~noMute) & 1;
     					rda5807_Set_Mute(noMute);
-#ifdef SET_LCD_UC
     					sprintf(sta, "BASS:%u", BassBoost);
     					sprintf(stb, "VOLUME:%u", Volume);
     					if (!noMute) strcat(stb, " Mute");
     					mkLineWidth(sta, stb, lfnt->FontWidth);
     					showLine(sta, lines[line2], lfnt, true, FOREGROUND);
-#endif
     					Report(1, "[que:%u] set Mute to %u\r\n", queCnt, (~noMute) & 1);
     				break;
     				case cmdList:
@@ -1523,11 +1576,9 @@ int main() {
     					if (newBand != Band) {
     						Band = newBand;
     						if (!rda5807_Set_Band(Band)) {
-#ifdef SET_LCD_UC
     							sprintf(stb, "FM Band:%s", allBands[Band]);
     							mkLineCenter(stb, lfnt->FontWidth);
     							showLine(stb, lines[line4], lfnt, true, FOREGROUND);
-#endif
     							Report(1, "[que:%u] set new band=%u '%s'\n", queCnt, Band, allBands[Band]);
     							if (next_evt == evt) {
     								if ((Freq < lBand) || (Freq > rBand)) {
@@ -1555,13 +1606,11 @@ int main() {
     					if (newBassBoost != BassBoost) {
     						BassBoost = newBassBoost;
     						rda5807_SetBassBoost(BassBoost);
-#ifdef SET_LCD_UC
     						sprintf(sta, "BASS:%u", BassBoost);
     						sprintf(stb, "VOLUME:%u", Volume);
     						if (!noMute) strcat(stb, " Mute");
     						mkLineWidth(sta, stb, lfnt->FontWidth);
     						showLine(sta, lines[line2], lfnt, true, FOREGROUND);
-#endif
     						Report(1, "[que:%u] set new BassBoost to %u\n", queCnt, BassBoost);
     					} else {
     						Report(1, "[que:%u] BassBoost already set to %u\n", queCnt, BassBoost);
@@ -1570,13 +1619,11 @@ int main() {
     				case cmdVol:
     					Volume = newVolume;
     					rda5807_SetVolume(Volume);
-#ifdef SET_LCD_UC
     					sprintf(sta, "BASS:%u", BassBoost);
     					sprintf(stb, "VOLUME:%u", Volume);
     					if (!noMute) strcat(stb, " Mute");
     					mkLineWidth(sta, stb, lfnt->FontWidth);
     					showLine(sta, lines[line2], lfnt, true, FOREGROUND);
-#endif
     					Report(1, "[que:%u] set new Volume to %u\n", queCnt, Volume);
     				break;
     				case cmdFreq:
@@ -1614,7 +1661,6 @@ int main() {
 #endif
     				case cmdSec:
     				{
-#ifdef SET_LCD_UC
     					dl = sec2str(stx);
     					if (dl > (UC1609C_WIDTH / hfnt->FontWidth)) {
     						dl = UC1609C_WIDTH / hfnt->FontWidth;
@@ -1637,12 +1683,12 @@ int main() {
     						}
     					}
     					UC1609C_update();
-#endif
     					//
     					if (sleep_tmr) {
     						sleep_tmr--;
     						if (!sleep_tmr) {
     							UC1609C_enable(sleepON);// Off display //1 - ON    0 - OFF
+    							gpio_put(LCD_HIDE_PIN, 1);
     							Report(1, "Goto sleep mode. To wakeUp - press ENC_PIN key !\n");
     							sleepON = true;
     							sleep_goto_dormant_until_pin(ENC_PIN, true, true);
@@ -1656,14 +1702,12 @@ int main() {
     						if (sig != RSSI) {
     							RSSI = sig;
     							stereo = rda5807_Get_StereoMonoFlag();
-#ifdef SET_LCD_UC
     							sprintf(sta, "RSSI:%u", RSSI);
     							stb[0] = '\0';
     							if (stereo) strcpy(stb, "Stereo ");
     							sprintf(stb+strlen(stb), "FREQ:%.2f", Freq);
     							mkLineWidth(sta, stb, lfnt->FontWidth);
     							showLine(sta, lines[line1], lfnt, true, FOREGROUND);
-#endif
     						}
     					} else {
     						if (rda5807_Get_SeekTuneReadyFlag()) {
@@ -1676,12 +1720,12 @@ int main() {
     							Report(1, "[que:%u] set new Freq to %.3f МГц '%s' Chan:%u Volume:%u\n",
     									  queCnt, Freq, nameStation(Freq, NULL), Chan, Volume);
     							//
-    					#ifdef SET_RDS
+#ifdef SET_RDS
     							if (rdsFlag) {
     								rds_init();
     								rdsTime = get_mstmr(rdsWait);
     							}
-    					#endif
+#endif
     						}
     					}
     				}
@@ -1703,7 +1747,6 @@ int main() {
     				break;
     				case cmdShowFreq:
     				{
-#ifdef SET_LCD_UC
     					sprintf(sta, "RSSI:%u", RSSI);
     					stb[0] = '\0';
     					if (stereo) strcpy(stb, "Stereo ");
@@ -1724,7 +1767,6 @@ int main() {
     					//
     					UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
     					UC1609C_update();
-#endif
     				}
     				break;
     			}
@@ -1807,12 +1849,10 @@ int main() {
     								int lens = strlen(PSName);
     								if (lens > 15) lens = 15;
     								sprintf(st, "RDS : %.*s", lens, PSName);
-	#ifdef SET_LCD_UC
     								mkLineCenter(st, lfnt->FontWidth);
     								UC1609C_Print(1, lines[line4], st, lfnt, 0, FOREGROUND);
     								UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
     								UC1609C_update();
-	#endif
     				        	}
     				        }
     				    } // PSName, PTy end
@@ -1899,9 +1939,7 @@ int main() {
 
     sleep_ms(500);
 
-#ifdef SET_LCD_UC
     UC1609C_enable(0);//OFF
-#endif
 
 #ifdef SET_JOYSTIC
     //wait joystic_task closed.....

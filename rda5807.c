@@ -646,6 +646,6 @@ void rda5807_Set_Step(uint8_t step)
 	Buffs.Reg03.bSPACE = step & 3;
 
 	rda5807_write(3, (uint16_t *)&Buffs.Reg03, 1);
-}
 //==============================================================================
+}
 

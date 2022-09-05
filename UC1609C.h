@@ -2,15 +2,7 @@
 #define _UC1609C_H
 
 #include "hdr.h"
-
-#ifdef SET_LCD_UC
-
-
 #include "fonts.h"
-
-//#include "stdlib.h"
-//#include "string.h"
-//#include "stdio.h"
 
 
 //	A	 ->   anode led ( +3.3V or PWM )  |	 K	 ->   katode led ( GND )
@@ -149,8 +141,6 @@ char *mkLineWidth(char *str1, char *str2, uint16_t width);
 void showLine(char *msg, uint16_t lin, FontDef_t *fnt, bool update, uint8_t back);
 void showLineMenu(int16_t cx, char *msg, uint16_t lin, FontDef_t *fnt, bool update, uint8_t back);
 void clrLines(uint16_t lin, uint8_t cnt, uint8_t update, uint8_t fh, uint8_t inv);
-
-#endif  // SET_LCD_UC
 	
 
 #endif	//	_UC1609C_H
