@@ -90,7 +90,7 @@ const char *ver = "Ver.2.7 04.09.22 encoder";// remove ssd1306 support and add s
 
 
 
-volatile static uint32_t epoch = 1662331845;//1662327755;//1662295275;//1662288820;
+volatile static uint32_t epoch = 1662368495;//1662331845;//1662327755;//1662295275;//1662288820;
 //1662251055;//1662246985;//1662209185;//1662156375;//1662151345;//1662114275;//1662038845;
 //1661990305;//1661949985;//1661902365;//1661897825;//1661792625;
 //1661767566;//1661726088;//1661699652;//1661684619;//1661641164;//1661614899;//1661536565;
@@ -183,8 +183,8 @@ uint8_t RSSI = 0;
 uint8_t rdaID = 0;
 volatile uint8_t scan = 0;
 volatile uint8_t seek_up = 1;
-uint8_t Volume = 3;//6;//8;
-uint8_t newVolume = 3;//6;//8;
+uint8_t Volume = 6;//8;
+uint8_t newVolume = 6;//8;
 uint8_t BassBoost = 0;
 uint8_t newBassBoost = 0;
 bool stereo = false;

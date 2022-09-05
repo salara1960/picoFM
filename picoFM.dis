@@ -30611,7 +30611,7 @@ Disassembly of section .data:
 2000045c:	000000ff                                ....
 
 20000460 <epoch>:
-20000460:	63152bc5                                .+.c
+20000460:	6315baef                                ...c
 
 20000464 <indMenu>:
 20000464:	                                         .
