@@ -133,6 +133,7 @@
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_xosc/include"/>
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_sync/include"/>
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_util/include"/>
+									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_flash/include"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.2070015290" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
 							</tool>
@@ -178,6 +179,7 @@
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_xosc/include"/>
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_sync/include"/>
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_util/include"/>
+									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_flash/include"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1886104660" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
 							</tool>
@@ -205,6 +207,7 @@
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_rosc/include"/>
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_xosc/include"/>
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_sync/include"/>
+									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_flash/include"/>
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_sleep/include"/>
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include"/>
 									<listOptionValue builtIn="false" value="/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include"/>

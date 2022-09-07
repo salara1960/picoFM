@@ -292,6 +292,10 @@ hardware/regs/dreq.h
 pico/assert.h
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_dma/include/hardware/pico/assert.h
 
+/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_flash/include/hardware/flash.h
+pico.h
+/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_flash/include/hardware/pico.h
+
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_gpio/include/hardware/gpio.h
 pico.h
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_gpio/include/hardware/pico.h
@@ -481,6 +485,8 @@ hardware/clocks.h
 /home/alarm/eclipse-workspace-arm/picoFM/hardware/clocks.h
 hardware/rosc.h
 /home/alarm/eclipse-workspace-arm/picoFM/hardware/rosc.h
+hardware/flash.h
+/home/alarm/eclipse-workspace-arm/picoFM/hardware/flash.h
 pico/unique_id.h
 /home/alarm/eclipse-workspace-arm/picoFM/pico/unique_id.h
 
@@ -501,12 +507,6 @@ fonts.h
 /home/alarm/eclipse-workspace-arm/picoFM/fonts.h
 UC1609C.h
 /home/alarm/eclipse-workspace-arm/picoFM/UC1609C.h
-
-/home/alarm/eclipse-workspace-arm/picoFM/rda5807.c
-hdr.h
-/home/alarm/eclipse-workspace-arm/picoFM/hdr.h
-rda5807.h
-/home/alarm/eclipse-workspace-arm/picoFM/rda5807.h
 
 /home/alarm/eclipse-workspace-arm/picoFM/rda5807.h
 hdr.h

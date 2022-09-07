@@ -36,7 +36,11 @@ enum {
 	cmdFreq,
 	cmdList,
 	cmdRds,
-	cmdShowFreq
+	cmdShowFreq,
+	cmdRead,
+	cmdReadCont,
+	cmdNext,
+	cmdCheck
 };
 
 enum {
@@ -45,16 +49,16 @@ enum {
 	devTik = 2,
 	devQue = 4,
 	devUart = 8,
-	devI2c = 16
-#ifdef SET_WITH_DMA
-	,
-	devDma = 32
-#endif
-	,dev_RDA = 64
+	devI2c = 16,
+	devDma = 32,
+	dev_RDA = 64
 };
 
 #ifdef SET_WITH_DMA
 	uint16_t devDMA = devDma;
+
+	int dma_chan;
+
 #endif
 
 
@@ -84,12 +88,14 @@ enum {
 //const char *ver = "Ver.2.5.1 03.09.22 encoder";
 //const char *ver = "Ver.2.6 03.09.22 encoder";// new encoder mode support !!!
 //const char *ver = "Ver.2.7 04.09.22 encoder";// remove ssd1306 support and add sleep mode
-const char *ver = "Ver.2.8 05.09.22 encoder";// add contrast mode to control menu
+//const char *ver = "Ver.2.8 05.09.22 encoder";// add contrast mode to control menu
+const char *ver = "Ver.2.9 07.09.22 encoder";// add dma for read flash
 
 
 
 
-volatile static uint32_t epoch = 1662373645;//1662368495;//1662331845;//1662327755;//1662295275;//1662288820;
+volatile static uint32_t epoch = 1662589615;
+//1662572765;//1662373645;//1662368495;//1662331845;//1662327755;//1662295275;//1662288820;
 //1662251055;//1662246985;//1662209185;//1662156375;//1662151345;//1662114275;//1662038845;
 //1661990305;//1661949985;//1661902365;//1661897825;//1661792625;
 //1661767566;//1661726088;//1661699652;//1661684619;//1661641164;//1661614899;//1661536565;
@@ -123,7 +129,11 @@ const char *s_cmds[MAX_CMDS] = {
 	"freq:",
 	"list",
 	"rds",
-	"showfreq"
+	"showfreq",
+	"read",
+	"readcont",
+	"next",
+	"check"
 };
 
 const uint16_t all_devErr[MAX_ERR_CODE] = {
@@ -131,12 +141,11 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 	devTik,
 	devQue,
 	devUart,
-	devI2c
-#ifdef SET_WITH_DMA
-	,devDma
-#endif
-	,devRDA
+	devI2c,
+	devDma,
+	devRDA
 };
+
 
 volatile uint16_t devError = devOk;
 volatile uint16_t last_devError = devOk;
@@ -423,6 +432,26 @@ uint16_t listSize = 0;
 		chanNone = 255
 	};
 	volatile uint8_t muxNum = chanNone;
+#endif
+
+
+#ifdef SET_FLASH
+	const uint8_t *flash_addr = (const uint8_t *)(XIP_BASE);
+	const uint32_t flash_size = 2 * 1024 * 1024;
+	const uint32_t flash_sectors = flash_size / FLASH_SECTOR_SIZE;
+	const uint32_t rda_sector = flash_sectors - 1;
+	//
+	int adr_sector = 0, offset_sector = 0;
+	unsigned char fs_work[FLASH_SECTOR_SIZE] = {0};
+	char flash_buf[FLASH_SECTOR_SIZE] = {0};
+	int list_sector = FLASH_PAGE_SIZE << 1;
+	uint32_t fadr;// = XIP_BASE + (adr_sector * FLASH_SECTOR_SIZE) + offset_sector;
+	const uint32_t flash_step = 16;
+	#ifdef SET_WITH_DMA
+		dma_channel_config read_conf;
+		bool irq_dma_init = false;
+		bool dma_chan_init = false;
+	#endif
 #endif
 
 
@@ -851,9 +880,13 @@ bool repeating_timer_callback(struct repeating_timer *t)
 			if (!queue_try_add(&evt_fifo, &evt)) devError |= devQue;
 
 			led = !led;
+#ifdef SET_TIK_LED
 			gpio_put(LED_PIN, led);
+#endif
 		} else {
+#ifdef SET_TIK_LED
 			gpio_put(LED_PIN, 0);
+#endif
 		}
 	}
 
@@ -957,6 +990,31 @@ void uart_rx_callback()
         							evt.attr = epoch;
         						}
         					break;
+#ifdef SET_FLASH
+        					case cmdRead:// "read:511"
+        					case cmdCheck:// "check:511"
+        						if (*uk == ':') {
+        							uk++;
+        							if (strlen(uk) > 0) {
+        								int sek = atoi(uk);
+        								if ( ((sek >= 0) && (sek < flash_sectors)) || (sek == -1) ) {
+        									adr_sector = sek;
+        									offset_sector = 0;
+        									fadr = XIP_BASE + (adr_sector * FLASH_SECTOR_SIZE) + offset_sector;
+        									evt.cmd = i;
+        									evt.attr = fadr;
+        								}
+        							}
+        						}
+        					break;
+        					case cmdNext:// "next"
+        						offset_sector += list_sector;
+        						offset_sector &= FLASH_SECTOR_SIZE - 1;
+        						fadr += list_sector;
+        						evt.cmd = i;
+        						evt.attr = fadr;
+        					break;
+#endif
         				}
         				break;
         			}
@@ -1047,6 +1105,103 @@ void show_clocks()
 			  "\tclk_rtc : %d kHz\n",
 			  f_pll_sys, f_pll_usb, f_rosc, f_clk_sys, f_clk_peri, f_clk_usb, f_clk_adc, f_clk_rtc);
 }
+//--------------------------------------------------------------------
+#ifdef SET_FLASH
+//--------------------------------------------------------------------
+bool chan_init()
+{
+	dma_chan = dma_claim_unused_channel(true);
+	if (dma_chan == -1) {
+		devError |= devDma;
+		return false;
+	}
+	read_conf = dma_channel_get_default_config(dma_chan);
+	channel_config_set_transfer_data_size(&read_conf, DMA_SIZE_8);
+	channel_config_set_read_increment(&read_conf, true);
+	channel_config_set_write_increment(&read_conf, true);
+
+	return true;
+}
+//--------------------------------------------------------------------
+void dma_callback()
+{
+    // Clear the interrupt request.
+    dma_hw->ints0 = 1u << dma_chan;
+    //
+    fadr = XIP_BASE + (adr_sector * FLASH_SECTOR_SIZE) + offset_sector;
+    evt_t evt = {cmdReadCont, fadr};
+    if (!queue_try_add(&evt_fifo, &evt)) devError |= devQue;
+}
+//--------------------------------------------------------------------
+void Flash_ReadSector(uint8_t *buf, uint32_t sector, uint32_t offset, uint32_t len)
+{
+	if ((sector >= flash_sectors) || (offset >= FLASH_SECTOR_SIZE)) return;
+	const uint8_t *adr = flash_addr + (sector * FLASH_SECTOR_SIZE) + offset;
+	if (len > (FLASH_SECTOR_SIZE - offset)) len = FLASH_SECTOR_SIZE;
+
+#ifdef SET_WITH_DMA
+
+	dma_channel_configure(
+		dma_chan,   // Channel to be configured
+		&read_conf, // The configuration we just created
+		buf,        // dst
+		adr,        // src
+		len,        // Number of transfers; in this case each is 1 byte.
+		false       //true - Start immediately.
+	);
+	if (!irq_dma_init) {
+		irq_dma_init = true;
+		dma_channel_set_irq0_enabled(dma_chan, true);
+		irq_set_exclusive_handler(DMA_IRQ_0, dma_callback);
+		irq_set_enabled(DMA_IRQ_0, true);
+	}
+	dma_channel_start(dma_chan);
+
+#else
+
+	memcpy(buf, adr, len);
+
+#endif
+
+}
+//--------------------------------------------------------------------
+bool isSectorEmpty(uint32_t sector)
+{
+uint8_t *adr = (uint8_t *)(XIP_BASE + (sector * FLASH_SECTOR_SIZE));
+
+	for (uint32_t i = 0; i < FLASH_SECTOR_SIZE; i++) {
+		if (*adr++ != 0xFF) return false;
+	}
+	return true;
+}
+//--------------------------------------------------------------------
+void Flash_WriteSector(void *buf, uint32_t sector, uint32_t offset, uint32_t len)
+{
+	if ((sector >= flash_sectors) ||
+			(offset >= FLASH_SECTOR_SIZE) ||
+				(len > FLASH_SECTOR_SIZE)) return;
+
+	uint32_t ofs_adr = sector * FLASH_SECTOR_SIZE;
+
+	if (!isSectorEmpty(sector)) {
+		Report(1, "[%s] sector not empty. Erase sector %lu\n", __func__, sector);
+		flash_range_erase(ofs_adr, FLASH_SECTOR_SIZE);
+	}
+
+	memset(fs_work, 0xff, sizeof(fs_work));
+	memcpy(fs_work, (uint8_t *)buf, len);
+	size_t sz = len / FLASH_PAGE_SIZE;
+	if (len % FLASH_PAGE_SIZE) sz++;
+	sz *= FLASH_PAGE_SIZE;
+	ofs_adr += offset;
+	Report(1, "[%s] write %lu/%lu bytes to sector %lu (adr:0x%X)\n", __func__, len, sz, sector, ofs_adr);
+
+	flash_range_program(ofs_adr, fs_work, sz);
+}
+//--------------------------------------------------------------------
+#endif
+//--------------------------------------------------------------------
+
 //**************************************************************************************************
 int main() {
 
@@ -1130,9 +1285,10 @@ int main() {
     sleep_ms(150);
 
     //--------------------------------------------------------------------
-#ifdef SET_WITH_DMA
+
+/*#ifdef SET_WITH_DMA
     iniDMA();
-#endif
+#endif*/
 
     //--------------------- i2c master config ----------------------------
 
@@ -1148,21 +1304,12 @@ int main() {
 
     pico_unique_board_id_t board_id;
     pico_get_unique_board_id(&board_id);
-    sprintf(tmp, "0x");
-    for (int8_t i = 0; i < PICO_UNIQUE_BOARD_ID_SIZE_BYTES; ++i) {
-    	sprintf(tmp+strlen(tmp), "%02X", board_id.id[i]);
-    }
+    pico_get_unique_board_id_string(tmp, (sizeof(pico_unique_board_id_t) << 1) + 1);
 
     //--------------------------------------------------------------------
 
-	gpio_init(LCD_HIDE_PIN);
-	gpio_set_dir(LCD_HIDE_PIN, GPIO_OUT);
-	gpio_put(LCD_HIDE_PIN, 0);//for show/hide display ; 0-show, 1-hide
-
-	//--------------------------------------------------------------------
-
     Report(0,"\n");
-    Report(1, "Start picoRadio app %s (BoardID:%s temp:%.02f deg.C)\n", ver, tmp, temperature);//uart_puts(UART_ID, "Hello, UART!\n");
+    Report(1, "Start picoRadio app %s\n\tBoardID:%s\n\tTemp:%.02f deg.C\n", ver, tmp, temperature);//uart_puts(UART_ID, "Hello, UART!\n");
 
     //--------------------------------------------------------------------
 
@@ -1186,17 +1333,24 @@ int main() {
 
     //--------------------------------------------------------------------
 
-#ifdef SET_ENCODER
-    	gpio_init(ENC_PIN_A);
-        gpio_set_dir(ENC_PIN_A, GPIO_IN);
-        gpio_pull_up(ENC_PIN_A);
-        gpio_set_irq_enabled_with_callback(ENC_PIN_A, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
-        gpio_init(ENC_PIN_B);
-        gpio_set_dir(ENC_PIN_B, GPIO_IN);
-        gpio_pull_up(ENC_PIN_B);
 
-        //bool prnFixFreq = false;
-        ec_tmr = get_mstmr(_500ms);
+#ifdef SET_LIST_SAVE
+
+    Flash_WriteSector((void *)&list[0], rda_sector, 0, sizeof(rec_t) * MAX_LIST);
+
+#endif
+
+
+#ifdef SET_ENCODER
+    gpio_init(ENC_PIN_A);
+    gpio_set_dir(ENC_PIN_A, GPIO_IN);
+    gpio_pull_up(ENC_PIN_A);
+    gpio_set_irq_enabled_with_callback(ENC_PIN_A, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+    gpio_init(ENC_PIN_B);
+    gpio_set_dir(ENC_PIN_B, GPIO_IN);
+    gpio_pull_up(ENC_PIN_B);
+
+    ec_tmr = get_mstmr(_500ms);
 #endif
 
 
@@ -1210,6 +1364,10 @@ int main() {
     gpio_init(LCD_RST_PIN);
     gpio_set_dir(LCD_RST_PIN, GPIO_OUT);
     gpio_put(LCD_RST_PIN, 1);//no reset
+    gpio_init(LCD_HIDE_PIN);
+    gpio_set_dir(LCD_HIDE_PIN, GPIO_OUT);
+    gpio_put(LCD_HIDE_PIN, 0);//for show/hide display ; 0-show, 1-hide
+
 
 #ifdef FONT_6x8
     mfnt = &Font_6x8;
@@ -1291,7 +1449,9 @@ int main() {
 
 
 #ifdef SET_JOYSTIC
+
     multicore_launch_core1(joystik_task);
+
 #endif
 
 
@@ -1302,6 +1462,7 @@ int main() {
     while (!restart) {
 
     	queCnt = queue_get_level(&evt_fifo);
+
     	if (queCnt) {
     		if (queue_try_remove(&evt_fifo, &ev)) {
     			idx = -1;
@@ -1335,7 +1496,7 @@ int main() {
     				{
     					if (sleepON) {//exit from sleep mode
     						UC1609C_enable(sleepON);//1 - ON    0 - OFF
-    						gpio_put(LCD_HIDE_PIN, 0);
+    						gpio_put(LCD_HIDE_PIN, 0);//ON
     						sleepON = false;
     						indMenu = iExit;
     						Report(1, "Exit from sleep mode !\n");
@@ -1769,6 +1930,57 @@ int main() {
     					UC1609C_update();
     				}
     				break;
+#ifdef SET_FLASH
+    				case cmdCheck:
+    					if (isSectorEmpty(adr_sector))
+    						Report(1, "[que:%u] Sector %lu is empty\n", queCnt, adr_sector);
+    					else
+    						Report(1, "[que:%u] Sector %lu Not empty\n", queCnt, adr_sector);
+    				break;
+    				case cmdRead:
+    				case cmdNext:
+	#ifdef SET_WITH_DMA
+    					if (!dma_chan_init) dma_chan_init = chan_init();
+    					if (dma_chan_init) {
+	#endif
+    						Flash_ReadSector(fs_work, adr_sector, offset_sector, list_sector);
+	#ifndef SET_WITH_DMA
+    						ev.cmd = cmdReadCont;
+    						ev.attr = attr;
+    						if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
+	#else
+    					}
+	#endif
+    				break;
+    				case cmdReadCont:
+    				{
+    					char bs[64];
+    					char sym;
+    					uint32_t ad = attr;
+    					Report(0, "Read sector:%d offset:%d len:%u fadr:0x%X\r\n",
+    							adr_sector, offset_sector, list_sector, ad);
+    					for (uint32_t i = 0; i < list_sector; i++) {
+    						if (!(i % flash_step)) {
+    							Report(0, "%08X", ad);
+    							ad += flash_step;
+    						}
+    						if ((i % flash_step) == (flash_step - 1)) {
+    							bs[0] = '\0';
+    							for (int8_t j = 0; j < flash_step; j++) {
+    								sym = (char)fs_work[i - flash_step + j];
+    								if ((sym >= 0x20) && (sym < 0x7f))
+    									sprintf(bs+strlen(bs), "%c", sym);
+    								else
+    									sprintf(bs+strlen(bs), ".");
+    							}
+    							Report(0, " %02X %s\n", fs_work[i], bs);
+    						} else {
+    							Report(0, " %02X", fs_work[i]);
+    						}
+    					}
+    				}
+    				break;
+#endif
     			}
     		}
     	}

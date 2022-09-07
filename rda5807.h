@@ -293,18 +293,18 @@ typedef enum {
 
 
 #pragma pack(push,1)
-	typedef struct {
-		uint8_t band;
-		float freq;
-		char name[MAX_SIZE_NAME];
-	} rec_t;
+typedef struct {
+	uint8_t band;
+	float freq;
+	char name[MAX_SIZE_NAME];
+} rec_t;
 #pragma pack(pop)
 
 #pragma pack(push,1)
-	typedef struct step_t {
-		const float freq;
-		const char name[4];
-	} step_t;
+typedef struct step_t {
+	const float freq;
+	const char name[4];
+} step_t;
 #pragma pack(pop)
 
 extern float lBand;

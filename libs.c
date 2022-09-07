@@ -6,13 +6,12 @@
  */
 #include "libs.h"
 
-
 volatile uint32_t ms10 = 0;
 
 static char txBuf[MAX_UART_BUF << 2] = {0};
 
 //------------------------------------------------------------------------------------------
-
+/*
 #ifdef SET_WITH_DMA
 
 int chan;
@@ -55,7 +54,7 @@ void iniDMA()
 //------------------------------------------------------------------------------------------
 
 #endif
-
+*/
 //------------------------------------------------------------------------------------------
 void set_sec(uint32_t sec)
 {
@@ -151,7 +150,32 @@ void Report(const uint8_t addTime, const char *fmt, ...)
 	va_list args;
 	va_start(args, fmt);
 	vsnprintf(buf + dl, len - dl, fmt, args);
+	len = strlen(buf);
+/*#ifdef SET_WITH_DMA
+	int chan = dma_claim_unused_channel(true);
+	if (chan == -1) {
+		devError |= devDMA;
+		return;
+	}
+	dma_channel_config conf = dma_channel_get_default_config(chan);
+	channel_config_set_transfer_data_size(&conf, DMA_SIZE_8);
+	channel_config_set_read_increment(&conf, true);
+	channel_config_set_write_increment(&conf, false);
+	dma_channel_configure(
+		chan,           // Channel to be configured
+		&conf,          // The configuration we just created
+		&uart_get_hw(UART_ID)->dr, //dst      //UART_ID->UARTDR_DATA, //UART_ID->UARTDR.DATA, //UARTDR, //dst, // The initial write address
+		buf, //src,     // The initial read address
+		len, // Number of transfers; in this case each is 1 byte.
+		true // Start immediately.
+	);
+	dma_channel_wait_for_finish_blocking(chan);
+#else*/
 	printf("%s", buf);
+	//uart_puts(UART_ID, buf);
+	//uart_write_blocking(UART_ID, buf, strlen(buf));
+//#endif
+
 	va_end(args);
 }
 //------------------------------------------------------------------------------------------

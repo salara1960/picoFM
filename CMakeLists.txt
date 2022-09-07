@@ -53,6 +53,7 @@ target_link_libraries(picoFM
         hardware_pll
         hardware_clocks
         hardware_rosc
+        hardware_flash
         )
 
 #        //hardware_pio

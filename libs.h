@@ -84,7 +84,7 @@
 
 #ifdef SET_WITH_DMA
 	extern uint16_t devDMA;
-	extern void iniDMA();
+	//extern void iniDMA();
 #endif
 
 extern void inc_msCounter();

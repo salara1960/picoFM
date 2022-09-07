@@ -26,6 +26,7 @@
 #include "hardware/pwm.h"
 #include "hardware/clocks.h"
 #include "hardware/rosc.h"
+#include "hardware/flash.h"
 #include "pico/unique_id.h"
 
 
@@ -42,8 +43,15 @@
 #define SET_ENCODER
 //#define SET_KBD_MUX
 
-//#define SET_WITH_DMA
+#define SET_WITH_DMA
 #define RUS_SUPPORT
+
+#define SET_TIK_LED
+
+#define SET_FLASH
+#ifdef SET_FLASH
+	//#define SET_LIST_SAVE
+#endif
 
 //------------------------------------------------------------------------------
 
@@ -71,7 +79,7 @@
 #define MAX_MENU       9//8//7//6
 
 #ifdef SET_ENCODER
-	#define MAX_CMDS  22//21//20//17//16//15//6
+	#define MAX_CMDS  26//25//24//22//21//20//17//16//15//6
 #else
 	#define MAX_CMDS  19//18//15//6
 #endif
