@@ -418,12 +418,6 @@ pico/stdio.h
 pico.h
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_unique_id/include/pico/pico.h
 
-/home/alarm/eclipse-workspace-arm/picoFM/UC1609C.c
-hdr.h
-/home/alarm/eclipse-workspace-arm/picoFM/hdr.h
-UC1609C.h
-/home/alarm/eclipse-workspace-arm/picoFM/UC1609C.h
-
 /home/alarm/eclipse-workspace-arm/picoFM/UC1609C.h
 hdr.h
 /home/alarm/eclipse-workspace-arm/picoFM/hdr.h
@@ -495,10 +489,6 @@ hardware/flash.h
 /home/alarm/eclipse-workspace-arm/picoFM/hardware/flash.h
 pico/unique_id.h
 /home/alarm/eclipse-workspace-arm/picoFM/pico/unique_id.h
-
-/home/alarm/eclipse-workspace-arm/picoFM/libs.c
-libs.h
-/home/alarm/eclipse-workspace-arm/picoFM/libs.h
 
 /home/alarm/eclipse-workspace-arm/picoFM/libs.h
 hdr.h

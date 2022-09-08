@@ -48,10 +48,8 @@
 
 #define SET_TIK_LED
 
+
 #define SET_FLASH
-#ifdef SET_FLASH
-	//#define SET_LIST_SAVE
-#endif
 
 //------------------------------------------------------------------------------
 
@@ -61,7 +59,6 @@
 #define I2C_SCL_PIN 3//PICO_DEFAULT_I2C_SCL_PIN
 
 #define LCD_DC_PIN 4
-//#define LCD_CS_PIN 5
 #define LCD_RST_PIN 5
 #define LCD_SCK_PIN  6
 #define LCD_MOSI_PIN 7
@@ -72,24 +69,24 @@
 
 #define portRDA  portI2C
 
-#define MAX_LIST      26//25
+#define MAX_LIST      27//26//25
 #define MAX_BAND       4
 #define MAX_STEP       4
 #define MAX_SIZE_NAME 31//16//31
 #define MAX_MENU       9//8//7//6
 
 #ifdef SET_ENCODER
-	#define MAX_CMDS  26//25//24//22//21//20//17//16//15//6
+	#define MAX_CMDS  27//26//25//24//22//21//20//17//16//15//6
 #else
 	#define MAX_CMDS  19//18//15//6
 #endif
 
 //
-#ifdef SET_WITH_DMA
+//#ifdef SET_WITH_DMA
 	#define MAX_ERR_CODE 7
-#else
-	#define MAX_ERR_CODE 6
-#endif
+//#else
+//	#define MAX_ERR_CODE 6
+//#endif
 //
 #define UART_ID 	 uart0
 #define BAUD_RATE 	230400 //115200

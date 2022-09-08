@@ -40,7 +40,8 @@ enum {
 	cmdRead,
 	cmdReadCont,
 	cmdNext,
-	cmdCheck
+	cmdCheck,
+	cmdErase
 };
 
 enum {
@@ -90,12 +91,13 @@ enum {
 //const char *ver = "Ver.2.7 04.09.22 encoder";// remove ssd1306 support and add sleep mode
 //const char *ver = "Ver.2.8 05.09.22 encoder";// add contrast mode to control menu
 //const char *ver = "Ver.2.9 07.09.22 encoder";// add dma for read flash
-const char *ver = "Ver.2.9.1 08.09.22 encoder";
+//const char *ver = "Ver.2.9.1 08.09.22 encoder";
+const char *ver = "Ver.3.0 08.09.22 enc&flash";// save/restore radio_list in rda_sector of flash-memory
 
 
 
 
-volatile static uint32_t epoch = 1662643850;//1662589615;
+volatile static uint32_t epoch = 1662670195;//1662659160;//1662643850;//1662589615;
 //1662572765;//1662373645;//1662368495;//1662331845;//1662327755;//1662295275;//1662288820;
 //1662251055;//1662246985;//1662209185;//1662156375;//1662151345;//1662114275;//1662038845;
 //1661990305;//1661949985;//1661902365;//1661897825;//1661792625;
@@ -134,7 +136,8 @@ const char *s_cmds[MAX_CMDS] = {
 	"read",
 	"readcont",
 	"next",
-	"check"
+	"check",
+	"erase"
 };
 
 const uint16_t all_devErr[MAX_ERR_CODE] = {
@@ -144,7 +147,7 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 	devUart,
 	devI2c,
 	devDma,
-	devRDA
+	dev_RDA
 };
 
 
@@ -257,8 +260,9 @@ const step_t allSteps[MAX_STEP] = {
 	{0.025, "25"}
 };
 const char *noneStation = "???";
+static rec_t list[MAX_LIST];
 #ifdef RUS_SUPPORT
-	static const rec_t list[MAX_LIST] = {
+	static const rec_t def_list[MAX_LIST] = {
 		//Band:3 65-76
 		{3,  68.5, "Маяк"},// Маяк
 		{3,  72.1, "Шансон"},// Шансон
@@ -271,6 +275,7 @@ const char *noneStation = "???";
 		{2,  96.3, "Русское Радио"},// Русское Радио
 		{2,  97.0, "Радио Вера"},// Радио Книга
 		{2,  97.7, "Серебр.Дождь"},// Серебрянный Дождь
+		{2,  98.1, "Радио Пи ФМ"},// Пи ФМ
 		{2,  98.5, "Радио Энергия"},// Радио Энергия
 		{2,  99.5, "Радио Звезда"},// Радио Звезда
 		{2, 100.1, "Авто Радио"},// АвтоРадио
@@ -289,7 +294,7 @@ const char *noneStation = "???";
 		{2, 107.2, "Радио КП"}// Комсомольская Правда
 	};
 #else
-	static const rec_t list[MAX_LIST] = {
+	static const rec_t def_list[MAX_LIST] = {
 		//Band:3 65-76
 		{3, 68.5, "Majak"},// Маяк
 		{3, 72.1, "Shanson"},// Шансон
@@ -302,6 +307,7 @@ const char *noneStation = "???";
 		{2, 96.3, "Russian Radio"},// Русское Радио
 		{2, 97, "Radio Vera"},// Радио Книга
 		{2, 97.7, "Silver Rain"},// Серебрянный Дождь
+		{2, 98.1, "Radio PI FM"},// Пи ФМ
 		{2, 98.5, "Radio Enegry"},// Радио Энергия
 		{2, 99.5, "Radio Star"},// Радио Звезда
 		{2, 100.1, "Auto Radio"},// АвтоРадио
@@ -994,6 +1000,7 @@ void uart_rx_callback()
 #ifdef SET_FLASH
         					case cmdRead:// "read:511"
         					case cmdCheck:// "check:511"
+        					case cmdErase:// "erase:511"
         						if (*uk == ':') {
         							uk++;
         							if (strlen(uk) > 0) {
@@ -1109,6 +1116,8 @@ void show_clocks()
 }
 //--------------------------------------------------------------------
 #ifdef SET_FLASH
+
+#ifdef SET_WITH_DMA
 //--------------------------------------------------------------------
 //   Функция инициализирует канал DMA для чтения данных flash-памяти
 //
@@ -1139,6 +1148,7 @@ void dma_callback()
     evt_t evt = {cmdReadCont, fadr};
     if (!queue_try_add(&evt_fifo, &evt)) devError |= devQue;
 }
+#endif
 //--------------------------------------------------------------------
 //   Функция обеспечивает пересылку данных из flash-памяти в заданный буфер
 //   с помощью канала dma_chan. Завершается пересылка прерыванием DMA_IRQ0.
@@ -1175,6 +1185,11 @@ void Flash_ReadSector(uint8_t *buf, uint32_t sector, uint32_t offset, uint32_t l
 
 }
 //--------------------------------------------------------------------
+void readList()
+{
+	memcpy(&list[0].band, flash_addr + (rda_sector * FLASH_SECTOR_SIZE), sizeof(rec_t) * MAX_LIST);
+}
+//--------------------------------------------------------------------
 //   Функция возвращает признак "свободен/занят" для указанного сектора flash-памяти
 //
 bool isSectorEmpty(uint32_t sector)
@@ -1197,10 +1212,14 @@ void Flash_WriteSector(void *buf, uint32_t sector, uint32_t offset, uint32_t len
 
 	uint32_t ofs_adr = sector * FLASH_SECTOR_SIZE;
 
-	if (!isSectorEmpty(sector)) {
-		Report(1, "[%s] sector not empty. Erase sector %lu\n", __func__, sector);
-		flash_range_erase(ofs_adr, FLASH_SECTOR_SIZE);
-	}
+	//if (!isSectorEmpty(sector)) return;
+	/*if (!isSectorEmpty(sector)) {
+		Report(1, "[%s] Sector not empty. Erase sector %lu...", __func__, sector);
+		uint32_t status = save_and_disable_interrupts();
+			flash_range_erase(ofs_adr, FLASH_SECTOR_SIZE);
+		restore_interrupts(status);
+		Report(0, " done.\n");
+	}*/
 
 	memset(fs_work, 0xff, sizeof(fs_work));
 	memcpy(fs_work, (uint8_t *)buf, len);
@@ -1209,8 +1228,9 @@ void Flash_WriteSector(void *buf, uint32_t sector, uint32_t offset, uint32_t len
 	sz *= FLASH_PAGE_SIZE;
 	ofs_adr += offset;
 	Report(1, "[%s] write %lu/%lu bytes to sector %lu (adr:0x%X)\n", __func__, len, sz, sector, ofs_adr);
-
-	flash_range_program(ofs_adr, fs_work, sz);
+	uint32_t status = save_and_disable_interrupts();
+		flash_range_program(ofs_adr, fs_work, sz);
+	restore_interrupts(status);
 }
 //--------------------------------------------------------------------
 #endif
@@ -1349,17 +1369,26 @@ int main() {
     	devError |= devTik;
     }
 
-    //--------------------------------------------------------------------
+    //--------------------------------------------------------------------------
 
+    memset(&list[0].band, 0, sizeof(rec_t) * MAX_LIST);
 
-#ifdef SET_LIST_SAVE
-
-    // запись данных листа радио станций во flash-память по адресу сектора rds_sector
+#ifdef SET_FLASH
+    // Запись данных листа радио станций во flash-память по адресу сектора rda_sector
+    //  !!!!! в SDK НЕТ упоминания, что при стирании/записи данных во флэш НУЖНО
+    //        ОБЯЗАТЕЛЬНО ЗАПРЕТИТЬ все прерывания, а после операции их РАЗРЕШИТЬ !!!!!
+    if (isSectorEmpty(rda_sector)) {
+    	Flash_WriteSector((void *)&def_list[0].band, rda_sector, 0, sizeof(rec_t) * MAX_LIST);
+    }
+    readList();
     //
-    Flash_WriteSector((void *)&list[0], rda_sector, 0, sizeof(rec_t) * MAX_LIST);
     //
-
+    //
+#else
+    memcpy(&list[0].band, &def_list[0].band, sizeof(rec_t) * MAX_LIST);
 #endif
+
+    //--------------------------------------------------------------------------
 
 
 #ifdef SET_ENCODER
@@ -1819,7 +1848,7 @@ int main() {
     						rda5807_Get_ChanRssiFlag(&Chan, &RSSI, &stereo);
     						ev.cmd = cmdShowFreq;
     						if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
-        					Report(1, "[que:%u] set new Freq to %.3f МГц '%s' Chan:%u Volume:%u\n",
+        					Report(1, "[que:%u] set new Freq to %.1f МГц '%s' Chan:%u Volume:%u\n",
         								  queCnt, Freq, nameStation(Freq, NULL), Chan, Volume);
 
 #ifdef SET_RDS
@@ -1902,7 +1931,7 @@ int main() {
     							rda5807_Get_ChanRssiFlag(&Chan, &RSSI, &stereo);
     							ev.cmd = cmdShowFreq;
     							if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
-    							Report(1, "[que:%u] set new Freq to %.3f МГц '%s' Chan:%u Volume:%u\n",
+    							Report(1, "[que:%u] set new Freq to %.1f МГц '%s' Chan:%u Volume:%u\n",
     									  queCnt, Freq, nameStation(Freq, NULL), Chan, Volume);
     							//
 #ifdef SET_RDS
@@ -1950,7 +1979,7 @@ int main() {
     					clrLines(lines[line3], 2, 0, lfnt->FontHeight, BACKGROUND);
     					UC1609C_Print(caclX(stn, lfnt->FontWidth), lines[line3], stn, lfnt, 0, FOREGROUND);
     					//
-    					UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
+    					UC1609C_DrawLine(0, lines[line4] + lfnt->FontHeight - 1, UC1609C_WIDTH - 1, lines[line4] + lfnt->FontHeight - 1, 0);
     					UC1609C_update();
     				}
     				break;
@@ -1960,6 +1989,18 @@ int main() {
     						Report(1, "[que:%u] Sector %lu is empty\n", queCnt, adr_sector);
     					else
     						Report(1, "[que:%u] Sector %lu Not empty\n", queCnt, adr_sector);
+    				break;
+    				case cmdErase:
+    					if (!isSectorEmpty(adr_sector)) {
+    						Report(1, "[que:%u] Erase sector %lu ...", queCnt, adr_sector);
+    						uint32_t ofs_adr = adr_sector * FLASH_SECTOR_SIZE;
+    						uint32_t status = save_and_disable_interrupts();
+    							flash_range_erase(ofs_adr, FLASH_SECTOR_SIZE);
+    						restore_interrupts(status);
+    						Report(0, " done.\n");
+    					} else {
+    						Report(1, "[que:%u] Sector %lu already empty\n", queCnt, adr_sector);
+    					}
     				break;
     				case cmdRead:
     				case cmdNext:
@@ -2087,7 +2128,7 @@ int main() {
     								sprintf(st, "RDS : %.*s", lens, PSName);
     								mkLineCenter(st, lfnt->FontWidth);
     								UC1609C_Print(1, lines[line4], st, lfnt, 0, FOREGROUND);
-    								UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
+    								UC1609C_DrawLine(0, lines[line4] + lfnt->FontHeight - 1, UC1609C_WIDTH - 1, lines[line4] + lfnt->FontHeight - 1, 0);
     								UC1609C_update();
     				        	}
     				        }
