@@ -29,7 +29,7 @@ uint8_t data = command | value;
 	
 	DC_SELECT();
 #ifdef FOR_STM32
-	HAL_SPI_Transmit( &UC1609C_SPI_HAL, &data, 1, HAL_MAX_DELAY );
+	HAL_SPI_Transmit(&UC1609C_SPI_HAL, &data, 1, HAL_MAX_DELAY);
 #else
 	spi_write_blocking(portSPI, &data, 1);
 #endif
@@ -40,7 +40,7 @@ static void UC1609C_sendCommands(uint8_t *commands, uint16_t len)
 {
 	DC_SELECT();
 #ifdef FOR_STM32
-	HAL_SPI_Transmit( &UC1609C_SPI_HAL, &commands, len, HAL_MAX_DELAY );
+	HAL_SPI_Transmit(&UC1609C_SPI_HAL, &commands, len, HAL_MAX_DELAY);
 #else
 	spi_write_blocking(portSPI, commands, len);
 #endif
@@ -728,6 +728,8 @@ int16_t y = r;
     }
 }
 //-----------------------------------------------------------------------------------------
+//   Функция формирует координату X для вывода сообщение в середине строки дисплея
+//
 int16_t caclX(char *str, uint16_t width)
 {
 int16_t cx = 1;
@@ -743,6 +745,8 @@ int16_t cx = 1;
 	return cx * width;
 }
 //-----------------------------------------------------------------------------------------
+//   Функция размещает строковое сообщение в середине строки дисплея
+//
 char *mkLineCenter(char *str, uint16_t width)
 {
 char st[64] = {0};
@@ -775,6 +779,8 @@ int ch = str[0];
     return str;
 }
 //-----------------------------------------------------------------------------------------
+//   Функция формирует символьную строку во всю ширину экрана из двух строк
+//
 char *mkLineWidth(char *str1, char *str2, uint16_t width)
 {
 char st[64] = {0};
@@ -793,18 +799,25 @@ char st[64] = {0};
     return str1;
 }
 //-------------------------------------------------------------------------------------------
+//   Функция отображает на дисплее сообщение по заданным параметрам
+//
 void showLine(char *msg, uint16_t lin, FontDef_t *fnt, bool update, uint8_t back)
 {
 	UC1609C_Print(1, lin, msg, fnt, 0, back);
 	if (update) UC1609C_update();
 }
 //-------------------------------------------------------------------------------------------
+//   Функция отображает на дисплее сообщение Menu по заданным параметрам
+//
 void showLineMenu(int16_t cx, char *msg, uint16_t lin, FontDef_t *fnt, bool update, uint8_t back)
 {
 	UC1609C_Print(cx, lin, msg, fnt, 0, back);
 	if (update) UC1609C_update();
 }
 //-------------------------------------------------------------------------------------------
+//   Функция очищает одну или несколько строк на дисплее с координаты x=lin для символов из фонта fh
+//   с инверсией или без неё (согласно параметру inv)
+//
 void clrLines(uint16_t lin, uint8_t cnt, uint8_t update, uint8_t fh, uint8_t inv)
 {
 	if (!cnt) return;

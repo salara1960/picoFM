@@ -56,6 +56,8 @@ void iniDMA()
 #endif
 */
 //------------------------------------------------------------------------------------------
+//   Функция устанавливает дату и время в модуле RTC по значению Unix Timestamp
+//
 void set_sec(uint32_t sec)
 {
     //seconda = sec;
@@ -73,12 +75,14 @@ void set_sec(uint32_t sec)
 	};
 	rtc_set_datetime(&dt);
 }
-//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------
+//              Функции для использования таймера с перидом в 5 ms
+//-----------------------------------------------------------------------------------------
 void inc_msCounter()
 {
 	ms10++;
 }
-//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------
 uint32_t get_msCounter()
 {
 	return ms10;
@@ -114,6 +118,8 @@ bool check_tmr(uint32_t sec)
     return (get_sec() >= sec ? true : false);
 }
 //-------------------------------------------------------------------------------------------
+//   Функция зажигает/тушит светодиод индикации ошибки
+//
 void errLedOn(bool on)
 {
 	if (on)
@@ -122,6 +128,8 @@ void errLedOn(bool on)
 		gpio_put(ERR_PIN, 0);
 }
 //------------------------------------------------------------------------------------------
+//   Функция формирует символьную сторку из данных, прочитанных из модуля RTC
+//
 int sec2str(char *st)
 {
 datetime_t dt;
@@ -133,6 +141,8 @@ datetime_t dt;
                 dt.hour + tZone, dt.min, dt.sec);
 }
 //------------------------------------------------------------------------------------------
+//   Функция формирует и выводит на печать символьную строку (stdout - uart0)
+//
 void Report(const uint8_t addTime, const char *fmt, ...)
 {
 	if (!uart_enable) return;
@@ -167,9 +177,11 @@ void Report(const uint8_t addTime, const char *fmt, ...)
 		&uart_get_hw(UART_ID)->dr, //dst      //UART_ID->UARTDR_DATA, //UART_ID->UARTDR.DATA, //UARTDR, //dst, // The initial write address
 		buf, //src,     // The initial read address
 		len, // Number of transfers; in this case each is 1 byte.
-		true // Start immediately.
+		false //true // Start immediately.
 	);
+	dma_channel_start(chan);
 	dma_channel_wait_for_finish_blocking(chan);
+
 #else*/
 	printf("%s", buf);
 	//uart_puts(UART_ID, buf);

@@ -89,12 +89,13 @@ enum {
 //const char *ver = "Ver.2.6 03.09.22 encoder";// new encoder mode support !!!
 //const char *ver = "Ver.2.7 04.09.22 encoder";// remove ssd1306 support and add sleep mode
 //const char *ver = "Ver.2.8 05.09.22 encoder";// add contrast mode to control menu
-const char *ver = "Ver.2.9 07.09.22 encoder";// add dma for read flash
+//const char *ver = "Ver.2.9 07.09.22 encoder";// add dma for read flash
+const char *ver = "Ver.2.9.1 08.09.22 encoder";
 
 
 
 
-volatile static uint32_t epoch = 1662589615;
+volatile static uint32_t epoch = 1662643850;//1662589615;
 //1662572765;//1662373645;//1662368495;//1662331845;//1662327755;//1662295275;//1662288820;
 //1662251055;//1662246985;//1662209185;//1662156375;//1662151345;//1662114275;//1662038845;
 //1661990305;//1661949985;//1661902365;//1661897825;//1661792625;
@@ -1036,7 +1037,6 @@ void uart_rx_callback()
 
 }
 //------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------
 //   Функция обновляет экранное меню на дисплее UC1609C
 //
 void refreshMenu()
@@ -1084,6 +1084,8 @@ float read_onboard_temperature(const char unit)
     return -1.0f;
 }
 //--------------------------------------------------------------------
+//   Функция печатает значения частот, установленных в системе
+//
 void show_clocks()
 {
 	uint f_pll_sys = frequency_count_khz(CLOCKS_FC0_SRC_VALUE_PLL_SYS_CLKSRC_PRIMARY);
@@ -1108,6 +1110,8 @@ void show_clocks()
 //--------------------------------------------------------------------
 #ifdef SET_FLASH
 //--------------------------------------------------------------------
+//   Функция инициализирует канал DMA для чтения данных flash-памяти
+//
 bool chan_init()
 {
 	dma_chan = dma_claim_unused_channel(true);
@@ -1123,6 +1127,9 @@ bool chan_init()
 	return true;
 }
 //--------------------------------------------------------------------
+//   CallBack-функция, вызывается по завершению пересылки данных
+//   по каналу dma_chan. Помещает в очередь соответствующее сообщение.
+//
 void dma_callback()
 {
     // Clear the interrupt request.
@@ -1133,6 +1140,9 @@ void dma_callback()
     if (!queue_try_add(&evt_fifo, &evt)) devError |= devQue;
 }
 //--------------------------------------------------------------------
+//   Функция обеспечивает пересылку данных из flash-памяти в заданный буфер
+//   с помощью канала dma_chan. Завершается пересылка прерыванием DMA_IRQ0.
+//
 void Flash_ReadSector(uint8_t *buf, uint32_t sector, uint32_t offset, uint32_t len)
 {
 	if ((sector >= flash_sectors) || (offset >= FLASH_SECTOR_SIZE)) return;
@@ -1165,6 +1175,8 @@ void Flash_ReadSector(uint8_t *buf, uint32_t sector, uint32_t offset, uint32_t l
 
 }
 //--------------------------------------------------------------------
+//   Функция возвращает признак "свободен/занят" для указанного сектора flash-памяти
+//
 bool isSectorEmpty(uint32_t sector)
 {
 uint8_t *adr = (uint8_t *)(XIP_BASE + (sector * FLASH_SECTOR_SIZE));
@@ -1175,6 +1187,8 @@ uint8_t *adr = (uint8_t *)(XIP_BASE + (sector * FLASH_SECTOR_SIZE));
 	return true;
 }
 //--------------------------------------------------------------------
+//   Функция записывает данные во flash-память по заданным параметрам
+//
 void Flash_WriteSector(void *buf, uint32_t sector, uint32_t offset, uint32_t len)
 {
 	if ((sector >= flash_sectors) ||
@@ -1202,6 +1216,8 @@ void Flash_WriteSector(void *buf, uint32_t sector, uint32_t offset, uint32_t len
 #endif
 //--------------------------------------------------------------------
 
+//**************************************************************************************************
+//                                       MAIN
 //**************************************************************************************************
 int main() {
 
@@ -1251,6 +1267,8 @@ int main() {
     gpio_set_irq_enabled_with_callback(MUX_KEY_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
 #endif
 
+    //---   Init and read data from internal temperature sensor   ---
+
     adc_init();
     adc_set_temp_sensor_enabled(true);
     adc_select_input(4);
@@ -1286,9 +1304,9 @@ int main() {
 
     //--------------------------------------------------------------------
 
-/*#ifdef SET_WITH_DMA
-    iniDMA();
-#endif*/
+//#ifdef SET_WITH_DMA
+//    iniDMA();
+//#endif
 
     //--------------------- i2c master config ----------------------------
 
@@ -1300,7 +1318,7 @@ int main() {
     gpio_pull_up(I2C_SDA_PIN);
     gpio_pull_up(I2C_SCL_PIN);
 
-    //--------------------------------------------------------------------
+    //------------------------ read board_id -----------------------------
 
     pico_unique_board_id_t board_id;
     pico_get_unique_board_id(&board_id);
@@ -1336,12 +1354,16 @@ int main() {
 
 #ifdef SET_LIST_SAVE
 
+    // запись данных листа радио станций во flash-память по адресу сектора rds_sector
+    //
     Flash_WriteSector((void *)&list[0], rda_sector, 0, sizeof(rec_t) * MAX_LIST);
+    //
 
 #endif
 
 
 #ifdef SET_ENCODER
+    //   инициализация пинов энкодера
     gpio_init(ENC_PIN_A);
     gpio_set_dir(ENC_PIN_A, GPIO_IN);
     gpio_pull_up(ENC_PIN_A);
@@ -1353,7 +1375,7 @@ int main() {
     ec_tmr = get_mstmr(_500ms);
 #endif
 
-
+    //   Init SPI0 module (for support display UC1609C)
     spi_init(portSPI, 12000 * 1000);//set SCK to 12Mhz !
     gpio_set_function(LCD_MOSI_PIN, GPIO_FUNC_SPI);
     gpio_set_function(LCD_SCK_PIN, GPIO_FUNC_SPI);
@@ -1368,7 +1390,7 @@ int main() {
     gpio_set_dir(LCD_HIDE_PIN, GPIO_OUT);
     gpio_put(LCD_HIDE_PIN, 0);//for show/hide display ; 0-show, 1-hide
 
-
+    //  init font's pointer
 #ifdef FONT_6x8
     mfnt = &Font_6x8;
 #endif
@@ -1381,7 +1403,7 @@ int main() {
     //
     UC1609C_init();
     UC1609C_enable(1);//display ON
-    uint8_t contrast = 50;
+    uint8_t contrast = 40;
     UC1609C_contrast(contrast);
     UC1609C_clearDisplay();
     //
@@ -1414,7 +1436,7 @@ int main() {
     char stb[64];
     char stn[64];
 
-
+    //   init rda5807m RF chip
     rda5807_delay(250);
     rdaID = rda5807_init(&Freq, Band, Step);
     rda5807_delay(250);
@@ -1441,7 +1463,7 @@ int main() {
     	if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
 	#endif
 
-    if (rdaID == RDA5807_CHIP) {
+    if (rdaID == RDA5807_CHIP) {// если успешно опознан чип rda5807m устанвливаем новую частоту из newFreq
     	ev.cmd = cmdFreq;
     	ev.attr = 0;
     	if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
@@ -1450,7 +1472,9 @@ int main() {
 
 #ifdef SET_JOYSTIC
 
+    //   Стартуем в ядре № 1 функцию, обслуживающую джойстик
     multicore_launch_core1(joystik_task);
+    //
 
 #endif
 
@@ -1459,12 +1483,12 @@ int main() {
 
     uint32_t attr = 0;
 
-    while (!restart) {
+    while (!restart) {// main loop
 
-    	queCnt = queue_get_level(&evt_fifo);
+    	queCnt = queue_get_level(&evt_fifo);//читаем количество сообщение в очереди
 
     	if (queCnt) {
-    		if (queue_try_remove(&evt_fifo, &ev)) {
+    		if (queue_try_remove(&evt_fifo, &ev)) {// читаем очередное сообщение из очереди
     			idx = -1;
     			evt = ev.cmd;
     			attr = ev.attr;
@@ -1866,7 +1890,7 @@ int main() {
     							sprintf(sta, "RSSI:%u", RSSI);
     							stb[0] = '\0';
     							if (stereo) strcpy(stb, "Stereo ");
-    							sprintf(stb+strlen(stb), "FREQ:%.2f", Freq);
+    							sprintf(stb+strlen(stb), "FREQ:%.1f", Freq);
     							mkLineWidth(sta, stb, lfnt->FontWidth);
     							showLine(sta, lines[line1], lfnt, true, FOREGROUND);
     						}
@@ -1911,7 +1935,7 @@ int main() {
     					sprintf(sta, "RSSI:%u", RSSI);
     					stb[0] = '\0';
     					if (stereo) strcpy(stb, "Stereo ");
-    					sprintf(stb+strlen(stb), "FREQ:%.2f", Freq);
+    					sprintf(stb+strlen(stb), "FREQ:%.1f", Freq);
     					mkLineWidth(sta, stb, lfnt->FontWidth);
     					showLine(sta, lines[line1], lfnt, false, FOREGROUND);
     					//
@@ -1967,7 +1991,7 @@ int main() {
     						if ((i % flash_step) == (flash_step - 1)) {
     							bs[0] = '\0';
     							for (int8_t j = 0; j < flash_step; j++) {
-    								sym = (char)fs_work[i - flash_step + j];
+    								sym = (char)fs_work[i - flash_step + 1 + j];
     								if ((sym >= 0x20) && (sym < 0x7f))
     									sprintf(bs+strlen(bs), "%c", sym);
     								else
