@@ -1197,11 +1197,14 @@ void Flash_EraseSector(uint32_t sector)
 {
 	Report(1, "[%s] erase sector %lu ...", __func__, sector);
 
-	spin_lock_t *slk = spin_lock_init(1);
-	uint32_t status = spin_lock_blocking(slk);
+	/*spin_lock_t *slk = spin_lock_init(1);
+	uint32_t ints = spin_lock_blocking(slk);
 		flash_range_erase(sector * FLASH_SECTOR_SIZE, FLASH_SECTOR_SIZE);
 	spin_unlock_unsafe(slk);
-	restore_interrupts(status);
+	restore_interrupts(ints);*/
+	uint32_t ints = save_and_disable_interrupts();
+		flash_range_erase(sector * FLASH_SECTOR_SIZE, FLASH_SECTOR_SIZE);
+	restore_interrupts (ints);
 
 	Report(0, " done.\n");
 }
@@ -1225,11 +1228,14 @@ void Flash_WriteSector(void *buf, uint32_t sector, uint32_t offset, uint32_t len
 
 	Report(1, "[%s] write %lu/%lu bytes to sector %lu (adr:0x%X)...", __func__, len, sz, sector, ofs_adr);
 
-	spin_lock_t *slk = spin_lock_init(1);
-	uint32_t status = spin_lock_blocking(slk);
+	/*spin_lock_t *slk = spin_lock_init(1);
+	uint32_t ints = spin_lock_blocking(slk);
 		flash_range_program(ofs_adr, fs_work, sz);
 	spin_unlock_unsafe(slk);
-	restore_interrupts(status);
+	restore_interrupts(ints);*/
+	uint32_t ints = save_and_disable_interrupts();
+		flash_range_program(ofs_adr, fs_work, sz);
+	restore_interrupts (ints);
 
 	Report(0, " done.\n");
 }

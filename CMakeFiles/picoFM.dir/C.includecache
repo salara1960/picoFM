@@ -418,9 +418,19 @@ pico/stdio.h
 pico.h
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_unique_id/include/pico/pico.h
 
+/home/alarm/eclipse-workspace-arm/picoFM/UC1609C.c
+hdr.h
+/home/alarm/eclipse-workspace-arm/picoFM/hdr.h
+UC1609C.h
+/home/alarm/eclipse-workspace-arm/picoFM/UC1609C.h
+
 /home/alarm/eclipse-workspace-arm/picoFM/UC1609C.h
 hdr.h
 /home/alarm/eclipse-workspace-arm/picoFM/hdr.h
+fonts.h
+/home/alarm/eclipse-workspace-arm/picoFM/fonts.h
+
+/home/alarm/eclipse-workspace-arm/picoFM/fonts.c
 fonts.h
 /home/alarm/eclipse-workspace-arm/picoFM/fonts.h
 
@@ -487,8 +497,14 @@ hardware/rosc.h
 /home/alarm/eclipse-workspace-arm/picoFM/hardware/rosc.h
 hardware/flash.h
 /home/alarm/eclipse-workspace-arm/picoFM/hardware/flash.h
+hardware/sync.h
+/home/alarm/eclipse-workspace-arm/picoFM/hardware/sync.h
 pico/unique_id.h
 /home/alarm/eclipse-workspace-arm/picoFM/pico/unique_id.h
+
+/home/alarm/eclipse-workspace-arm/picoFM/libs.c
+libs.h
+/home/alarm/eclipse-workspace-arm/picoFM/libs.h
 
 /home/alarm/eclipse-workspace-arm/picoFM/libs.h
 hdr.h
@@ -507,6 +523,12 @@ fonts.h
 /home/alarm/eclipse-workspace-arm/picoFM/fonts.h
 UC1609C.h
 /home/alarm/eclipse-workspace-arm/picoFM/UC1609C.h
+
+/home/alarm/eclipse-workspace-arm/picoFM/rda5807.c
+hdr.h
+/home/alarm/eclipse-workspace-arm/picoFM/hdr.h
+rda5807.h
+/home/alarm/eclipse-workspace-arm/picoFM/rda5807.h
 
 /home/alarm/eclipse-workspace-arm/picoFM/rda5807.h
 hdr.h

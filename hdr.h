@@ -27,6 +27,7 @@
 #include "hardware/clocks.h"
 #include "hardware/rosc.h"
 #include "hardware/flash.h"
+#include "hardware/sync.h"
 #include "pico/unique_id.h"
 
 
