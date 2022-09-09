@@ -92,12 +92,13 @@ enum {
 //const char *ver = "Ver.2.8 05.09.22 encoder";// add contrast mode to control menu
 //const char *ver = "Ver.2.9 07.09.22 encoder";// add dma for read flash
 //const char *ver = "Ver.2.9.1 08.09.22 encoder";
-const char *ver = "Ver.3.0 08.09.22 enc&flash";// save/restore radio_list in rda_sector of flash-memory
+//const char *ver = "Ver.3.0 08.09.22 enc&flash";// save/restore radio_list in rda_sector of flash-memory
+const char *ver = "Ver.3.1 09.09.22";
 
 
 
 
-volatile static uint32_t epoch = 1662670195;//1662659160;//1662643850;//1662589615;
+volatile static uint32_t epoch = 1662723599;//1662671765;//1662670195;//1662659160;//1662643850;//1662589615;
 //1662572765;//1662373645;//1662368495;//1662331845;//1662327755;//1662295275;//1662288820;
 //1662251055;//1662246985;//1662209185;//1662156375;//1662151345;//1662114275;//1662038845;
 //1661990305;//1661949985;//1661902365;//1661897825;//1661792625;
@@ -195,8 +196,8 @@ uint8_t RSSI = 0;
 uint8_t rdaID = 0;
 volatile uint8_t scan = 0;
 volatile uint8_t seek_up = 1;
-uint8_t Volume = 6;//8;
-uint8_t newVolume = 6;//8;
+uint8_t Volume = 3;//6;//8;
+uint8_t newVolume = 3;//6;//8;
 uint8_t BassBoost = 0;
 uint8_t newBassBoost = 0;
 bool stereo = false;
@@ -459,6 +460,10 @@ uint16_t listSize = 0;
 		bool irq_dma_init = false;
 		bool dma_chan_init = false;
 	#endif
+
+	//uint32_t irq_status = 0;
+	//uint spinlock_num = 1;
+	//spin_lock_t *flash_spinlock = NULL;
 #endif
 
 
@@ -1070,7 +1075,7 @@ int16_t lone = strlen(allMenu[0]);
 	UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
 	UC1609C_update();
 }
-//-----------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //   Функция возвращает значение температуры с внутреннего датчика в градусах
 //   Цельсия или Фаренгейта или значение -1 при ошибке задания входного параметра
 //
@@ -1090,7 +1095,7 @@ float read_onboard_temperature(const char unit)
 
     return -1.0f;
 }
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //   Функция печатает значения частот, установленных в системе
 //
 void show_clocks()
@@ -1114,42 +1119,45 @@ void show_clocks()
 			  "\tclk_rtc : %d kHz\n",
 			  f_pll_sys, f_pll_usb, f_rosc, f_clk_sys, f_clk_peri, f_clk_usb, f_clk_adc, f_clk_rtc);
 }
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #ifdef SET_FLASH
 
-#ifdef SET_WITH_DMA
-//--------------------------------------------------------------------
-//   Функция инициализирует канал DMA для чтения данных flash-памяти
-//
-bool chan_init()
-{
-	dma_chan = dma_claim_unused_channel(true);
-	if (dma_chan == -1) {
-		devError |= devDma;
-		return false;
-	}
-	read_conf = dma_channel_get_default_config(dma_chan);
-	channel_config_set_transfer_data_size(&read_conf, DMA_SIZE_8);
-	channel_config_set_read_increment(&read_conf, true);
-	channel_config_set_write_increment(&read_conf, true);
+	#ifdef SET_WITH_DMA
+	//------------------------------------------------------------------------------
+	//   Функция инициализирует канал DMA для чтения данных flash-памяти
+	//
+	bool chan_init()
+	{
+		dma_chan = dma_claim_unused_channel(true);
+		if (dma_chan == -1) {
+			devError |= devDma;
+			return false;
+		}
+		read_conf = dma_channel_get_default_config(dma_chan);
+		channel_config_set_transfer_data_size(&read_conf, DMA_SIZE_8);
+		channel_config_set_read_increment(&read_conf, true);
+		channel_config_set_write_increment(&read_conf, true);
 
-	return true;
-}
-//--------------------------------------------------------------------
-//   CallBack-функция, вызывается по завершению пересылки данных
-//   по каналу dma_chan. Помещает в очередь соответствующее сообщение.
-//
-void dma_callback()
-{
-    // Clear the interrupt request.
-    dma_hw->ints0 = 1u << dma_chan;
-    //
-    fadr = XIP_BASE + (adr_sector * FLASH_SECTOR_SIZE) + offset_sector;
-    evt_t evt = {cmdReadCont, fadr};
-    if (!queue_try_add(&evt_fifo, &evt)) devError |= devQue;
-}
-#endif
-//--------------------------------------------------------------------
+		return true;
+	}
+	//------------------------------------------------------------------------------
+	//   CallBack-функция, вызывается по завершению пересылки данных
+	//   по каналу dma_chan. Помещает в очередь соответствующее сообщение.
+	//
+	void dma_callback()
+	{
+		// Clear the interrupt request.
+		dma_hw->ints0 = 1u << dma_chan;
+		//
+		fadr = XIP_BASE + (adr_sector * FLASH_SECTOR_SIZE) + offset_sector;
+		evt_t evt = {cmdReadCont, fadr};
+		if (!queue_try_add(&evt_fifo, &evt)) devError |= devQue;
+	}
+	//------------------------------------------------------------------------------
+
+	#endif
+
+//------------------------------------------------------------------------------
 //   Функция обеспечивает пересылку данных из flash-памяти в заданный буфер
 //   с помощью канала dma_chan. Завершается пересылка прерыванием DMA_IRQ0.
 //
@@ -1184,12 +1192,53 @@ void Flash_ReadSector(uint8_t *buf, uint32_t sector, uint32_t offset, uint32_t l
 #endif
 
 }
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Flash_EraseSector(uint32_t sector)
+{
+	Report(1, "[%s] erase sector %lu ...", __func__, sector);
+
+	spin_lock_t *slk = spin_lock_init(1);
+	uint32_t status = spin_lock_blocking(slk);
+		flash_range_erase(sector * FLASH_SECTOR_SIZE, FLASH_SECTOR_SIZE);
+	spin_unlock_unsafe(slk);
+	restore_interrupts(status);
+
+	Report(0, " done.\n");
+}
+//------------------------------------------------------------------------------
+//   Функция записывает данные во flash-память по заданным параметрам
+//
+void Flash_WriteSector(void *buf, uint32_t sector, uint32_t offset, uint32_t len)
+{
+	if ((sector >= flash_sectors) ||
+			(offset >= FLASH_SECTOR_SIZE) ||
+				(len > FLASH_SECTOR_SIZE)) return;
+
+	uint32_t ofs_adr = sector * FLASH_SECTOR_SIZE;
+
+	memset(fs_work, 0xff, sizeof(fs_work));
+	memcpy(fs_work, (uint8_t *)buf, len);
+	size_t sz = len / FLASH_PAGE_SIZE;
+	if (len % FLASH_PAGE_SIZE) sz++;
+	sz *= FLASH_PAGE_SIZE;
+	ofs_adr += offset;
+
+	Report(1, "[%s] write %lu/%lu bytes to sector %lu (adr:0x%X)...", __func__, len, sz, sector, ofs_adr);
+
+	spin_lock_t *slk = spin_lock_init(1);
+	uint32_t status = spin_lock_blocking(slk);
+		flash_range_program(ofs_adr, fs_work, sz);
+	spin_unlock_unsafe(slk);
+	restore_interrupts(status);
+
+	Report(0, " done.\n");
+}
+//------------------------------------------------------------------------------
 void readList()
 {
 	memcpy(&list[0].band, flash_addr + (rda_sector * FLASH_SECTOR_SIZE), sizeof(rec_t) * MAX_LIST);
 }
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //   Функция возвращает признак "свободен/занят" для указанного сектора flash-памяти
 //
 bool isSectorEmpty(uint32_t sector)
@@ -1201,40 +1250,9 @@ uint8_t *adr = (uint8_t *)(XIP_BASE + (sector * FLASH_SECTOR_SIZE));
 	}
 	return true;
 }
-//--------------------------------------------------------------------
-//   Функция записывает данные во flash-память по заданным параметрам
-//
-void Flash_WriteSector(void *buf, uint32_t sector, uint32_t offset, uint32_t len)
-{
-	if ((sector >= flash_sectors) ||
-			(offset >= FLASH_SECTOR_SIZE) ||
-				(len > FLASH_SECTOR_SIZE)) return;
-
-	uint32_t ofs_adr = sector * FLASH_SECTOR_SIZE;
-
-	//if (!isSectorEmpty(sector)) return;
-	/*if (!isSectorEmpty(sector)) {
-		Report(1, "[%s] Sector not empty. Erase sector %lu...", __func__, sector);
-		uint32_t status = save_and_disable_interrupts();
-			flash_range_erase(ofs_adr, FLASH_SECTOR_SIZE);
-		restore_interrupts(status);
-		Report(0, " done.\n");
-	}*/
-
-	memset(fs_work, 0xff, sizeof(fs_work));
-	memcpy(fs_work, (uint8_t *)buf, len);
-	size_t sz = len / FLASH_PAGE_SIZE;
-	if (len % FLASH_PAGE_SIZE) sz++;
-	sz *= FLASH_PAGE_SIZE;
-	ofs_adr += offset;
-	Report(1, "[%s] write %lu/%lu bytes to sector %lu (adr:0x%X)\n", __func__, len, sz, sector, ofs_adr);
-	uint32_t status = save_and_disable_interrupts();
-		flash_range_program(ofs_adr, fs_work, sz);
-	restore_interrupts(status);
-}
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #endif
-//--------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 //**************************************************************************************************
 //                                       MAIN
@@ -1245,7 +1263,7 @@ int main() {
 
     stdio_init_all();
 
-    //------------------------- GPIO init --------------------------------
+    //------------------------- GPIO init --------------------------------------
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
     gpio_init(ERR_PIN);
@@ -1374,6 +1392,9 @@ int main() {
     memset(&list[0].band, 0, sizeof(rec_t) * MAX_LIST);
 
 #ifdef SET_FLASH
+    //
+    //flash_spinlock = spin_lock_init(spinlock_num);
+    //
     // Запись данных листа радио станций во flash-память по адресу сектора rda_sector
     //  !!!!! в SDK НЕТ упоминания, что при стирании/записи данных во флэш НУЖНО
     //        ОБЯЗАТЕЛЬНО ЗАПРЕТИТЬ все прерывания, а после операции их РАЗРЕШИТЬ !!!!!
@@ -1992,12 +2013,7 @@ int main() {
     				break;
     				case cmdErase:
     					if (!isSectorEmpty(adr_sector)) {
-    						Report(1, "[que:%u] Erase sector %lu ...", queCnt, adr_sector);
-    						uint32_t ofs_adr = adr_sector * FLASH_SECTOR_SIZE;
-    						uint32_t status = save_and_disable_interrupts();
-    							flash_range_erase(ofs_adr, FLASH_SECTOR_SIZE);
-    						restore_interrupts(status);
-    						Report(0, " done.\n");
+    						Flash_EraseSector(adr_sector);
     					} else {
     						Report(1, "[que:%u] Sector %lu already empty\n", queCnt, adr_sector);
     					}
@@ -2126,10 +2142,12 @@ int main() {
     								int lens = strlen(PSName);
     								if (lens > 15) lens = 15;
     								sprintf(st, "RDS : %.*s", lens, PSName);
-    								mkLineCenter(st, lfnt->FontWidth);
-    								UC1609C_Print(1, lines[line4], st, lfnt, 0, FOREGROUND);
-    								UC1609C_DrawLine(0, lines[line4] + lfnt->FontHeight - 1, UC1609C_WIDTH - 1, lines[line4] + lfnt->FontHeight - 1, 0);
-    								UC1609C_update();
+    								if (!menuAct) {
+    									mkLineCenter(st, lfnt->FontWidth);
+    									UC1609C_Print(1, lines[line4], st, lfnt, 0, FOREGROUND);
+    									UC1609C_DrawLine(0, lines[line4] + lfnt->FontHeight - 1, UC1609C_WIDTH - 1, lines[line4] + lfnt->FontHeight - 1, 0);
+    									UC1609C_update();
+    								}
     				        	}
     				        }
     				    } // PSName, PTy end
@@ -2226,6 +2244,8 @@ int main() {
     };
     sleep_ms(10);
 #endif
+
+
 
     //restart
     watchdog_reboot(0, SRAM_END, 0);
