@@ -93,12 +93,12 @@ enum {
 //const char *ver = "Ver.2.9 07.09.22 encoder";// add dma for read flash
 //const char *ver = "Ver.2.9.1 08.09.22 encoder";
 //const char *ver = "Ver.3.0 08.09.22 enc&flash";// save/restore radio_list in rda_sector of flash-memory
-const char *ver = "Ver.3.1 09.09.22";
+//const char *ver = "Ver.3.1 09.09.22";
+const char *ver = "Ver.3.2 12.09.22";
 
 
 
-
-volatile static uint32_t epoch = 1662723599;//1662671765;//1662670195;//1662659160;//1662643850;//1662589615;
+volatile static uint32_t epoch = 1663013315;//1662723599;//1662671765;//1662670195;//1662659160;//1662643850;//1662589615;
 //1662572765;//1662373645;//1662368495;//1662331845;//1662327755;//1662295275;//1662288820;
 //1662251055;//1662246985;//1662209185;//1662156375;//1662151345;//1662114275;//1662038845;
 //1661990305;//1661949985;//1661902365;//1661897825;//1661792625;
@@ -514,8 +514,10 @@ void cmdLedOn()
 					evt_t e = {cmdNone, 0};
 					switch (gpio) {
 						case jKEY_PIN:// нажата кнопка джойстика
-							seek_up = 1;
-							e.cmd = cmdScan;
+							if (!menuAct) {
+								seek_up = 1;
+								e.cmd = cmdScan;
+							}
 						break;
 #ifdef SET_ENCODER
 						case ENC_PIN:// нажата кнопка энкодера
@@ -665,10 +667,12 @@ void cmdLedOn()
 						else
 						if (valX > MAX_VAL) seek_up = 0;
 						//
-						cmdLedOn();
-						ev.cmd = cmdList;
-						ev.attr = seek_up;
-						if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
+						if (!menuAct) {
+							cmdLedOn();
+							ev.cmd = cmdList;
+							ev.attr = seek_up;
+							if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
+						}
 						jtmr = get_mstmr(_175ms);
 					}
 				}
@@ -693,10 +697,12 @@ void cmdLedOn()
 							}
 						}
 						if (yes) {
-							cmdLedOn();
-							ev.cmd = cmdVol;
-							ev.attr = newVolume;
-							if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
+							if (!menuAct) {
+								cmdLedOn();
+								ev.cmd = cmdVol;
+								ev.attr = newVolume;
+								if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
+							}
 							jtmr = get_mstmr(_175ms);
 						}
 					}
@@ -2255,6 +2261,10 @@ int main() {
 
     //restart
     watchdog_reboot(0, SRAM_END, 0);
+    for (;;) {
+    	__wfi();
+    }
+
 
     return 0;
 }
