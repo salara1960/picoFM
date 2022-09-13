@@ -94,11 +94,13 @@ enum {
 //const char *ver = "Ver.2.9.1 08.09.22 encoder";
 //const char *ver = "Ver.3.0 08.09.22 enc&flash";// save/restore radio_list in rda_sector of flash-memory
 //const char *ver = "Ver.3.1 09.09.22";
-const char *ver = "Ver.3.2 12.09.22";
+//const char *ver = "Ver.3.2 12.09.22";
+const char *ver = "Ver.3.2.1 13.09.22";
 
 
 
-volatile static uint32_t epoch = 1663013315;//1662723599;//1662671765;//1662670195;//1662659160;//1662643850;//1662589615;
+volatile static uint32_t epoch = 1663101145;
+//1663013315;//1662723599;//1662671765;//1662670195;//1662659160;//1662643850;//1662589615;
 //1662572765;//1662373645;//1662368495;//1662331845;//1662327755;//1662295275;//1662288820;
 //1662251055;//1662246985;//1662209185;//1662156375;//1662151345;//1662114275;//1662038845;
 //1661990305;//1661949985;//1661902365;//1661897825;//1661792625;
@@ -196,8 +198,8 @@ uint8_t RSSI = 0;
 uint8_t rdaID = 0;
 volatile uint8_t scan = 0;
 volatile uint8_t seek_up = 1;
-uint8_t Volume = 3;//6;//8;
-uint8_t newVolume = 3;//6;//8;
+uint8_t Volume = 6;//8;
+uint8_t newVolume = 6;//8;
 uint8_t BassBoost = 0;
 uint8_t newBassBoost = 0;
 bool stereo = false;
@@ -510,7 +512,7 @@ void cmdLedOn()
 			if (!gpio_get(gpio)) {
 				//
 				if (check_mstmr(start_jkey)) {
-					cmdLedOn();
+					if (!menuAct) cmdLedOn();
 					evt_t e = {cmdNone, 0};
 					switch (gpio) {
 						case jKEY_PIN:// нажата кнопка джойстика
