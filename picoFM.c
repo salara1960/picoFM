@@ -95,11 +95,13 @@ enum {
 //const char *ver = "Ver.3.0 08.09.22 enc&flash";// save/restore radio_list in rda_sector of flash-memory
 //const char *ver = "Ver.3.1 09.09.22";
 //const char *ver = "Ver.3.2 12.09.22";
-const char *ver = "Ver.3.2.1 13.09.22";
+//const char *ver = "Ver.3.2.1 13.09.22";
+//const char *ver = "Ver.3.2.2 14.09.22";
+const char *ver = "Ver.3.2.3 18.09.22";
 
 
 
-volatile static uint32_t epoch = 1663101145;
+volatile static uint32_t epoch = 1663539209;//1663157436;//1663101145;
 //1663013315;//1662723599;//1662671765;//1662670195;//1662659160;//1662643850;//1662589615;
 //1662572765;//1662373645;//1662368495;//1662331845;//1662327755;//1662295275;//1662288820;
 //1662251055;//1662246985;//1662209185;//1662156375;//1662151345;//1662114275;//1662038845;
@@ -422,6 +424,15 @@ uint16_t listSize = 0;
 	volatile int16_t ec_last_counter = 0;
 	bool fix_freq = false;
 	uint32_t ec_tmr = 0;
+	#ifdef SET_ENC4
+		int16_t Enc_Counter = 0;
+		double Qtr_Cntr = 0;
+		double Last_Qtr_Cntr = 0;
+		bool Enc_A_State = 0;
+		bool Enc_A_State_old = 0;
+		bool Enc_B_State = 0;
+		bool Enc_B_State_old = 0;
+	#endif
 #endif
 
 #ifdef SET_KBD_MUX
@@ -494,6 +505,12 @@ void cmdLedOn()
 		if (!que_start) {
 #ifdef SET_ENCODER
 			ec_counter = ec_last_counter = 0;
+			#ifdef SET_ENC4
+				Enc_Counter = 0;
+				Qtr_Cntr = Last_Qtr_Cntr = 0;
+				Enc_A_State = Enc_A_State_old = false;
+				Enc_B_State = Enc_B_State_old = false;
+			#endif
 #endif
 			return;
 		}
@@ -512,11 +529,11 @@ void cmdLedOn()
 			if (!gpio_get(gpio)) {
 				//
 				if (check_mstmr(start_jkey)) {
-					if (!menuAct) cmdLedOn();
+					if (!menuAct && !sleepON) cmdLedOn();
 					evt_t e = {cmdNone, 0};
 					switch (gpio) {
 						case jKEY_PIN:// нажата кнопка джойстика
-							if (!menuAct) {
+							if (!menuAct && !sleepON) {
 								seek_up = 1;
 								e.cmd = cmdScan;
 							}
@@ -582,10 +599,15 @@ void cmdLedOn()
 			}
 		}
 #ifdef SET_ENCODER
-		else if (gpio == ENC_PIN_A) {// блок обслудивания данных от энкодера (каналы А и В)
+	#ifdef SET_ENC4
+		else if ((gpio == ENC_PIN_A) || (gpio == ENC_PIN_B)) {// блок обслуживания данных от энкодера (каналы А и В)
+	#else
+		else if (gpio == ENC_PIN_A) {// блок обслуживания данных от энкодера (каналы А и В)
+	#endif
 			if (sleepON) return;
 
 			if (check_mstmr(ec_tmr)) {
+	#ifndef SET_ENC4
 				if (gpio_get(ENC_PIN_B)) ec_counter++;
 									else ec_counter--;
 				if (ec_last_counter != ec_counter) {
@@ -604,6 +626,36 @@ void cmdLedOn()
 						ec_tmr = get_mstmr(_250ms);
 					}
 				}
+	#else
+				Enc_A_State = gpio_get(ENC_PIN_A);
+				Enc_B_State = gpio_get(ENC_PIN_B);
+				int cd = cmdNone;
+				if ((Enc_A_State == Enc_A_State_old) && (Enc_B_State == Enc_B_State_old)) {
+					//error++;
+				} else if ( (Enc_A_State && !Enc_B_State_old) || (!Enc_A_State && Enc_B_State_old) ) {
+					Enc_Counter++;
+					if (Qtr_Cntr < MAX_ENC_VALUE) {
+						Qtr_Cntr = round(Enc_Counter >> 2);
+						cd = cmdInc;
+					}
+				} else if ( (Enc_A_State && Enc_B_State_old) || (!Enc_A_State && !Enc_B_State_old) ) {
+					Enc_Counter--;
+					if (Qtr_Cntr > MIN_ENC_VALUE) {
+						Qtr_Cntr = round(Enc_Counter >> 2);
+						cd = cmdDec;
+					}
+				}
+				Enc_A_State_old = Enc_A_State;
+				Enc_B_State_old = Enc_B_State;
+				if (Qtr_Cntr != Last_Qtr_Cntr) {
+					Last_Qtr_Cntr = Qtr_Cntr;
+					if (cd != cmdNone)	{
+						evt_t e = {cd, 0};
+						if (!queue_try_add(&evt_fifo, &e)) devError |= devQue;
+						ec_tmr = get_mstmr(_10ms);
+					}
+				}
+	#endif
 			}
 		}
 #endif
@@ -669,7 +721,7 @@ void cmdLedOn()
 						else
 						if (valX > MAX_VAL) seek_up = 0;
 						//
-						if (!menuAct) {
+						if (!menuAct && !sleepON) {
 							cmdLedOn();
 							ev.cmd = cmdList;
 							ev.attr = seek_up;
@@ -699,7 +751,7 @@ void cmdLedOn()
 							}
 						}
 						if (yes) {
-							if (!menuAct) {
+							if (!menuAct && !sleepON) {
 								cmdLedOn();
 								ev.cmd = cmdVol;
 								ev.attr = newVolume;
@@ -1431,16 +1483,22 @@ int main() {
     gpio_init(ENC_PIN_A);
     gpio_set_dir(ENC_PIN_A, GPIO_IN);
     gpio_pull_up(ENC_PIN_A);
-    gpio_set_irq_enabled_with_callback(ENC_PIN_A, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+	#ifdef SET_ENC4
+    	gpio_set_irq_enabled_with_callback(ENC_PIN_A, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
+	#else
+    	gpio_set_irq_enabled_with_callback(ENC_PIN_A, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+	#endif
     gpio_init(ENC_PIN_B);
     gpio_set_dir(ENC_PIN_B, GPIO_IN);
     gpio_pull_up(ENC_PIN_B);
-
+	#ifdef SET_ENC4
+    	gpio_set_irq_enabled_with_callback(ENC_PIN_B, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
+	#endif
     ec_tmr = get_mstmr(_500ms);
 #endif
 
     //   Init SPI0 module (for support display UC1609C)
-    spi_init(portSPI, 12000 * 1000);//set SCK to 12Mhz !
+    spi_init(portSPI, 6000 * 1000);//set SCK to Mhz !
     gpio_set_function(LCD_MOSI_PIN, GPIO_FUNC_SPI);
     gpio_set_function(LCD_SCK_PIN, GPIO_FUNC_SPI);
     bi_decl(bi_2pins_with_func(LCD_MOSI_PIN, LCD_SCK_PIN, GPIO_FUNC_SPI));
@@ -2156,7 +2214,7 @@ int main() {
     								int lens = strlen(PSName);
     								if (lens > 15) lens = 15;
     								sprintf(st, "RDS : %.*s", lens, PSName);
-    								if (!menuAct) {
+    								if (!menuAct && !sleepON) {
     									mkLineCenter(st, lfnt->FontWidth);
     									UC1609C_Print(1, lines[line4], st, lfnt, 0, FOREGROUND);
     									UC1609C_DrawLine(0, lines[line4] + lfnt->FontHeight - 1, UC1609C_WIDTH - 1, lines[line4] + lfnt->FontHeight - 1, 0);

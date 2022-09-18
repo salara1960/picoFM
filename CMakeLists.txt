@@ -49,7 +49,6 @@ target_link_libraries(picoFM
         hardware_irq
         hardware_adc
         hardware_spi
-        hardware_pwm
         hardware_pll
         hardware_clocks
         hardware_rosc

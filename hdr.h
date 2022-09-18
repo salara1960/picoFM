@@ -23,7 +23,7 @@
 #include "hardware/rtc.h"
 #include "hardware/adc.h"
 #include "hardware/spi.h"
-#include "hardware/pwm.h"
+//#include "hardware/pwm.h"
 #include "hardware/clocks.h"
 #include "hardware/rosc.h"
 #include "hardware/flash.h"
@@ -42,6 +42,9 @@
 
 #define SET_JOYSTIC
 #define SET_ENCODER
+#ifdef SET_ENCODER
+	//#define SET_ENC4
+#endif
 //#define SET_KBD_MUX
 
 #define SET_WITH_DMA
