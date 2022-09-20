@@ -97,11 +97,12 @@ enum {
 //const char *ver = "Ver.3.2 12.09.22";
 //const char *ver = "Ver.3.2.1 13.09.22";
 //const char *ver = "Ver.3.2.2 14.09.22";
-const char *ver = "Ver.3.2.3 18.09.22";
+//const char *ver = "Ver.3.2.3 18.09.22";
+const char *ver = "Ver.3.3 20.09.22";// add new menu item : mute, temp
 
 
 
-volatile static uint32_t epoch = 1663539209;//1663157436;//1663101145;
+volatile static uint32_t epoch = 1663705560;//1663539209;//1663157436;//1663101145;
 //1663013315;//1662723599;//1662671765;//1662670195;//1662659160;//1662643850;//1662589615;
 //1662572765;//1662373645;//1662368495;//1662331845;//1662327755;//1662295275;//1662288820;
 //1662251055;//1662246985;//1662209185;//1662156375;//1662151345;//1662114275;//1662038845;
@@ -222,7 +223,9 @@ enum {
 	iBass,
 	iContrast,
 	iRestart,
-	iSleep
+	iSleep,
+	iMute,
+	iTemp
 };
 enum {
 	line1 = 0,
@@ -247,7 +250,9 @@ const char *allMenu[MAX_MENU] = {
 	"  Bass  ",
 	"Contrast",
 	" Restart",
-	"  Sleep "
+	"  Sleep ",
+	"  Mute  ",
+	"  Temp  "
 };
 
 //---------------
@@ -478,6 +483,7 @@ uint16_t listSize = 0;
 	//uint spinlock_num = 1;
 	//spin_lock_t *flash_spinlock = NULL;
 #endif
+
 
 
 //*******************************************************************************************
@@ -1321,6 +1327,8 @@ uint8_t *adr = (uint8_t *)(XIP_BASE + (sector * FLASH_SECTOR_SIZE));
 //------------------------------------------------------------------------------
 
 //**************************************************************************************************
+//**************************************************************************************************
+//**************************************************************************************************
 //                                       MAIN
 //**************************************************************************************************
 int main() {
@@ -1330,6 +1338,7 @@ int main() {
     stdio_init_all();
 
     //------------------------- GPIO init --------------------------------------
+
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
     gpio_init(ERR_PIN);
@@ -1498,7 +1507,7 @@ int main() {
 #endif
 
     //   Init SPI0 module (for support display UC1609C)
-    spi_init(portSPI, 6000 * 1000);//set SCK to Mhz !
+    spi_init(portSPI, 3000 * 1000);//set SCK to Mhz !
     gpio_set_function(LCD_MOSI_PIN, GPIO_FUNC_SPI);
     gpio_set_function(LCD_SCK_PIN, GPIO_FUNC_SPI);
     bi_decl(bi_2pins_with_func(LCD_MOSI_PIN, LCD_SCK_PIN, GPIO_FUNC_SPI));
@@ -1713,6 +1722,20 @@ int main() {
     							encMode = iContrast;
     							ev.cmd = cmdEnc;
     							snd = true;
+    						break;
+    						case iMute:
+    							indMenu = iExit;
+    							encMode = iMute;
+    							ev.cmd = cmdEnc;
+    							snd = true;
+    							next_evt = cmdMute;
+    						break;
+    						case iTemp:
+    							indMenu = iExit;
+    							encMode = iTemp;
+    							ev.cmd = cmdEnc;
+    							snd = true;
+    							next_evt = cmdTemp;
     						break;
     					}
     					if (snd) {
@@ -1987,6 +2010,14 @@ int main() {
     							}
     							mkLineCenter(tmp, mfnt->FontWidth);
     							UC1609C_Print(1, UC1609C_HEIGHT - mfnt->FontHeight, tmp, mfnt, 0, FOREGROUND);
+    							//
+    							if ((next_evt == cmdMute) || (next_evt == cmdTemp)) {
+    								ev.cmd = next_evt;
+    								next_evt = cmdNone;
+    								ev.attr = 0;
+    								if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
+    							}
+    							//
     						}
     					}
     					UC1609C_update();

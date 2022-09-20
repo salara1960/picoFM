@@ -59,6 +59,7 @@
 
 #define MAX_UART_BUF 256
 
+
 #define I2C_SDA_PIN 2//PICO_DEFAULT_I2C_SDA_PIN
 #define I2C_SCL_PIN 3//PICO_DEFAULT_I2C_SCL_PIN
 
@@ -77,7 +78,7 @@
 #define MAX_BAND       4
 #define MAX_STEP       4
 #define MAX_SIZE_NAME 31//16//31
-#define MAX_MENU       9//8//7//6
+#define MAX_MENU      11//10//9//8//7//6
 
 #ifdef SET_ENCODER
 	#define MAX_CMDS  27//26//25//24//22//21//20//17//16//15//6
