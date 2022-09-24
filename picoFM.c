@@ -98,11 +98,12 @@ enum {
 //const char *ver = "Ver.3.2.1 13.09.22";
 //const char *ver = "Ver.3.2.2 14.09.22";
 //const char *ver = "Ver.3.2.3 18.09.22";
-const char *ver = "Ver.3.3 20.09.22";// add new menu item : mute, temp
+//const char *ver = "Ver.3.3 20.09.22";// add new menu item : mute, temp
+const char *ver = "Ver.3.4 24.09.22";// add new dev - miniDev (with 3 button : up, down, push)
 
 
 
-volatile static uint32_t epoch = 1663705560;//1663539209;//1663157436;//1663101145;
+volatile static uint32_t epoch = 1664023265;//1663705560;//1663539209;//1663157436;//1663101145;
 //1663013315;//1662723599;//1662671765;//1662670195;//1662659160;//1662643850;//1662589615;
 //1662572765;//1662373645;//1662368495;//1662331845;//1662327755;//1662295275;//1662288820;
 //1662251055;//1662246985;//1662209185;//1662156375;//1662151345;//1662114275;//1662038845;
@@ -394,9 +395,8 @@ uint16_t listSize = 0;
 	uint8_t PSNameUpdated = 0; // Для отслеживания изменений в PSName
 #endif
 
-
+#define jKEY_PIN 15
 #ifdef SET_JOYSTIC
-	#define jKEY_PIN 15
 	#define corX_PIN 26
 	#define corY_PIN 27
 	#define MIN_VAL 30
@@ -414,6 +414,11 @@ uint16_t listSize = 0;
 	adc_chan_t chanY;
 
 	bool joy = false;
+#else
+	#ifdef SET_MINI_DEV
+		#define UP_PIN   26
+		#define DOWN_PIN 27
+	#endif
 #endif
 
 
@@ -531,6 +536,9 @@ void cmdLedOn()
 #ifdef SET_ENCODER
 						 	 || (gpio == ENC_PIN)
 #endif
+#ifdef SET_MINI_DEV
+							 || (gpio == UP_PIN) || (gpio == DOWN_PIN)
+#endif
 							) {
 			if (!gpio_get(gpio)) {
 				//
@@ -541,9 +549,29 @@ void cmdLedOn()
 						case jKEY_PIN:// нажата кнопка джойстика
 							if (!menuAct && !sleepON) {
 								seek_up = 1;
-								e.cmd = cmdScan;
+								e.cmd = cmdList;//cmdScan;
 							}
 						break;
+#ifdef SET_MINI_DEV
+						case UP_PIN:
+							if (!menuAct && !sleepON) {
+								newVolume = Volume + 1;
+								if (newVolume <= MAX_VOLUME) {
+									e.cmd = cmdVol;
+									e.attr = newVolume;
+								}
+							}
+						break;
+						case DOWN_PIN:
+							if (!menuAct && !sleepON) {
+								newVolume = Volume - 1;
+								if (newVolume <= MAX_VOLUME) {
+									e.cmd = cmdVol;
+									e.attr = newVolume;
+								}
+							}
+						break;
+#endif
 #ifdef SET_ENCODER
 						case ENC_PIN:// нажата кнопка энкодера
 							e.cmd = cmdEnc;
@@ -597,7 +625,11 @@ void cmdLedOn()
 					}
 					if (e.cmd != cmdNone)
 						if (!queue_try_add(&evt_fifo, &e)) devError |= devQue;
+#ifdef SET_JOYSTIC
 					start_jkey = get_mstmr(_100ms);//_40ms
+#else
+					start_jkey = get_mstmr(_500ms);//_40ms
+#endif
 				}
 				//
 			} else {
@@ -1348,11 +1380,21 @@ int main() {
     gpio_set_dir(LED_CMD_PIN, GPIO_OUT);
     gpio_pull_up(LED_CMD_PIN);
 
-#ifdef SET_JOYSTIC
+#if defined(SET_JOYSTIC) || defined(SET_MINI_DEV)
     gpio_init(jKEY_PIN);
     gpio_set_dir(jKEY_PIN, GPIO_IN);
     gpio_pull_up(jKEY_PIN);
     gpio_set_irq_enabled_with_callback(jKEY_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
+	#ifdef SET_MINI_DEV
+    	gpio_init(UP_PIN);
+    	gpio_set_dir(UP_PIN, GPIO_IN);
+    	gpio_pull_up(UP_PIN);
+    	gpio_set_irq_enabled_with_callback(UP_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
+    	gpio_init(DOWN_PIN);
+    	gpio_set_dir(DOWN_PIN, GPIO_IN);
+    	gpio_pull_up(DOWN_PIN);
+    	gpio_set_irq_enabled_with_callback(DOWN_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
+	#endif
 #endif
 #ifdef SET_ENCODER
     gpio_init(ENC_PIN);

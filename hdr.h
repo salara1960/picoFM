@@ -40,12 +40,16 @@
 
 #define SET_PICO
 
-#define SET_JOYSTIC
+//#define SET_JOYSTIC
 #define SET_ENCODER
 #ifdef SET_ENCODER
 	//#define SET_ENC4
 #endif
 //#define SET_KBD_MUX
+
+#ifndef SET_JOYSTIC
+	#define SET_MINI_DEV
+#endif
 
 #define SET_WITH_DMA
 #define RUS_SUPPORT
