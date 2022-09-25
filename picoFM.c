@@ -99,11 +99,13 @@ enum {
 //const char *ver = "Ver.3.2.2 14.09.22";
 //const char *ver = "Ver.3.2.3 18.09.22";
 //const char *ver = "Ver.3.3 20.09.22";// add new menu item : mute, temp
-const char *ver = "Ver.3.4 24.09.22";// add new dev - miniDev (with 3 button : up, down, push)
+//const char *ver = "Ver.3.4 24.09.22";// add new dev - miniDev (with 3 button : up, down, push)
+const char *ver = "Ver.3.4 24.09.22"; // add audio bluetooth transmitter and edit mini_dev support (via adc)
 
 
 
-volatile static uint32_t epoch = 1664023265;//1663705560;//1663539209;//1663157436;//1663101145;
+volatile static uint32_t epoch = 1664132995;
+//1664118470;//1664023625;//1663705560;//1663539209;//1663157436;//1663101145;
 //1663013315;//1662723599;//1662671765;//1662670195;//1662659160;//1662643850;//1662589615;
 //1662572765;//1662373645;//1662368495;//1662331845;//1662327755;//1662295275;//1662288820;
 //1662251055;//1662246985;//1662209185;//1662156375;//1662151345;//1662114275;//1662038845;
@@ -202,8 +204,8 @@ uint8_t RSSI = 0;
 uint8_t rdaID = 0;
 volatile uint8_t scan = 0;
 volatile uint8_t seek_up = 1;
-uint8_t Volume = 6;//8;
-uint8_t newVolume = 6;//8;
+uint8_t Volume = 8;
+uint8_t newVolume = 8;
 uint8_t BassBoost = 0;
 uint8_t newBassBoost = 0;
 bool stereo = false;
@@ -395,12 +397,10 @@ uint16_t listSize = 0;
 	uint8_t PSNameUpdated = 0; // Для отслеживания изменений в PSName
 #endif
 
-#define jKEY_PIN 15
-#ifdef SET_JOYSTIC
-	#define corX_PIN 26
-	#define corY_PIN 27
-	#define MIN_VAL 30
-	#define MAX_VAL 4000
+#if defined(SET_JOSTIC) || defined(SET_MINI_DEV)
+	#define jKEY_PIN 15
+	#define MIN_VAL 50
+	#define MAX_VAL 3100
 	#define MAX_ADC_BUF 8
 
 	#pragma pack(push,1)
@@ -410,17 +410,15 @@ uint16_t listSize = 0;
 	} adc_chan_t;
 	#pragma pack(pop)
 
-	adc_chan_t chanX;
-	adc_chan_t chanY;
-
+	adc_chan_t chanY, chanX;
+	uint32_t valX, last_valX;
+	uint32_t valY, last_valY;
 	bool joy = false;
-#else
-	#ifdef SET_MINI_DEV
+	#if defined(SET_MINI_DEV)
 		#define UP_PIN   26
 		#define DOWN_PIN 27
 	#endif
 #endif
-
 
 #ifdef SET_ENCODER
 	#define ENC_PIN_A  9
@@ -489,7 +487,11 @@ uint16_t listSize = 0;
 	//spin_lock_t *flash_spinlock = NULL;
 #endif
 
+#ifdef SET_BLE
+	#define AMP_MUTE_PIN 13
 
+	int ampMute = 0;
+#endif
 
 //*******************************************************************************************
 //*******************************************************************************************
@@ -552,7 +554,7 @@ void cmdLedOn()
 								e.cmd = cmdList;//cmdScan;
 							}
 						break;
-#ifdef SET_MINI_DEV
+/*#ifdef SET_MINI_DEV
 						case UP_PIN:
 							if (!menuAct && !sleepON) {
 								newVolume = Volume + 1;
@@ -571,7 +573,7 @@ void cmdLedOn()
 								}
 							}
 						break;
-#endif
+#endif*/
 #ifdef SET_ENCODER
 						case ENC_PIN:// нажата кнопка энкодера
 							e.cmd = cmdEnc;
@@ -628,12 +630,16 @@ void cmdLedOn()
 #ifdef SET_JOYSTIC
 					start_jkey = get_mstmr(_100ms);//_40ms
 #else
-					start_jkey = get_mstmr(_500ms);//_40ms
+					start_jkey = get_mstmr(_500ms);
 #endif
 				}
 				//
 			} else {
+#ifdef SET_JOYSTIC
 				start_jkey = get_mstmr(_75ms);//_40ms
+#else
+				start_jkey = get_mstmr(_100ms);
+#endif
 			}
 		}
 #ifdef SET_ENCODER
@@ -700,7 +706,7 @@ void cmdLedOn()
 	}
 #endif
 	//----------------------------------------------------------------------------------------
-#ifdef SET_JOYSTIC
+#if defined(SET_JOYSTIC) || defined(SET_MINI_DEV)
 	//   Функция добавляет очередной замер в буффер для последующей фильтрации
 	//   (поиск среднего в скользящем окне размерностью MAX_ADC_BUF замеров)
 	//
@@ -727,13 +733,12 @@ void cmdLedOn()
 		joy = true;
 		uint32_t sumAdc = 0;
 		adc_select_input(0);
-		uint32_t valX = adc_read();
-		uint32_t last_valX = valX;
+		valX = adc_read();
+		last_valX = valX;
 		adc_select_input(1);
-		uint32_t valY = adc_read();
-		uint32_t last_valY = valY;
+		valY = adc_read();
+		last_valY = valY;
 		evt_t ev;
-		uint8_t yes = 0;
 
 		Report(1, "Start '%s' function on Core1\n", __func__);
 
@@ -746,7 +751,7 @@ void cmdLedOn()
 				jtmr = get_mstmr(_25ms);
 
 				if (sleepON) continue;
-
+	#ifdef SET_JOYSTIC
 				adc_select_input(0);
 				valX = adc_read();
 				if (adcAddVal(&chanX, valX) == MAX_ADC_BUF) {//в окне накоплено MAX_ADC_BUF выборок -> фильтрация !
@@ -776,7 +781,7 @@ void cmdLedOn()
 					for (int8_t j = 0; j < MAX_ADC_BUF; j++) sumAdc += chanY.val[j];
 					valY = sumAdc / MAX_ADC_BUF;
 					if ((valY < MIN_VAL) || (valY > MAX_VAL)) {
-						yes = 0;
+						uint8_t yes = 0;
 						if (valY < MIN_VAL) {
 							if (Volume < 15) {
 								newVolume = Volume + 1;
@@ -799,6 +804,47 @@ void cmdLedOn()
 						}
 					}
 				}
+	#else
+				adc_select_input(0);
+				valX = adc_read();
+				if (adcAddVal(&chanX, valX) == MAX_ADC_BUF) {//в окне накоплено MAX_ADC_BUF выборок -> фильтрация !
+					sumAdc = 0;
+					for (int8_t j = 0; j < MAX_ADC_BUF; j++) sumAdc += chanX.val[j];
+					valX = sumAdc / MAX_ADC_BUF;
+					if (valX < MIN_VAL) {
+						if (!menuAct && !sleepON) {
+							if (Volume < 15) {
+								newVolume = Volume + 1;
+								cmdLedOn();
+								ev.cmd = cmdVol;
+								ev.attr = newVolume;
+								if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
+							}
+						}
+						jtmr = get_mstmr(_175ms);
+					}
+				}
+				//
+				adc_select_input(1);
+				valY = adc_read();
+				if (adcAddVal(&chanY, valY) == MAX_ADC_BUF) {//в окне накоплено MAX_ADC_BUF выборок -> фильтрация !
+					sumAdc = 0;
+					for (int8_t j = 0; j < MAX_ADC_BUF; j++) sumAdc += chanY.val[j];
+					valY = sumAdc / MAX_ADC_BUF;
+					if (valY < MIN_VAL) {
+						if (!menuAct && !sleepON) {
+							if (Volume) {
+								newVolume = Volume - 1;
+								cmdLedOn();
+								ev.cmd = cmdVol;
+								ev.attr = newVolume;
+								if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
+							}
+						}
+						jtmr = get_mstmr(_175ms);
+					}
+				}
+	#endif
 			}
 		}//while(1)
 
@@ -1384,16 +1430,16 @@ int main() {
     gpio_init(jKEY_PIN);
     gpio_set_dir(jKEY_PIN, GPIO_IN);
     gpio_pull_up(jKEY_PIN);
-    gpio_set_irq_enabled_with_callback(jKEY_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
+    gpio_set_irq_enabled_with_callback(jKEY_PIN, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
 	#ifdef SET_MINI_DEV
     	gpio_init(UP_PIN);
     	gpio_set_dir(UP_PIN, GPIO_IN);
     	gpio_pull_up(UP_PIN);
-    	gpio_set_irq_enabled_with_callback(UP_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
+    	//gpio_set_irq_enabled_with_callback(UP_PIN, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
     	gpio_init(DOWN_PIN);
     	gpio_set_dir(DOWN_PIN, GPIO_IN);
     	gpio_pull_up(DOWN_PIN);
-    	gpio_set_irq_enabled_with_callback(DOWN_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
+    	//gpio_set_irq_enabled_with_callback(DOWN_PIN, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
 	#endif
 #endif
 #ifdef SET_ENCODER
@@ -1420,6 +1466,14 @@ int main() {
     gpio_set_dir(MUX_KEY_PIN, GPIO_IN);
     gpio_pull_up(MUX_KEY_PIN);
     gpio_set_irq_enabled_with_callback(MUX_KEY_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
+#endif
+
+#ifdef SET_BLE
+    noMute = 0;
+    gpio_init(AMP_MUTE_PIN);
+    gpio_set_dir(AMP_MUTE_PIN, GPIO_OUT);
+    gpio_pull_up(AMP_MUTE_PIN);
+    gpio_put(AMP_MUTE_PIN, noMute);
 #endif
 
     //---   Init and read data from internal temperature sensor   ---
@@ -1643,7 +1697,7 @@ int main() {
     }
 
 
-#ifdef SET_JOYSTIC
+#if defined(SET_JOYSTIC) || defined(SET_MINI_DEV)
 
     //   Стартуем в ядре № 1 функцию, обслуживающую джойстик
     multicore_launch_core1(joystik_task);
@@ -1924,13 +1978,17 @@ int main() {
     				break;
     				case cmdMute:
     					noMute = (~noMute) & 1;
-    					rda5807_Set_Mute(noMute);
     					sprintf(sta, "BASS:%u", BassBoost);
     					sprintf(stb, "VOLUME:%u", Volume);
-    					if (!noMute) strcat(stb, " Mute");
+#ifdef SET_BLE
+    					gpio_put(AMP_MUTE_PIN, noMute);
+#else
+    					rda5807_Set_Mute(noMute);
+#endif
+    					if (noMute) strcat(stb, " Mute");
     					mkLineWidth(sta, stb, lfnt->FontWidth);
     					showLine(sta, lines[line2], lfnt, true, FOREGROUND);
-    					Report(1, "[que:%u] set Mute to %u\r\n", queCnt, (~noMute) & 1);
+    					Report(1, "[que:%u] set Mute to %u\r\n", queCnt, noMute);
     				break;
     				case cmdList:
     					next_evt = cmdFreq;
@@ -1980,7 +2038,11 @@ int main() {
     						rda5807_SetBassBoost(BassBoost);
     						sprintf(sta, "BASS:%u", BassBoost);
     						sprintf(stb, "VOLUME:%u", Volume);
+#ifdef SET_BLE
+    						if (noMute) strcat(stb, " Mute");
+#else
     						if (!noMute) strcat(stb, " Mute");
+#endif
     						mkLineWidth(sta, stb, lfnt->FontWidth);
     						showLine(sta, lines[line2], lfnt, true, FOREGROUND);
     						Report(1, "[que:%u] set new BassBoost to %u\n", queCnt, BassBoost);
@@ -1993,10 +2055,21 @@ int main() {
     					rda5807_SetVolume(Volume);
     					sprintf(sta, "BASS:%u", BassBoost);
     					sprintf(stb, "VOLUME:%u", Volume);
-    					if (!noMute) strcat(stb, " Mute");
+#ifdef SET_BLE
+    						if (noMute) strcat(stb, " Mute");
+#else
+    						if (!noMute) strcat(stb, " Mute");
+#endif
     					mkLineWidth(sta, stb, lfnt->FontWidth);
     					showLine(sta, lines[line2], lfnt, true, FOREGROUND);
     					Report(1, "[que:%u] set new Volume to %u\n", queCnt, Volume);
+/*#ifdef SET_MINI_DEV
+    					sprintf(stz, "valX:%lu valY:%lu", valX, valY);
+    					mkLineCenter(stz, mfnt->FontWidth);
+    					UC1609C_Print(1, lines[line5], stz, mfnt, 0, FOREGROUND);
+    					UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
+    					UC1609C_update();
+#endif*/
     				break;
     				case cmdFreq:
     					if ((newFreq >= lBand) && (newFreq <= rBand)) {
@@ -2136,7 +2209,11 @@ int main() {
     					//
     					sprintf(sta, "BASS:%u", BassBoost);
     					sprintf(stb, "VOLUME:%u", Volume);
-    					if (!noMute) strcat(stb, " Mute");
+#ifdef SET_BLE
+    						if (noMute) strcat(stb, " Mute");
+#else
+    						if (!noMute) strcat(stb, " Mute");
+#endif
     					mkLineWidth(sta, stb, lfnt->FontWidth);
     					showLine(sta, lines[line2], lfnt, false, FOREGROUND);
     					//
