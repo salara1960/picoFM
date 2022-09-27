@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <stdarg.h>
 #include <math.h>
+#include <ctype.h>
 #include "pico/error.h"
 #include "pico/stdlib.h"
 #include "pico/types.h"
@@ -87,22 +88,24 @@
 #define MAX_MENU      11//10//9//8//7//6
 
 #ifdef SET_ENCODER
-	#define MAX_CMDS  27//26//25//24//22//21//20//17//16//15//6
+	#define MAX_CMDS  28//27//26//25//24//22//21//20//17//16//15//6
 #else
-	#define MAX_CMDS  19//18//15//6
+	#define MAX_CMDS  20//19//18//15//6
 #endif
 
 //
-//#ifdef SET_WITH_DMA
-	#define MAX_ERR_CODE 7
-//#else
-//	#define MAX_ERR_CODE 6
-//#endif
+#define MAX_ERR_CODE 7
 //
 #define UART_ID 	 uart0
 #define BAUD_RATE 	230400 //115200
 #define UART_TX_PIN      0 //12//0
 #define UART_RX_PIN      1 //13//1
+#ifdef SET_BLE
+	#define UART_BLE 	    uart1
+	#define BAUD_RATE_BLE   9600
+	#define UART_TX_BLE_PIN 8
+	#define UART_RX_BLE_PIN 9
+#endif
 //
 
 

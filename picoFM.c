@@ -41,7 +41,8 @@ enum {
 	cmdReadCont,
 	cmdNext,
 	cmdCheck,
-	cmdErase
+	cmdErase,
+	cmdBle
 };
 
 enum {
@@ -100,11 +101,11 @@ enum {
 //const char *ver = "Ver.3.2.3 18.09.22";
 //const char *ver = "Ver.3.3 20.09.22";// add new menu item : mute, temp
 //const char *ver = "Ver.3.4 24.09.22";// add new dev - miniDev (with 3 button : up, down, push)
-const char *ver = "Ver.3.4 24.09.22"; // add audio bluetooth transmitter and edit mini_dev support (via adc)
+//const char *ver = "Ver.3.4 24.09.22"; // add audio bluetooth transmitter KCX_BT_EMITTER and edit mini_dev support (via adc)
+const char *ver = "Ver.3.5 27.09.22"; // add uart1 for support audio bluetooth transmitter KCX_BT_EMITTER
 
 
-
-volatile static uint32_t epoch = 1664132995;
+volatile static uint32_t epoch = 1664307575;//1664296340;//1664132995;
 //1664118470;//1664023625;//1663705560;//1663539209;//1663157436;//1663101145;
 //1663013315;//1662723599;//1662671765;//1662670195;//1662659160;//1662643850;//1662589615;
 //1662572765;//1662373645;//1662368495;//1662331845;//1662327755;//1662295275;//1662288820;
@@ -146,7 +147,8 @@ const char *s_cmds[MAX_CMDS] = {
 	"readcont",
 	"next",
 	"check",
-	"erase"
+	"erase",
+	"ble"
 };
 
 const uint16_t all_devErr[MAX_ERR_CODE] = {
@@ -176,17 +178,24 @@ queue_t evt_fifo;
 typedef struct {
 	int cmd;
 	uint32_t attr;
+	char *str;
 } evt_t;
 const int EVT_FIFO_LENGTH = 32;
 bool que_start = false;
 
-char tmp[128];
+char tmp[MAX_UART_BUF];
 
 bool led = true;
 const uint LED_PIN = 29;
-const uint ERR_PIN = 8;//14;
-const uint LCD_HIDE_PIN = 12;
-const uint LED_CMD_PIN = 14;//16
+const uint LCD_HIDE_PIN = 13;//12;
+#ifdef SET_BLE
+	uint8_t rxByteBle = 0;
+	uint16_t rxIndBle = 0;
+	char rxBufBle[MAX_UART_BUF] = {0};
+#else
+	const uint ERR_PIN = 8;//14;
+	const uint LED_CMD_PIN = 14;//16
+#endif
 uint32_t start_jkey = 0;
 uint32_t cmd_tmr = 0;
 
@@ -421,9 +430,9 @@ uint16_t listSize = 0;
 #endif
 
 #ifdef SET_ENCODER
-	#define ENC_PIN_A  9
-	#define ENC_PIN_B 10
-	#define ENC_PIN   11
+	#define ENC_PIN_A 10//9
+	#define ENC_PIN_B 11//10
+	#define ENC_PIN   12//11
 
 	const int16_t MIN_ENC_VALUE = -16383;
 	const int16_t MAX_ENC_VALUE = 16383;
@@ -488,9 +497,31 @@ uint16_t listSize = 0;
 #endif
 
 #ifdef SET_BLE
-	#define AMP_MUTE_PIN 13
+	#define AMP_MUTE_PIN 14//13
+	#define MAX_OPID 3
 
-	int ampMute = 0;
+	enum {
+		volUp = 0,
+		volDown,
+		List
+	};
+
+	#pragma pack(push,1)
+	typedef struct {
+		char mac[16];
+		char name[16];
+	} ble_dev_t;
+	#pragma pack(pop)
+
+	ble_dev_t ble_dev;
+
+	bool opid_flag = false;
+	bool opid_ready = false;
+	uint16_t opid = 0;
+
+	const char *opids_name[MAX_OPID] = {"VolumeUp", "VolumeDown", "List"};
+	const uint16_t opids[MAX_OPID] = { 0x44C4, 0x46C6, 0x4BCB };
+
 #endif
 
 //*******************************************************************************************
@@ -503,7 +534,7 @@ uint16_t listSize = 0;
 //
 void cmdLedOn()
 {
-	gpio_put(LED_CMD_PIN, 1);
+	//gpio_put(LED_CMD_PIN, 1);
 	cmd_tmr = get_mstmr(_150ms);
 }
 //-------------------------------------------------------------------------------------------
@@ -546,7 +577,7 @@ void cmdLedOn()
 				//
 				if (check_mstmr(start_jkey)) {
 					if (!menuAct && !sleepON) cmdLedOn();
-					evt_t e = {cmdNone, 0};
+					evt_t e = {cmdNone, 0, NULL};
 					switch (gpio) {
 						case jKEY_PIN:// нажата кнопка джойстика
 							if (!menuAct && !sleepON) {
@@ -665,7 +696,7 @@ void cmdLedOn()
 					if (ec_last_counter > ec_counter) cd = cmdDec;
 					ec_last_counter = ec_counter;
 					if (cd != cmdNone)	{
-						evt_t e = {cd, 0};
+						evt_t e = {cd, 0, NULL};
 						if (!queue_try_add(&evt_fifo, &e)) devError |= devQue;
 						ec_tmr = get_mstmr(_250ms);
 					}
@@ -694,7 +725,7 @@ void cmdLedOn()
 				if (Qtr_Cntr != Last_Qtr_Cntr) {
 					Last_Qtr_Cntr = Qtr_Cntr;
 					if (cd != cmdNone)	{
-						evt_t e = {cd, 0};
+						evt_t e = {cd, 0, NULL};
 						if (!queue_try_add(&evt_fifo, &e)) devError |= devQue;
 						ec_tmr = get_mstmr(_10ms);
 					}
@@ -1031,7 +1062,8 @@ bool repeating_timer_callback(struct repeating_timer *t)
 		if (!sleepON) {
 			evt_t evt = {
 				.cmd = cmdSec,
-				.attr = seconda
+				.attr = seconda,
+				.str = NULL
 			};
 			if (!queue_try_add(&evt_fifo, &evt)) devError |= devQue;
 
@@ -1049,6 +1081,103 @@ bool repeating_timer_callback(struct repeating_timer *t)
     return true;
 }
 //------------------------------------------------------------------------------------------
+#ifdef SET_BLE
+//-----------------------------------------------------------------------------------------
+//         Функция приводит к верхнему регистру все символы строки
+//
+void toUppers(char *st)
+{
+int i;
+
+    for (i = 0; i < strlen(st); i++) *(st + i) = toupper(*(st + i));
+}
+//------------------------------------------------------------------------------------------
+//      Преобразует два символа строки из hex-формата в двоичный
+//
+uint8_t hexToBin(char *sc)
+{
+char st = 0, ml = 0;
+
+	if ((sc[0] >= '0') && (sc[0] <= '9')) st = (sc[0] - 0x30);
+	else
+	if ((sc[0] >= 'A') && (sc[0] <= 'F')) st = (sc[0] - 0x37);
+	else
+	if ((sc[0] >= 'a') && (sc[0] <= 'f')) st = (sc[0] - 0x57);
+
+	if ((sc[1] >= '0') && (sc[1] <= '9')) ml = (sc[1] - 0x30);
+	else
+	if ((sc[1] >= 'A') && (sc[1] <= 'F')) ml = (sc[1] - 0x37);
+	else
+	if ((sc[1] >= 'a') && (sc[1] <= 'f')) ml = (sc[1] - 0x57);
+
+	return ((st << 4) | (ml & 0x0f));
+
+}
+//------------------------------------------------------------------------------------------
+//   CallBack-функция вызывается по приёму символа с интерфейса uart1 (от KCX_BT_EMITTER)
+//   Функция принимает сообщение от bluetooth transmitter
+//
+void uart_rx_ble_callback()
+{
+    if (uart_is_readable(UART_BLE)) {
+    	rxByteBle = uart_getc(UART_BLE);
+    	//
+    	if ((rxByteBle >= 0x0a) && (rxByteBle <= 0x7f)) {
+    		rxBufBle[rxIndBle++] = (char)rxByteBle;
+    		char *uki = NULL;
+    		if ((uki = strstr(rxBufBle, "\r\r\n"))) {//if (rxByteBle == 0x0a) {//end of line
+    			*uki = '\0';//rxBufBle[--rxIndBle] = '\0';
+    			//
+    			//--------------------------------------------------------------
+    			char *uk = strstr(rxBufBle, "income_opid:");//income_opid:46 //income_opid:c6
+    			if (uk) {
+    				uk += 12;
+    				if (!opid_flag) {
+    					opid = 0;
+    					opid_ready = false;
+    					opid = hexToBin(uk);
+    					opid <<= 8;
+    					opid_flag = true;
+    				} else {
+    					opid |= hexToBin(uk);
+    					opid_ready = true;
+    					opid_flag = false;
+    				}
+    			}
+    			evt_t ev = {cmdNone, 0, NULL};
+    			if (uk && opid_ready) {
+    				ev.attr = opid;
+    				ev.cmd = cmdBle;
+    			} else {
+    				if (!uk) {
+    					int len = strlen(rxBufBle) + 1;
+    					char *msg = (char *)calloc(1, len);
+    					if (msg) {
+    						memcpy(msg, rxBufBle, len);
+    						ev.str = msg;
+    						ev.cmd = cmdBle;
+    					}
+    				}
+    			}
+    			if (ev.cmd != cmdNone)
+    				if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
+    			//--------------------------------------------------------------
+    			//
+    			rxIndBle = 0;
+    			memset(rxBufBle, 0, sizeof(rxBufBle));
+    		}
+    	}
+    }
+}
+//------------------------------------------------------------------------------------------
+void write_ble(const char *st, bool prn)
+{
+	uart_puts(UART_BLE, st);
+	if (prn) Report(1, "[BLE_TX] %s\n", st);
+}
+//------------------------------------------------------------------------------------------
+#endif
+//------------------------------------------------------------------------------------------
 //   CallBack-функция вызывается по приёму символа с интерфейса uart0
 //   Функция принимает команду и помещает в очередь соответствующее событие
 //
@@ -1062,7 +1191,7 @@ void uart_rx_callback()
         	rxBuf[--rxInd] = '\0';
         	//
         	int i;
-        	evt_t evt = {cmdNone, 0};
+        	evt_t evt = {cmdNone, 0, NULL};
         	if (strlen(rxBuf) > 2) {
         		for (i = 0; i < MAX_CMDS; i++) {
         			if (!strncmp(rxBuf, s_cmds[i], strlen(s_cmds[i]))) {
@@ -1177,8 +1306,16 @@ void uart_rx_callback()
         			}
         		}
         		if (!sleepON) {
-        			if (evt.cmd == cmdNone) evt.cmd = cmdErr;
-        			if (!queue_try_add(&evt_fifo, &evt)) devError |= devQue;
+        			if (evt.cmd == cmdNone) {
+        				toUppers(rxBuf);
+        				if (strstr(rxBuf, "AT+")) {
+        					write_ble(rxBuf, true);
+        				} else {
+        					evt.cmd = cmdErr;
+        				}
+        			}
+        			if (evt.cmd != cmdNone)
+        				if (!queue_try_add(&evt_fifo, &evt)) devError |= devQue;
         		}
         	}
         	//
@@ -1294,7 +1431,7 @@ void show_clocks()
 		dma_hw->ints0 = 1u << dma_chan;
 		//
 		fadr = XIP_BASE + (adr_sector * FLASH_SECTOR_SIZE) + offset_sector;
-		evt_t evt = {cmdReadCont, fadr};
+		evt_t evt = {cmdReadCont, fadr, NULL};
 		if (!queue_try_add(&evt_fifo, &evt)) devError |= devQue;
 	}
 	//------------------------------------------------------------------------------
@@ -1419,13 +1556,14 @@ int main() {
 
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
+#ifndef SET_BLE
     gpio_init(ERR_PIN);
     gpio_set_dir(ERR_PIN, GPIO_OUT);
 
     gpio_init(LED_CMD_PIN);//GP9
     gpio_set_dir(LED_CMD_PIN, GPIO_OUT);
     gpio_pull_up(LED_CMD_PIN);
-
+#endif
 #if defined(SET_JOYSTIC) || defined(SET_MINI_DEV)
     gpio_init(jKEY_PIN);
     gpio_set_dir(jKEY_PIN, GPIO_IN);
@@ -1469,10 +1607,12 @@ int main() {
 #endif
 
 #ifdef SET_BLE
+	memset(&ble_dev, 0, sizeof(ble_dev_t));
+
     noMute = 0;
     gpio_init(AMP_MUTE_PIN);
     gpio_set_dir(AMP_MUTE_PIN, GPIO_OUT);
-    gpio_pull_up(AMP_MUTE_PIN);
+    gpio_pull_down(AMP_MUTE_PIN);
     gpio_put(AMP_MUTE_PIN, noMute);
 #endif
 
@@ -1499,10 +1639,18 @@ int main() {
     uart_init(UART_ID, BAUD_RATE);
     gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
     gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
-    int UART_IRQ = UART_ID == uart0 ? UART0_IRQ : UART1_IRQ;
-    irq_set_exclusive_handler(UART_IRQ, uart_rx_callback);
-    irq_set_enabled(UART_IRQ, true);
+    irq_set_exclusive_handler(UART0_IRQ, uart_rx_callback);
+    irq_set_enabled(UART0_IRQ, true);
     uart_set_irq_enables(UART_ID, true, false);
+
+#ifdef SET_BLE
+    uart_init(UART_BLE, BAUD_RATE_BLE);
+    gpio_set_function(UART_TX_BLE_PIN, GPIO_FUNC_UART);
+    gpio_set_function(UART_RX_BLE_PIN, GPIO_FUNC_UART);
+    irq_set_exclusive_handler(UART1_IRQ, uart_rx_ble_callback);
+    irq_set_enabled(UART1_IRQ, true);
+    uart_set_irq_enables(UART_BLE, true, false);
+#endif
 
     //------------------- Initialize RTC module --------------------------
 
@@ -1705,6 +1853,18 @@ int main() {
 
 #endif
 
+#ifdef SET_BLE
+
+    bool bleRst = false;
+    char *bleStr = NULL;
+
+//    if (!bleRst) {
+//    	bleRst = true;
+//    	write_ble("AT+REST", true);
+//    }
+
+#endif
+
 
     uint32_t sleep_tmr = 0;
 
@@ -1719,6 +1879,7 @@ int main() {
     			idx = -1;
     			evt = ev.cmd;
     			attr = ev.attr;
+    			bleStr = ev.str;
     			if ((evt > cmdNone) && (evt < cmdSec)) {
     				Report(1, "[que:%d] cmd:%d attr:%lu\n", queCnt, ev.cmd, ev.attr);
     				sprintf(stz, "cmd : %s", s_cmds[evt]);
@@ -1730,6 +1891,104 @@ int main() {
     				tmr_ver = 10;
     			}
     			switch (evt) {
+
+#ifdef SET_BLE
+    			    case cmdBle:
+    			    	//--------------------------------------------------------------
+    			    	if (!bleStr) {//get opid code
+    			    		int8_t i = -1;
+    			    		while (++i < MAX_OPID) {
+    			    			if (attr == opids[i]) break;
+    			    		}
+    			    		if (i != -1) {
+    			    			evt_t ev = {cmdNone, 0, NULL};
+    			    			switch (i) {
+    			    				case volUp:
+    			    					newVolume = Volume + 1;
+    			    					if (newVolume > 15) newVolume = 1;
+    			    					ev.cmd = cmdVol;
+    			    				break;
+    			    				case volDown:
+    			    					newVolume = (Volume - 1) & 0xf;
+    			    					if (!newVolume) newVolume = 1;
+    			    					ev.cmd = cmdVol;
+    			    				break;
+    			    				case List:
+    			    					seek_up = 1;
+    			    					ev.cmd = cmdList;
+    			    				break;
+    			    			}
+    			    			if (ev.cmd != cmdNone)
+    			    				if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
+    			    			Report(1, "[BLE_RX] opid:0x%04X '%s'\n", attr, opids_name[i]);
+    			    		} else {
+    			    			Report(1, "[BLE_RX] opid:0x%04X\n", attr);
+    			    		}
+    			    	} else {//get massage
+    			    		evt_t ev = {cmdNone, 0, NULL};
+    			    		strncpy(tmp, bleStr, sizeof(tmp));
+    			    		if (strstr(tmp,"New Devices")) {//New Devices:1,MacAdd:0x4142c7c668bd,Name:YX-01
+    			    			if (!strlen(ble_dev.mac)) {
+    			    				char *uk = strstr(tmp, ",Name:");
+    			    				if (uk) {
+    			    					uk += 6;
+    			    					strncpy(ble_dev.name, uk, sizeof(ble_dev.name) - 1);
+    			    					*(uk - 6) = '\0';
+    			    				}
+    			    				uk = strstr(tmp, "MacAdd:");
+    			    				if (uk) {
+    			    					uk += 7;
+    			    					strncpy(ble_dev.mac, uk, sizeof(ble_dev.mac) - 1);
+    			    				}
+    			    				/*if ((strlen(ble_dev.mac)) && (strlen(ble_dev.name))) {
+    			    					Report(1, "[BLE_RX] New device MAC:%s NAME:%s\n", ble_dev.mac, ble_dev.name);
+    			    					sprintf(stz, "AT+CONADD=%s\r\n", ble_dev.mac);
+    			    					write_ble(stz, true);
+    			    				}*/
+    			    			}
+    			    		} else if ((strstr(tmp,"CONNECTED")) ||
+    			    					(strstr(tmp,"CON:"))) {
+    			    			Report(1, "[BLE_RX] CONNECTED to device Mac:%s Name:%s\n", ble_dev.mac, ble_dev.name);
+    			    			//if (!noMute) ev.cmd = cmdMute;
+    			    			noMute = (~noMute) & 1;
+#ifdef SET_BLE
+    			    			gpio_put(AMP_MUTE_PIN, noMute);
+#else
+    			    			rda5807_Set_Mute(noMute);
+#endif
+    			    			sprintf(stz, "connect to %s", ble_dev.name);
+    			    			mkLineCenter(stz, mfnt->FontWidth);
+    			    			UC1609C_Print(1, lines[line5], stz, mfnt, 0, FOREGROUND);
+    			    			UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
+    			    			UC1609C_update();
+    			    		} else if (strstr(tmp,"DISCONNECT")) {
+    			    			Report(1, "[BLE_RX] DISCONNECT from device Mac:%s Name:%s\n", ble_dev.mac, ble_dev.name);
+    			    			//if (noMute) ev.cmd = cmdMute;
+    			    			noMute = (~noMute) & 1;
+#ifdef SET_BLE
+    			    			gpio_put(AMP_MUTE_PIN, noMute);
+#else
+    			    			rda5807_Set_Mute(noMute);
+#endif
+    			    			write_ble("AT+REST", true);//write_ble("AT+DELVMLINK", true);
+    			    			sprintf(stz, "disconnect from %s", ble_dev.name);
+    			    			mkLineCenter(stz, mfnt->FontWidth);
+    			    			UC1609C_Print(1, lines[line5], stz, mfnt, 0, FOREGROUND);
+    			    			UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
+    			    			UC1609C_update();
+    			    			flag_ver = true;
+    			    			tmr_ver = 10;
+    			    			memset(&ble_dev, 0, sizeof(ble_dev_t));
+    			    		} else {
+    			    			Report(1, "[BLE_RX] %s\n", bleStr);
+    			    		}
+    			    		free(bleStr);
+    			    		if (ev.cmd != cmdNone)
+    			    			if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
+    			    	}
+    			    	//--------------------------------------------------------------
+    			    break;
+#endif
     				case cmdTemp:
     					adc_select_input(4);
     					temperature = read_onboard_temperature('C');
@@ -2181,6 +2440,12 @@ int main() {
 #endif
     						}
     					}
+#ifdef SET_BLE
+    					if (!bleRst) {
+    						bleRst = true;
+    						write_ble("AT+REST", true);
+    					}
+#endif
     				}
     				break;
     				case cmdHelp:
@@ -2422,7 +2687,9 @@ int main() {
     	if (cmd_tmr) {
     		if (check_mstmr(cmd_tmr)) {
     			cmd_tmr = 0;
+#ifndef SET_BLE
     			gpio_put(LED_CMD_PIN, 0);//LED_CMD_PIN OFF
+#endif
     		}
     	}
     	//

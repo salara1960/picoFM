@@ -43,6 +43,7 @@ CMakeFiles/picoFM.dir/UC1609C.c.obj: UC1609C.c \
   /usr/include/newlib/machine/time.h \
   /usr/lib/gcc/arm-none-eabi/9.2.1/include/stdbool.h \
   /usr/include/newlib/math.h \
+  /usr/include/newlib/ctype.h \
   /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico/error.h \
   /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_stdlib/include/pico/stdlib.h \
   /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico.h \
@@ -168,6 +169,7 @@ CMakeFiles/picoFM.dir/fonts.c.obj: fonts.c \
   /usr/include/newlib/machine/time.h \
   /usr/lib/gcc/arm-none-eabi/9.2.1/include/stdbool.h \
   /usr/include/newlib/math.h \
+  /usr/include/newlib/ctype.h \
   /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico/error.h \
   /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_stdlib/include/pico/stdlib.h \
   /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico.h \
@@ -3267,6 +3269,7 @@ CMakeFiles/picoFM.dir/libs.c.obj: libs.c \
   /usr/include/newlib/machine/time.h \
   /usr/lib/gcc/arm-none-eabi/9.2.1/include/stdbool.h \
   /usr/include/newlib/math.h \
+  /usr/include/newlib/ctype.h \
   /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico/error.h \
   /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_stdlib/include/pico/stdlib.h \
   /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico.h \
@@ -3389,6 +3392,7 @@ CMakeFiles/picoFM.dir/picoFM.c.obj: picoFM.c \
   /usr/include/newlib/machine/time.h \
   /usr/lib/gcc/arm-none-eabi/9.2.1/include/stdbool.h \
   /usr/include/newlib/math.h \
+  /usr/include/newlib/ctype.h \
   /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico/error.h \
   /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_stdlib/include/pico/stdlib.h \
   /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico.h \
@@ -3516,6 +3520,7 @@ CMakeFiles/picoFM.dir/rda5807.c.obj: rda5807.c \
   /usr/include/newlib/machine/time.h \
   /usr/lib/gcc/arm-none-eabi/9.2.1/include/stdbool.h \
   /usr/include/newlib/math.h \
+  /usr/include/newlib/ctype.h \
   /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico/error.h \
   /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_stdlib/include/pico/stdlib.h \
   /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_base/include/pico.h \
@@ -3759,6 +3764,8 @@ picoFM.c:
 
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/ssi.h:
 
+/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/timer.h:
+
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/iobank0.h:
 
 /usr/include/newlib/strings.h:
@@ -3818,10 +3825,6 @@ UC1609C.c:
 /usr/include/newlib/newlib.h:
 
 /usr/include/newlib/_newlib_version.h:
-
-/home/alarm/PICO/pi-pico/pico/pico-sdk/lib/tinyusb/src/common/tusb_common.h:
-
-/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_claim/include/hardware/claim.h:
 
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/watchdog.h:
 
@@ -3886,8 +3889,6 @@ hdr.h:
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_stdio_uart/stdio_uart.c:
 
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_i2c/i2c.c:
-
-/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/timer.h:
 
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/spi.h:
 
@@ -3959,6 +3960,10 @@ hdr.h:
 
 /usr/lib/gcc/arm-none-eabi/9.2.1/include/float.h:
 
+sleep.h:
+
+generated/pico_base/pico/config_autogen.h:
+
 /home/alarm/PICO/pi-pico/pico/pico-sdk/lib/tinyusb/src/device/usbd.h:
 
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/pico_double/double_init_rom.c:
@@ -3966,6 +3971,10 @@ hdr.h:
 /usr/include/newlib/math.h:
 
 libs.h:
+
+/home/alarm/PICO/pi-pico/pico/pico-sdk/lib/tinyusb/src/common/tusb_common.h:
+
+/home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_claim/include/hardware/claim.h:
 
 /home/alarm/PICO/pi-pico/pico/pico-sdk/lib/tinyusb/src/common/tusb_compiler.h:
 
@@ -4057,10 +4066,6 @@ libs.h:
 
 /home/alarm/PICO/pi-pico/pico/pico-sdk/lib/tinyusb/src/portable/raspberrypi/rp2040/rp2040_usb.h:
 
-generated/pico_base/pico/config_autogen.h:
-
-sleep.h:
-
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_structs/include/hardware/structs/usb.h:
 
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2_common/hardware_resets/include/hardware/resets.h:
@@ -4076,6 +4081,8 @@ sleep.h:
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/rp2040/hardware_regs/include/hardware/regs/resets.h:
 
 /home/alarm/PICO/pi-pico/pico/pico-sdk/lib/tinyusb/src/portable/raspberrypi/rp2040/rp2040_usb.c:
+
+/usr/include/newlib/ctype.h:
 
 /home/alarm/PICO/pi-pico/pico/pico-sdk/src/common/pico_sync/critical_section.c:
 

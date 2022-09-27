@@ -1,4 +1,4 @@
-FM radio based on Raspberry Pi Pico + RDA5807 + UC1609C + PAM8003 + KY-023 + EC11 encoder
+FM radio based on Raspberry Pi Pico + RDA5807 + UC1609C + NS8002 + KCX_BT_EMITTER + EC11 encoder
 
 #################################################
 #
@@ -13,9 +13,9 @@ FM radio based on Raspberry Pi Pico + RDA5807 + UC1609C + PAM8003 + KY-023 + EC1
 * RDA5807, RF receiver FM
 * Raspberry Pi Pico (Waveshare-Zero board)
 * UC1609C LCD display 192x64
-* PAM8003 chip - 5W Class-D stereo audio amplifier
+* NS8002 chip - 3W Class-D audio amplifier
 * speaker 8 Om 3 W
-* KY-023 - joystick, control device
+* KCX_BT_EMITTER - bluetooth audio transmitter
 * EC11 - rotary encoder
 ```
 
@@ -39,45 +39,68 @@ FM radio based on Raspberry Pi Pico + RDA5807 + UC1609C + PAM8003 + KY-023 + EC1
   по завершении прерываний от используемых модулей микроконтроллера.
 * Устройство инициализирует некоторые интерфейсы микроконтроллера :
   - ADC : Chan0(GP26) и Chan1(GP27) аналогово-цифровой преобразователь (измеряет напряжение на аналоговых выходах джойстика).
-  - GPIO : подключены три светодиода : GP29 - секундный тик, GP8 - индикатор ошибки на устройстве,
-           GP14 - индиктор события от энкодера или джойстка,
-           GP4,GP5,GP6,GP7 (DC,RST,SCK,MOSI) - пины интерфейса SPI0, GP15 - пин обслуживает кнопку 
-           джойстка в режиме прерывания, GP9,GP10,GP11 - обслуживают энкодер EC11 в режиме прерывания.
+  - GPIO : подключены три светодиода : GP29 - секундный тик, GP4,GP5,GP6,GP7 (DC,RST,SCK,MOSI) - пины интерфейса
+           SPI0, GP15 - пин обслуживает кнопку джойстка/переключателя в режиме прерывания,
+           GP10,GP11,GP12 - обслуживают энкодер EC11 в режиме прерывания.
   - I2C1 : режим мастера с частотой 400Кгц (шина ослуживает чипы rda5807).
-  - SPI0 : режим мастера с частотой 12Мгц (шина ослуживает LCD display UC1609C).
-  - USART1 : параметры порта 230400 8N1 - порт для логов и передачи команд устройству.
-  - Core1 задействовано для обслуживания джойстика KY-023.
-* Прием данных по последовательному порту (USART1) выполняется в callback-функции обработчика прерывания.
+  - SPI0 : режим мастера с частотой 3Мгц (шина ослуживает LCD display UC1609C).
+  - UART0 : параметры порта 230400 8N1 - порт для логов и передачи команд устройству.
+  - UART1 : параметры порта 9600 8N1 - порт для обслуживания bluetooth device KCX_BT_EMITTER.
+  - Core1 задействовано для обслуживания джойстика/переключателя.
+
+* Прием данных по последовательному порту (UART0) выполняется в callback-функции обработчика прерывания.
 
 После подачи питания или нажатия на кнопку 'Reset' начинается выполнение загрузчика.
-При успешном запуске в порту USART1 появятся следующие сообщения :
+При успешном запуске в порту UART0 появятся следующие сообщения :
 
 
 ```
-07.09.22 22:26:57 | Start picoRadio app Ver.2.9 07.09.22 encoder
+27.09.22 19:39:37 | Start picoRadio app Ver.3.5 27.09.22
         BoardID:E66138935F374B29
-        Temp:33.69 deg.C
-07.09.22 22:26:57 | All clocks are set to:
+        Temp:30.88 deg.C
+27.09.22 19:39:37 | All clocks are set to:
         pll_sys : 0 kHz
         pll_usb : 48000 kHz
-        rosc    : 5732 kHz
+        rosc    : 5730 kHz
         clk_sys : 48000 kHz
         clk_peri: 48000 kHz
         clk_usb : 48000 kHz
         clk_adc : 48000 kHz
         clk_rtc : 47 kHz
-07.09.22 22:26:57 | Create queue for 32 events OK
-07.09.22 22:26:57 | Start timer with 5 ms period.
-07.09.22 22:26:58 | RDA5807 cID:0x58
-07.09.22 22:26:58 | Start 'joystik_task' function on Core1
-07.09.22 22:26:58 | [que:2] RDS monitoring start
-07.09.22 22:26:58 | [que:1] set new Freq to 95.100 МГц 'Вести ФМ' Chan:191 Volume:6
+27.09.22 19:39:37 | Create queue for 32 events OK
+27.09.22 19:39:37 | Start timer with 5 ms period.
+27.09.22 19:39:38 | RDA5807 cID:0x58
+27.09.22 19:39:38 | Start 'joystik_task' function on Core1
+27.09.22 19:39:38 | [BLE_TX] AT+REST
+27.09.22 19:39:38 | [que:2] RDS monitoring start
+27.09.22 19:39:38 | [que:1] set new Freq to 95.1 МГц 'Вести ФМ' Chan:191 Volume:8
+27.09.22 19:39:38 | [BLE_RX] OK+REST
+27.09.22 19:39:39 | [BLE_RX] POWER ON
+27.09.22 19:39:39 | [BLE_RX] Delete_Vmlink
+...
+...
+...
+27.09.22 19:41:39 | [BLE_RX] ALL Devices=0
+27.09.22 19:41:51 | [BLE_RX] ALL Devices=1
+27.09.22 19:41:51 | [BLE_RX] MacAddr=0x414269d40b57,Name=S650
+27.09.22 19:41:53 | [BLE_RX] CONNECTED to device Mac:0x414269d40b57 Name:S650
+27.09.22 19:41:59 | [BLE_RX] opid:0x44C4 'VolumeUp'
+27.09.22 19:41:59 | [que:1] set new Volume to 9
+27.09.22 19:42:02 | [BLE_RX] opid:0x46C6 'VolumeDown'
+27.09.22 19:42:02 | [que:1] set new Volume to 8
+27.09.22 19:42:03 | [BLE_RX] ALL Devices=1
+27.09.22 19:42:03 | [BLE_RX] MacAddr=0x414269d40b57,Name=S650
+27.09.22 19:42:10 | [BLE_RX] DISCONNECT from device Mac:0x414269d40b57 Name:S650
+27.09.22 19:42:10 | [BLE_TX] AT+REST
+27.09.22 19:42:10 | [BLE_RX] OK+REST
+27.09.22 19:42:11 | [BLE_RX] POWER ON
+27.09.22 19:42:12 | [BLE_RX] Delete_Vmlink
 ```
 
-* Через USART1 можно отправлять команды на устройство, например :
+* Через UART0 можно отправлять команды на устройство, например :
 
 ```
-er
+ver
 07.09.22 22:31:05 | [que:1] cmd:3 attr:0
 07.09.22 22:31:05 | Ver.2.9 07.09.22 encoder
 
@@ -178,6 +201,7 @@ help
         readcont
         next
         check
+        ble
 
 epoch:1662032931
 01.09.22 11:48:52 | [que:1] cmd:2 attr:1662032931
@@ -249,26 +273,30 @@ temp
 01.09.22 11:55:13 | [que:1] set new Freq to 95.100 МГц 'Вести ФМ' Chan:191 Volume:5 idx=5
 
 restart
-07.09.22 22:32:47 | [que:1] cmd:1 attr:0
-07.09.22 22:32:47 | Queue released
-07.09.22 22:32:47 07.09.22 22:32:47 | Timer cancelled... 1
+27.09.22 19:43:42 | [que:1] cmd:1 attr:0
+27.09.22 19:43:42 | Queue released
+227.09.22 19:43:42 | Timer cancelled... 1
 
-07.09.22 22:26:57 | Start picoRadio app Ver.2.9 07.09.22 encoder
+27.09.22 19:39:37 | Start picoRadio app Ver.3.5 27.09.22
         BoardID:E66138935F374B29
-        Temp:33.69 deg.C
-07.09.22 22:26:57 | All clocks are set to:
+        Temp:31.82 deg.C
+27.09.22 19:39:37 | All clocks are set to:
         pll_sys : 0 kHz
         pll_usb : 48000 kHz
-        rosc    : 5732 kHz
+        rosc    : 5731 kHz
         clk_sys : 48000 kHz
         clk_peri: 48000 kHz
         clk_usb : 48000 kHz
         clk_adc : 48000 kHz
         clk_rtc : 47 kHz
-07.09.22 22:26:57 | Create queue for 32 events OK
-07.09.22 22:26:57 | Start timer with 5 ms period.
-07.09.22 22:26:58 | RDA5807 cID:0x58
-07.09.22 22:26:58 | Start 'joystik_task' function on Core1
-07.09.22 22:26:58 | [que:2] RDS monitoring start
-07.09.22 22:26:58 | [que:1] set new Freq to 95.100 МГц 'Вести ФМ' Chan:191 Volume:6
+27.09.22 19:39:37 | Create queue for 32 events OK
+27.09.22 19:39:37 | Start timer with 5 ms period.
+27.09.22 19:39:38 | RDA5807 cID:0x58
+27.09.22 19:39:38 | Start 'joystik_task' function on Core1
+27.09.22 19:39:38 | [BLE_TX] AT+REST
+27.09.22 19:39:38 | [que:2] RDS monitoring start
+27.09.22 19:39:38 | [que:1] set new Freq to 95.1 МГц 'Вести ФМ' Chan:191 Volume:8
+27.09.22 19:39:38 | [BLE_RX] OK+REST
+27.09.22 19:39:39 | [BLE_RX] POWER ON
+27.09.22 19:39:39 | [BLE_RX] Delete_Vmlink
 ```

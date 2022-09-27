@@ -122,10 +122,12 @@ bool check_tmr(uint32_t sec)
 //
 void errLedOn(bool on)
 {
-	if (on)
+#ifndef SET_BLE
+ 	if (on)
 		gpio_put(ERR_PIN, 1);
 	else
 		gpio_put(ERR_PIN, 0);
+#endif
 }
 //------------------------------------------------------------------------------------------
 //   Функция формирует символьную сторку из данных, прочитанных из модуля RTC
