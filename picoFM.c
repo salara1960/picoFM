@@ -102,10 +102,11 @@ enum {
 //const char *ver = "Ver.3.3 20.09.22";// add new menu item : mute, temp
 //const char *ver = "Ver.3.4 24.09.22";// add new dev - miniDev (with 3 button : up, down, push)
 //const char *ver = "Ver.3.4 24.09.22"; // add audio bluetooth transmitter KCX_BT_EMITTER and edit mini_dev support (via adc)
-const char *ver = "Ver.3.5 27.09.22"; // add uart1 for support audio bluetooth transmitter KCX_BT_EMITTER
+//const char *ver = "Ver.3.5 27.09.22"; // add uart1 for support audio bluetooth transmitter KCX_BT_EMITTER
+const char *ver = "Ver.3.5.1 28.09.22";
 
 
-volatile static uint32_t epoch = 1664307575;//1664296340;//1664132995;
+volatile static uint32_t epoch = 1664366320;//1664307575;//1664296340;//1664132995;
 //1664118470;//1664023625;//1663705560;//1663539209;//1663157436;//1663101145;
 //1663013315;//1662723599;//1662671765;//1662670195;//1662659160;//1662643850;//1662589615;
 //1662572765;//1662373645;//1662368495;//1662331845;//1662327755;//1662295275;//1662288820;
@@ -509,7 +510,7 @@ uint16_t listSize = 0;
 	#pragma pack(push,1)
 	typedef struct {
 		char mac[16];
-		char name[16];
+		char name[20];
 	} ble_dev_t;
 	#pragma pack(pop)
 
@@ -1894,14 +1895,15 @@ int main() {
 
 #ifdef SET_BLE
     			    case cmdBle:
+    			    {
     			    	//--------------------------------------------------------------
+    			    	evt_t ev = {cmdNone, 0, NULL};
     			    	if (!bleStr) {//get opid code
     			    		int8_t i = -1;
     			    		while (++i < MAX_OPID) {
     			    			if (attr == opids[i]) break;
     			    		}
     			    		if (i != -1) {
-    			    			evt_t ev = {cmdNone, 0, NULL};
     			    			switch (i) {
     			    				case volUp:
     			    					newVolume = Volume + 1;
@@ -1918,14 +1920,12 @@ int main() {
     			    					ev.cmd = cmdList;
     			    				break;
     			    			}
-    			    			if (ev.cmd != cmdNone)
-    			    				if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
     			    			Report(1, "[BLE_RX] opid:0x%04X '%s'\n", attr, opids_name[i]);
     			    		} else {
     			    			Report(1, "[BLE_RX] opid:0x%04X\n", attr);
     			    		}
     			    	} else {//get massage
-    			    		evt_t ev = {cmdNone, 0, NULL};
+    			    		bool look = false;
     			    		strncpy(tmp, bleStr, sizeof(tmp));
     			    		if (strstr(tmp,"New Devices")) {//New Devices:1,MacAdd:0x4142c7c668bd,Name:YX-01
     			    			if (!strlen(ble_dev.mac)) {
@@ -1940,53 +1940,41 @@ int main() {
     			    					uk += 7;
     			    					strncpy(ble_dev.mac, uk, sizeof(ble_dev.mac) - 1);
     			    				}
-    			    				/*if ((strlen(ble_dev.mac)) && (strlen(ble_dev.name))) {
-    			    					Report(1, "[BLE_RX] New device MAC:%s NAME:%s\n", ble_dev.mac, ble_dev.name);
-    			    					sprintf(stz, "AT+CONADD=%s\r\n", ble_dev.mac);
-    			    					write_ble(stz, true);
-    			    				}*/
     			    			}
     			    		} else if ((strstr(tmp,"CONNECTED")) ||
     			    					(strstr(tmp,"CON:"))) {
     			    			Report(1, "[BLE_RX] CONNECTED to device Mac:%s Name:%s\n", ble_dev.mac, ble_dev.name);
-    			    			//if (!noMute) ev.cmd = cmdMute;
-    			    			noMute = (~noMute) & 1;
-#ifdef SET_BLE
-    			    			gpio_put(AMP_MUTE_PIN, noMute);
-#else
-    			    			rda5807_Set_Mute(noMute);
-#endif
+    			    			//
     			    			sprintf(stz, "connect to %s", ble_dev.name);
-    			    			mkLineCenter(stz, mfnt->FontWidth);
-    			    			UC1609C_Print(1, lines[line5], stz, mfnt, 0, FOREGROUND);
-    			    			UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
-    			    			UC1609C_update();
+    			    			look = true;
     			    		} else if (strstr(tmp,"DISCONNECT")) {
     			    			Report(1, "[BLE_RX] DISCONNECT from device Mac:%s Name:%s\n", ble_dev.mac, ble_dev.name);
-    			    			//if (noMute) ev.cmd = cmdMute;
-    			    			noMute = (~noMute) & 1;
-#ifdef SET_BLE
-    			    			gpio_put(AMP_MUTE_PIN, noMute);
-#else
-    			    			rda5807_Set_Mute(noMute);
-#endif
-    			    			write_ble("AT+REST", true);//write_ble("AT+DELVMLINK", true);
-    			    			sprintf(stz, "disconnect from %s", ble_dev.name);
-    			    			mkLineCenter(stz, mfnt->FontWidth);
-    			    			UC1609C_Print(1, lines[line5], stz, mfnt, 0, FOREGROUND);
-    			    			UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
-    			    			UC1609C_update();
-    			    			flag_ver = true;
-    			    			tmr_ver = 10;
+    			    			//
+    			    			sprintf(stz, "discon. from %s", ble_dev.name);
+    			    			look = true;
+    			    			//
+    			    			write_ble("AT+REST", true);
     			    			memset(&ble_dev, 0, sizeof(ble_dev_t));
+    			    			//
+    			    			flag_ver = true;
+    			    			tmr_ver = 5;
     			    		} else {
     			    			Report(1, "[BLE_RX] %s\n", bleStr);
     			    		}
     			    		free(bleStr);
-    			    		if (ev.cmd != cmdNone)
-    			    			if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
+    			    		if (look) {
+    			    			noMute = (~noMute) & 1;
+    			    			gpio_put(AMP_MUTE_PIN, noMute);
+    			    			mkLineCenter(stz, mfnt->FontWidth);
+    			    			UC1609C_Print(1, lines[line5], stz, mfnt, 0, FOREGROUND);
+    			    			UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
+    			    			UC1609C_update();
+    			    		}
     			    	}
+		    			if (ev.cmd != cmdNone)
+		    				if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
     			    	//--------------------------------------------------------------
+    			    }
     			    break;
 #endif
     				case cmdTemp:
