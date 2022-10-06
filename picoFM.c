@@ -6,7 +6,7 @@
 #include "UC1609C.h"
 
 //------------------------------------------------------------------------------------------
-//         picotool load -v -x picoFM.uf2 -t uf2
+//         sudo picotool load -v -x picoFM.uf2 -t uf2
 //------------------------------------------------------------------------------------------
 
 enum {
@@ -103,10 +103,12 @@ enum {
 //const char *ver = "Ver.3.4 24.09.22";// add new dev - miniDev (with 3 button : up, down, push)
 //const char *ver = "Ver.3.4 24.09.22"; // add audio bluetooth transmitter KCX_BT_EMITTER and edit mini_dev support (via adc)
 //const char *ver = "Ver.3.5 27.09.22"; // add uart1 for support audio bluetooth transmitter KCX_BT_EMITTER
-const char *ver = "Ver.3.5.1 28.09.22";
+//const char *ver = "Ver.3.5.1 28.09.22";
+//const char *ver = "Ver.3.5.2 05.10.22";
+const char *ver = "Ver.3.6 06.10.22";
 
 
-volatile static uint32_t epoch = 1664366320;//1664307575;//1664296340;//1664132995;
+volatile static uint32_t epoch = 1665097475;//1664984285;//1664366320;//1664307575;//1664296340;//1664132995;
 //1664118470;//1664023625;//1663705560;//1663539209;//1663157436;//1663101145;
 //1663013315;//1662723599;//1662671765;//1662670195;//1662659160;//1662643850;//1662589615;
 //1662572765;//1662373645;//1662368495;//1662331845;//1662327755;//1662295275;//1662288820;
@@ -506,6 +508,13 @@ uint16_t listSize = 0;
 		volDown,
 		List
 	};
+	enum {
+		cmdConnect = 0,
+		cmdDisconnect,
+		cmdReset,
+		cmdVmLink,
+		cmdDelVmLink
+	};
 
 	#pragma pack(push,1)
 	typedef struct {
@@ -519,6 +528,7 @@ uint16_t listSize = 0;
 	bool opid_flag = false;
 	bool opid_ready = false;
 	uint16_t opid = 0;
+	bool bleConnect = false;
 
 	const char *opids_name[MAX_OPID] = {"VolumeUp", "VolumeDown", "List"};
 	const uint16_t opids[MAX_OPID] = { 0x44C4, 0x46C6, 0x4BCB };
@@ -1177,6 +1187,22 @@ void write_ble(const char *st, bool prn)
 	if (prn) Report(1, "[BLE_TX] %s\n", st);
 }
 //------------------------------------------------------------------------------------------
+bool check_bleCli(char *name)
+{
+//New Devices:1,MacAdd:0x414269d40b57,Name:S650
+//New Devices:1,MacAdd:0x4142c7c668bd,Name:YX-01
+//New Devices:1,MacAdd:0x0000100014a,Name:Sabbat X12 Pro
+//New Devices:2,MacAdd:0x000000009cf,Name:Sabbat X12 Pro-R
+
+	if (!strcmp(name, "S650") ||
+			!strcmp(name, "YX-01") ||
+				strstr(name, "Sabbat X12 Pro")) {
+		return true;
+	} else {
+		return false;
+	}
+}
+//------------------------------------------------------------------------------------------
 #endif
 //------------------------------------------------------------------------------------------
 //   CallBack-функция вызывается по приёму символа с интерфейса uart0
@@ -1308,8 +1334,8 @@ void uart_rx_callback()
         		}
         		if (!sleepON) {
         			if (evt.cmd == cmdNone) {
-        				toUppers(rxBuf);
-        				if (strstr(rxBuf, "AT+")) {
+        				if (strstr(rxBuf, "AT+") || strstr(rxBuf, "at+")) {
+        					if (rxBuf[0] == 'a') toUppers(rxBuf);
         					write_ble(rxBuf, true);
         				} else {
         					evt.cmd = cmdErr;
@@ -1899,35 +1925,61 @@ int main() {
     			    	//--------------------------------------------------------------
     			    	evt_t ev = {cmdNone, 0, NULL};
     			    	if (!bleStr) {//get opid code
-    			    		int8_t i = -1;
-    			    		while (++i < MAX_OPID) {
-    			    			if (attr == opids[i]) break;
-    			    		}
-    			    		if (i != -1) {
-    			    			switch (i) {
-    			    				case volUp:
-    			    					newVolume = Volume + 1;
-    			    					if (newVolume > 15) newVolume = 1;
-    			    					ev.cmd = cmdVol;
-    			    				break;
-    			    				case volDown:
-    			    					newVolume = (Volume - 1) & 0xf;
-    			    					if (!newVolume) newVolume = 1;
-    			    					ev.cmd = cmdVol;
-    			    				break;
-    			    				case List:
-    			    					seek_up = 1;
-    			    					ev.cmd = cmdList;
-    			    				break;
+    			    		switch (attr) {
+    			    			//AT+VMLINK?
+    			    			//AT+DELVMLINK
+    			    			//AT+ADDLINKADD=0x4142c7c668bd
+    			    			//AT+ADDLINKNAME=YX-01
+    			    			//AT+CONADD=0x4142c7c668bd
+    			    			//AT+DISCON
+    			    			case cmdConnect:
+    			    				if (strlen(ble_dev.mac) && !bleConnect) {
+    			    					sprintf(tmp,"AT+CONADD=%s", ble_dev.mac);
+    			    					write_ble(tmp, true);
+    			    				}
+    			    			break;
+    			    			case cmdDisconnect:
+    			    				if (bleConnect) write_ble("AT+DISCON", true);
+    			    			break;
+    			    			case cmdReset:
+    			    				write_ble("AT+REST", true);
+    			    			break;
+    			    			case cmdDelVmLink:
+    			    				write_ble("AT+DELVMLINK", true);
+    			    			break;
+    			    			default : {
+    			    				int8_t i = -1;
+    			    				while (++i < MAX_OPID) {
+    			    					if (attr == opids[i]) break;
+    			    				}
+    			    				if (i != -1) {
+    			    					switch (i) {
+    			    						case volUp:
+    			    							newVolume = Volume + 1;
+    			    							if (newVolume > 15) newVolume = 1;
+    			    							ev.cmd = cmdVol;
+    			    						break;
+    			    						case volDown:
+    			    							newVolume = (Volume - 1) & 0xf;
+    			    							if (!newVolume) newVolume = 1;
+    			    							ev.cmd = cmdVol;
+    			    						break;
+    			    						case List:
+    			    							seek_up = 1;
+    			    							ev.cmd = cmdList;
+    			    						break;
+    			    					}
+    			    					Report(1, "[BLE_RX] opid:0x%04X '%s'\n", attr, opids_name[i]);
+    			    				} else {
+    			    					Report(1, "[BLE_RX] opid:0x%04X\n", attr);
+    			    				}
     			    			}
-    			    			Report(1, "[BLE_RX] opid:0x%04X '%s'\n", attr, opids_name[i]);
-    			    		} else {
-    			    			Report(1, "[BLE_RX] opid:0x%04X\n", attr);
     			    		}
     			    	} else {//get massage
     			    		bool look = false;
     			    		strncpy(tmp, bleStr, sizeof(tmp));
-    			    		if (strstr(tmp,"New Devices")) {//New Devices:1,MacAdd:0x4142c7c668bd,Name:YX-01
+    			    		Report(1, "[BLE_RX] %s\n", tmp);
+    			    		if (strstr(tmp,"New Devices")) {
     			    			if (!strlen(ble_dev.mac)) {
     			    				char *uk = strstr(tmp, ",Name:");
     			    				if (uk) {
@@ -1940,27 +1992,46 @@ int main() {
     			    					uk += 7;
     			    					strncpy(ble_dev.mac, uk, sizeof(ble_dev.mac) - 1);
     			    				}
+    			    				if (strlen(ble_dev.mac) && strlen(ble_dev.name)) {
+    			    					if (check_bleCli(ble_dev.name)) {
+    			    						ev.cmd = cmdBle;
+    			    						ev.str = NULL;
+    			    						ev.attr = cmdConnect;
+    			    					}
+    			    				}
     			    			}
-    			    		} else if ((strstr(tmp,"CONNECTED")) ||
-    			    					(strstr(tmp,"CON:"))) {
-    			    			Report(1, "[BLE_RX] CONNECTED to device Mac:%s Name:%s\n", ble_dev.mac, ble_dev.name);
+    			    		} else if (strstr(tmp,"CONNECTED")) {
+    			    			Report(1, "[BLE_RX] Connected to device Mac:%s Name:%s\n", ble_dev.mac, ble_dev.name);
     			    			//
-    			    			sprintf(stz, "connect to %s", ble_dev.name);
+    			    			sprintf(stz, "Connect to %s", ble_dev.name);
     			    			look = true;
+    			    			bleConnect = true;
+    			    			if (!check_bleCli(ble_dev.name)) {
+    			    				ev.cmd = cmdBle;
+    			    				ev.str = NULL;
+    			    				ev.attr = cmdDisconnect;
+    			    			}
     			    		} else if (strstr(tmp,"DISCONNECT")) {
-    			    			Report(1, "[BLE_RX] DISCONNECT from device Mac:%s Name:%s\n", ble_dev.mac, ble_dev.name);
+    			    			Report(1, "[BLE_RX] Disconnect from device Mac:%s Name:%s\n", ble_dev.mac, ble_dev.name);
     			    			//
-    			    			sprintf(stz, "discon. from %s", ble_dev.name);
+    			    			sprintf(stz, "Discon. from %s", ble_dev.name);
     			    			look = true;
     			    			//
-    			    			write_ble("AT+REST", true);
+    			    			ev.cmd = cmdBle;
+    			    			ev.str = NULL;
+    			    			ev.attr = cmdDelVmLink;//cmdReset;//write_ble("AT+REST", true);
     			    			memset(&ble_dev, 0, sizeof(ble_dev_t));
+    			    			bleConnect = false;
     			    			//
     			    			flag_ver = true;
-    			    			tmr_ver = 5;
-    			    		} else {
+    			    			tmr_ver = 10;
+    			    		} else if (strstr(tmp, "Delete_Vmlink") || strstr(tmp, "CMD ERR")) {
+    			    			ev.cmd = cmdBle;
+    			    			ev.str = NULL;
+    			    			ev.attr = cmdReset;
+    			    		}/* else {
     			    			Report(1, "[BLE_RX] %s\n", bleStr);
-    			    		}
+    			    		}*/
     			    		free(bleStr);
     			    		if (look) {
     			    			noMute = (~noMute) & 1;
@@ -2431,7 +2502,11 @@ int main() {
 #ifdef SET_BLE
     					if (!bleRst) {
     						bleRst = true;
-    						write_ble("AT+REST", true);
+    						ev.cmd = cmdBle;
+    						ev.str = NULL;
+    						ev.attr = cmdReset;
+    						if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
+    						//write_ble("AT+REST", true);
     					}
 #endif
     				}
