@@ -40,6 +40,7 @@ target_link_libraries(picoFM
         pico_stdlib
         pico_multicore
         pico_unique_id
+        pico_sync
         hardware_gpio
         hardware_i2c
         hardware_dma

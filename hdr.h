@@ -30,6 +30,7 @@
 #include "hardware/flash.h"
 #include "hardware/sync.h"
 #include "pico/unique_id.h"
+#include "pico/mutex.h"
 
 
 //------------------------------------------------------------------------------
@@ -60,7 +61,11 @@
 
 #define SET_FLASH
 
+
 #define SET_BLE
+#ifdef SET_BLE
+	#define SET_MUTEX
+#endif
 
 //------------------------------------------------------------------------------
 
@@ -88,13 +93,13 @@
 #define MAX_MENU      11//10//9//8//7//6
 
 #ifdef SET_ENCODER
-	#define MAX_CMDS  28//27//26//25//24//22//21//20//17//16//15//6
+	#define MAX_CMDS  29//28//27//26//25//24//22//21//20//17//16//15//6
 #else
-	#define MAX_CMDS  20//19//18//15//6
+	#define MAX_CMDS  21//20//19//18//15//6
 #endif
 
 //
-#define MAX_ERR_CODE 7
+#define MAX_ERR_CODE 8//7
 //
 #define UART_ID 	 uart0
 #define BAUD_RATE 	230400 //115200
@@ -119,4 +124,26 @@ extern int tZone;
 extern bool uart_enable;
 
 //------------------------------------------------------------------------------
+
+#pragma once
+
+enum {
+	devOk = 0,
+	devMem = 1,
+	devTik = 2,
+	devQue = 4,
+	devUart = 8,
+	devI2c = 16,
+	devDma = 32,
+	dev_RDA = 64,
+	devList = 128
+};
+
+#pragma pack(push,1)
+typedef struct {
+	char mac[16];
+	char name[20];
+} ble_dev_t;
+#pragma pack(pop)
+
 

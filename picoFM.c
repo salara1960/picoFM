@@ -42,9 +42,10 @@ enum {
 	cmdNext,
 	cmdCheck,
 	cmdErase,
-	cmdBle
+	cmdBle,
+	cmdCli
 };
-
+/*
 enum {
 	devOk = 0,
 	devMem = 1,
@@ -55,7 +56,7 @@ enum {
 	devDma = 32,
 	dev_RDA = 64
 };
-
+*/
 #ifdef SET_WITH_DMA
 	uint16_t devDMA = devDma;
 
@@ -105,10 +106,12 @@ enum {
 //const char *ver = "Ver.3.5 27.09.22"; // add uart1 for support audio bluetooth transmitter KCX_BT_EMITTER
 //const char *ver = "Ver.3.5.1 28.09.22";
 //const char *ver = "Ver.3.5.2 05.10.22";
-const char *ver = "Ver.3.6 06.10.22";
+//const char *ver = "Ver.3.6 06.10.22";
+const char *ver = "Ver.3.6.1 07.10.22"; // add bluetooth_clients list with mutex support
 
 
-volatile static uint32_t epoch = 1665097475;//1664984285;//1664366320;//1664307575;//1664296340;//1664132995;
+volatile static uint32_t epoch = 1665147755;
+//1665097475;//1664984285;//1664366320;//1664307575;//1664296340;//1664132995;
 //1664118470;//1664023625;//1663705560;//1663539209;//1663157436;//1663101145;
 //1663013315;//1662723599;//1662671765;//1662670195;//1662659160;//1662643850;//1662589615;
 //1662572765;//1662373645;//1662368495;//1662331845;//1662327755;//1662295275;//1662288820;
@@ -151,7 +154,8 @@ const char *s_cmds[MAX_CMDS] = {
 	"next",
 	"check",
 	"erase",
-	"ble"
+	"ble",
+	"cli"
 };
 
 const uint16_t all_devErr[MAX_ERR_CODE] = {
@@ -161,7 +165,8 @@ const uint16_t all_devErr[MAX_ERR_CODE] = {
 	devUart,
 	devI2c,
 	devDma,
-	dev_RDA
+	dev_RDA,
+	devList
 };
 
 
@@ -516,12 +521,12 @@ uint16_t listSize = 0;
 		cmdDelVmLink
 	};
 
-	#pragma pack(push,1)
+	/*#pragma pack(push,1)
 	typedef struct {
 		char mac[16];
 		char name[20];
 	} ble_dev_t;
-	#pragma pack(pop)
+	#pragma pack(pop)*/
 
 	ble_dev_t ble_dev;
 
@@ -532,6 +537,9 @@ uint16_t listSize = 0;
 
 	const char *opids_name[MAX_OPID] = {"VolumeUp", "VolumeDown", "List"};
 	const uint16_t opids[MAX_OPID] = { 0x44C4, 0x46C6, 0x4BCB };
+
+	s_recq_t cli_list;
+	ble_dev_t ble_cli;
 
 #endif
 
@@ -1235,6 +1243,7 @@ void uart_rx_callback()
         					case cmdTemp:    //"temp"
         					case cmdShowFreq://"showfreq"
         					case cmdCfg:     //"cfg"
+        					case cmdCli:     //"cli"
         						evt.cmd = i;
         					break;
         					case cmdBand:    //"band:2"
@@ -1884,11 +1893,10 @@ int main() {
 
     bool bleRst = false;
     char *bleStr = NULL;
+    int last_attr = cmdNone;
 
-//    if (!bleRst) {
-//    	bleRst = true;
-//    	write_ble("AT+REST", true);
-//    }
+    initLIST(&cli_list);
+
 
 #endif
 
@@ -1920,11 +1928,15 @@ int main() {
     			switch (evt) {
 
 #ifdef SET_BLE
+    			    case cmdCli:
+    			    	if (!prnLIST(&cli_list)) Report(1, "[BLE_LIST] List of ble_clients is empty\n");
+    			    break;
     			    case cmdBle:
     			    {
     			    	//--------------------------------------------------------------
     			    	evt_t ev = {cmdNone, 0, NULL};
     			    	if (!bleStr) {//get opid code
+    			    		last_attr = attr;
     			    		switch (attr) {
     			    			//AT+VMLINK?
     			    			//AT+DELVMLINK
@@ -1994,6 +2006,12 @@ int main() {
     			    				}
     			    				if (strlen(ble_dev.mac) && strlen(ble_dev.name)) {
     			    					if (check_bleCli(ble_dev.name)) {
+    			    						//
+    			    						if (findLIST((void *)&ble_dev, &cli_list) == -1) {
+    			    							if (addLIST((void *)&ble_dev, &cli_list) == -1) devError |= devList;
+    			    						}
+    			    						//
+    			    						sleep_ms(150);
     			    						ev.cmd = cmdBle;
     			    						ev.str = NULL;
     			    						ev.attr = cmdConnect;
@@ -2025,10 +2043,17 @@ int main() {
     			    			//
     			    			flag_ver = true;
     			    			tmr_ver = 10;
-    			    		} else if (strstr(tmp, "Delete_Vmlink") || strstr(tmp, "CMD ERR")) {
+    			    		} else if (strstr(tmp, "Delete_Vmlink")) {
     			    			ev.cmd = cmdBle;
     			    			ev.str = NULL;
     			    			ev.attr = cmdReset;
+    			    		} else if (strstr(tmp, "CMD ERR")) {
+    			    			ev.cmd = cmdBle;
+    			    			ev.str = NULL;
+    			    			if (last_attr == cmdConnect)
+    			    				ev.attr = cmdDelVmLink;
+    			    			else
+    			    				ev.attr = cmdReset;
     			    		}/* else {
     			    			Report(1, "[BLE_RX] %s\n", bleStr);
     			    		}*/
@@ -2770,6 +2795,14 @@ int main() {
     				if (er) sprintf(tmp+strlen(tmp), " '%s'", errName(er));
     			}
     			Report(1, "Error 0x%04X %s\r\n", devError, tmp);
+    			//
+    			sprintf(tmp, "err : 0x%04X", devError);
+    			mkLineCenter(tmp, mfnt->FontWidth);
+    			UC1609C_Print(1, lines[line5], tmp, mfnt, 0, FOREGROUND);
+    			UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
+    			UC1609C_update();
+    			flag_ver = true;
+    			tmr_ver = 10;
     			//
     		}
     	}

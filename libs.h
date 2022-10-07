@@ -103,5 +103,34 @@ extern void errLedOn(bool on);
 extern int sec2str(char *st);
 extern void Report(const uint8_t addTime, const char *fmt, ...);
 
+#ifdef SET_BLE
+	#define MAX_BLE_LIST 8
+	//
+	#pragma pack(push,1)
+	typedef struct q_rec_t {
+		int8_t id;
+		ble_dev_t *cli;
+	} q_rec_t;
+	#pragma pack(pop)
+
+	#pragma pack(push,1)
+	typedef struct s_recq_t {
+		uint8_t put;
+		q_rec_t rec[MAX_BLE_LIST];
+	} s_recq_t;
+	#pragma pack(pop)
+	//
+	void initLIST(s_recq_t *q);
+	int8_t putLIST(void *item, s_recq_t *lst);
+	int8_t addLIST(void *item, s_recq_t *lst);
+	int8_t findLIST(void *item, s_recq_t *lst);
+	uint8_t prnLIST(s_recq_t *lst);
+	//
+	#ifdef SET_MUTEX
+		void initMutex();
+	#endif
+	//
+#endif
+
 
 #endif /* LIBS_H_ */

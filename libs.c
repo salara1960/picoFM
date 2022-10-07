@@ -10,6 +10,14 @@ volatile uint32_t ms10 = 0;
 
 static char txBuf[MAX_UART_BUF << 2] = {0};
 
+#ifdef SET_BLE
+	#ifdef SET_MUTEX
+		uint32_t owner_out = 1000;
+		mutex_t itMutex;
+	#endif
+	uint8_t ble_cli_total = 0;
+	uint8_t ble_cli_len = 0;
+#endif
 //------------------------------------------------------------------------------------------
 /*
 #ifdef SET_WITH_DMA
@@ -193,4 +201,116 @@ void Report(const uint8_t addTime, const char *fmt, ...)
 	va_end(args);
 }
 //------------------------------------------------------------------------------------------
+#ifdef SET_BLE
+	//-----------------------------------------------------------------------------
+	void initMutex()
+	{
+	#ifdef SET_MUTEX
+		mutex_init(&itMutex);
+	#endif
+	}
+	//-----------------------------------------------------------------------------
+	void initLIST(s_recq_t *lst)
+	{
+		ble_cli_total = 0;
+		ble_cli_len = sizeof(ble_dev_t);
+		initMutex();
+		lst->put = 0;
+		for (uint8_t i = 0; i < MAX_BLE_LIST; i++) {
+			lst->rec[i].id = i;
+			lst->rec[i].cli = NULL;
+		}
+	}
+	//-----------------------------------------------------------------------------
+	int8_t putLIST(void *item, s_recq_t *lst)
+	{
+	int8_t ret = -1;
+		if (ble_cli_total < MAX_BLE_LIST) {
+	#ifdef SET_MUTEX
+			if (mutex_try_enter(&itMutex, &owner_out)) {
+	#endif
+				if (lst->rec[lst->put].cli == NULL) {
+					lst->rec[lst->put].cli = item;
+					ret = lst->rec[lst->put].id;
+					lst->put++;
+					ble_cli_total++;
+				}
+	#ifdef SET_MUTEX
+				mutex_exit(&itMutex);
+			}
+	#endif
+		}
+		return ret;
+	}
+	//-----------------------------------------------------------------------------
+	int8_t findLIST(void *item, s_recq_t *lst)
+	{
+	int8_t ret = -1;
+
+		if (!ble_cli_total) return ret;
+
+	#ifdef SET_MUTEX
+		if (mutex_try_enter(&itMutex, &owner_out)) {
+	#endif
+			ble_dev_t *it = (ble_dev_t *)item;
+			for (uint8_t i = 0; i < MAX_BLE_LIST; i++) {
+				if (!strcmp(it->mac, lst->rec[i].cli->mac)) {
+					ret = lst->rec[i].id;
+					memcpy((uint8_t *)item, (uint8_t *)lst->rec[i].cli, ble_cli_len);
+					break;
+				}
+			}
+	#ifdef SET_MUTEX
+			mutex_exit(&itMutex);
+		}
+	#endif
+
+		return ret;
+	}
+	//-----------------------------------------------------------------------------
+	int8_t addLIST(void *item, s_recq_t *lst)
+	{
+	int8_t nrec = -1;
+
+		uint8_t *rc = (uint8_t *)calloc(1, ble_cli_len);
+		if (rc) {
+			memcpy(rc, (uint8_t *)item, ble_cli_len);
+			if ((nrec = putLIST((void *)rc, lst)) >= 0) {
+				Report(1, "[%s] Put record to queue OK (id=%d total=%u)\n", __func__, nrec, ble_cli_total);
+			} else {
+				Report(1, "[%s] Put record to queue error (total=%u)\n", __func__, ble_cli_total);
+				free(rc);
+			}
+		} else {
+			devError |= devMem;
+		}
+
+		return nrec;
+	}
+	//
+	//-----------------------------------------------------------------------------
+	uint8_t prnLIST(s_recq_t *lst)
+	{
+		if (ble_cli_total) {
+			size_t len = ((ble_cli_len + 16) * ble_cli_total) + 64;
+			char *st = (char *)calloc(1, len);
+			if (st) {
+				sprintf(st, "Total audio bluetooth client items in list = %u:\n", ble_cli_total);
+				for (uint8_t i = 0; i < ble_cli_total; i++) {
+					sprintf(st+strlen(st), "\t[%u] mac:%s name:%s\n", i, lst->rec[i].cli->mac, lst->rec[i].cli->name);
+				}
+				Report(1, "[%s] %s", __func__, st);
+				free(st);
+			} else {
+				devError |= devMem;
+			}
+		}
+		return ble_cli_total;
+	}
+	//
+#endif
+//------------------------------------------------------------------------------------------
+
+
+
 
