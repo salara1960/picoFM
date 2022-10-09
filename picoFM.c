@@ -107,10 +107,12 @@ enum {
 //const char *ver = "Ver.3.5.1 28.09.22";
 //const char *ver = "Ver.3.5.2 05.10.22";
 //const char *ver = "Ver.3.6 06.10.22";
-const char *ver = "Ver.3.6.1 07.10.22"; // add bluetooth_clients list with mutex support
+//const char *ver = "Ver.3.6.1 07.10.22"; // add bluetooth_clients list with mutex support
+const char *ver = "Ver.3.6.2 09.10.22"; // add audio_bluetooth_power_pin
 
 
-volatile static uint32_t epoch = 1665147755;
+
+volatile static uint32_t epoch = 1665325725;//1665323105;//1665147755;
 //1665097475;//1664984285;//1664366320;//1664307575;//1664296340;//1664132995;
 //1664118470;//1664023625;//1663705560;//1663539209;//1663157436;//1663101145;
 //1663013315;//1662723599;//1662671765;//1662670195;//1662659160;//1662643850;//1662589615;
@@ -507,6 +509,7 @@ uint16_t listSize = 0;
 #ifdef SET_BLE
 	#define AMP_MUTE_PIN 14//13
 	#define MAX_OPID 3
+	#define BLE_POWER_PIN 28
 
 	enum {
 		volUp = 0,
@@ -518,7 +521,8 @@ uint16_t listSize = 0;
 		cmdDisconnect,
 		cmdReset,
 		cmdVmLink,
-		cmdDelVmLink
+		cmdDelVmLink,
+		cmdPower
 	};
 
 	/*#pragma pack(push,1)
@@ -541,6 +545,9 @@ uint16_t listSize = 0;
 	s_recq_t cli_list;
 	ble_dev_t ble_cli;
 
+	bool bleBegin = false;
+	bool bleOFF = false;
+	uint32_t tmr_onoff = 0;
 #endif
 
 //*******************************************************************************************
@@ -565,6 +572,18 @@ void cmdLedOn()
 	//
 	void gpio_callback(uint gpio, uint32_t events)
 	{
+#ifdef SET_BLE
+		if (gpio == BLE_POWER_PIN) {
+			if (bleBegin) {
+				if (check_mstmr(tmr_onoff)) {
+					evt_t e = {cmdBle, cmdPower, NULL};
+					if (!queue_try_add(&evt_fifo, &e)) devError |= devQue;
+					tmr_onoff = get_mstmr(_550ms);
+				}
+			}
+			return;
+		}
+#endif
 		if (!que_start) {
 #ifdef SET_ENCODER
 			ec_counter = ec_last_counter = 0;
@@ -1191,6 +1210,11 @@ void uart_rx_ble_callback()
 //------------------------------------------------------------------------------------------
 void write_ble(const char *st, bool prn)
 {
+	bleOFF = gpio_get(BLE_POWER_PIN);
+	if (bleOFF) {
+		//Report(1, "[BLE] Audio bluetooth device OFF\n");
+		return;
+	}
 	uart_puts(UART_BLE, st);
 	if (prn) Report(1, "[BLE_TX] %s\n", st);
 }
@@ -1645,6 +1669,12 @@ int main() {
 #ifdef SET_BLE
 	memset(&ble_dev, 0, sizeof(ble_dev_t));
 
+    gpio_init(BLE_POWER_PIN);
+    gpio_set_dir(BLE_POWER_PIN, GPIO_IN);
+    gpio_pull_down(BLE_POWER_PIN);
+    bleOFF = gpio_get(BLE_POWER_PIN);
+    gpio_set_irq_enabled_with_callback(BLE_POWER_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
+
     noMute = 0;
     gpio_init(AMP_MUTE_PIN);
     gpio_set_dir(AMP_MUTE_PIN, GPIO_OUT);
@@ -1891,7 +1921,8 @@ int main() {
 
 #ifdef SET_BLE
 
-    bool bleRst = false;
+    bleOFF = gpio_get(BLE_POWER_PIN);
+
     char *bleStr = NULL;
     int last_attr = cmdNone;
 
@@ -1944,6 +1975,17 @@ int main() {
     			    			//AT+ADDLINKNAME=YX-01
     			    			//AT+CONADD=0x4142c7c668bd
     			    			//AT+DISCON
+    			    			case cmdPower:
+    			    				sleep_ms(100);
+    			    				bleOFF = gpio_get(BLE_POWER_PIN);
+    			    				if (!bleOFF) {
+    			    					Report(1, "[BLE] Audio bluetooth device ON\n");
+    			    					ev.cmd = cmdBle;
+    			    					ev.attr = cmdReset;
+    			    				} else {
+    			    					Report(1, "[BLE] Audio bluetooth device OFF\n");
+    			    				}
+    			    			break;
     			    			case cmdConnect:
     			    				if (strlen(ble_dev.mac) && !bleConnect) {
     			    					sprintf(tmp,"AT+CONADD=%s", ble_dev.mac);
@@ -2525,14 +2567,7 @@ int main() {
     						}
     					}
 #ifdef SET_BLE
-    					if (!bleRst) {
-    						bleRst = true;
-    						ev.cmd = cmdBle;
-    						ev.str = NULL;
-    						ev.attr = cmdReset;
-    						if (!queue_try_add(&evt_fifo, &ev)) devError |= devQue;
-    						//write_ble("AT+REST", true);
-    					}
+    					if (!bleBegin) bleBegin = true;
 #endif
     				}
     				break;

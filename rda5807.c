@@ -356,7 +356,7 @@ void rda5807_SetupDefault(uint8_t band, uint8_t step)
 	// Регистр 0x05
 	Buffs.Reg05.bVOLUME = 0;
 	Buffs.Reg05.bANT_GAIN = 0;
-	Buffs.Reg05.bANT_TYPE = ANT_TYPE_External;//ANT_TYPE_Both;//ANT_TYPE_External;//ANT_TYPE_Headphones;
+	Buffs.Reg05.bANT_TYPE = ANT_TYPE_Both;//ANT_TYPE_Both;//ANT_TYPE_External;//ANT_TYPE_Headphones;
 	Buffs.Reg05.bSEEKTH = 6;//8;
 	Buffs.Reg05.bRSVD3 = 0;
 	Buffs.Reg05.bINT_MODE = 1;
