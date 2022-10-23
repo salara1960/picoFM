@@ -109,7 +109,7 @@ extern void Report(const uint8_t addTime, const char *fmt, ...);
 	#pragma pack(push,1)
 	typedef struct q_rec_t {
 		int8_t id;
-		ble_dev_t *cli;
+		ble_dev_t cli;
 	} q_rec_t;
 	#pragma pack(pop)
 
@@ -125,6 +125,7 @@ extern void Report(const uint8_t addTime, const char *fmt, ...);
 	int8_t addLIST(void *item, s_recq_t *lst);
 	int8_t findLIST(void *item, s_recq_t *lst);
 	uint8_t prnLIST(s_recq_t *lst);
+	uint8_t getCountLIST();
 	//
 	#ifdef SET_MUTEX
 		void initMutex();

@@ -218,19 +218,21 @@ void Report(const uint8_t addTime, const char *fmt, ...)
 		lst->put = 0;
 		for (uint8_t i = 0; i < MAX_BLE_LIST; i++) {
 			lst->rec[i].id = i;
-			lst->rec[i].cli = NULL;
+			memset(&lst->rec[i].cli, 0, sizeof(ble_dev_t));
 		}
 	}
 	//-----------------------------------------------------------------------------
 	int8_t putLIST(void *item, s_recq_t *lst)
 	{
 	int8_t ret = -1;
+
 		if (ble_cli_total < MAX_BLE_LIST) {
 	#ifdef SET_MUTEX
 			if (mutex_try_enter(&itMutex, &owner_out)) {
 	#endif
-				if (lst->rec[lst->put].cli == NULL) {
-					lst->rec[lst->put].cli = item;
+				ble_dev_t *it = (ble_dev_t *)item;
+				if (strlen(it->mac)) {
+					memcpy((char *)&lst->rec[lst->put].cli, (char *)item, sizeof(ble_dev_t));
 					ret = lst->rec[lst->put].id;
 					lst->put++;
 					ble_cli_total++;
@@ -240,6 +242,7 @@ void Report(const uint8_t addTime, const char *fmt, ...)
 			}
 	#endif
 		}
+
 		return ret;
 	}
 	//-----------------------------------------------------------------------------
@@ -254,9 +257,9 @@ void Report(const uint8_t addTime, const char *fmt, ...)
 	#endif
 			ble_dev_t *it = (ble_dev_t *)item;
 			for (uint8_t i = 0; i < MAX_BLE_LIST; i++) {
-				if (!strcmp(it->mac, lst->rec[i].cli->mac)) {
+				if (!strcmp(it->mac, lst->rec[i].cli.mac)) {
 					ret = lst->rec[i].id;
-					memcpy((uint8_t *)item, (uint8_t *)lst->rec[i].cli, ble_cli_len);
+					memcpy((char *)item, (char *)&lst->rec[i].cli, ble_cli_len);
 					break;
 				}
 			}
@@ -272,17 +275,10 @@ void Report(const uint8_t addTime, const char *fmt, ...)
 	{
 	int8_t nrec = -1;
 
-		uint8_t *rc = (uint8_t *)calloc(1, ble_cli_len);
-		if (rc) {
-			memcpy(rc, (uint8_t *)item, ble_cli_len);
-			if ((nrec = putLIST((void *)rc, lst)) >= 0) {
-				Report(1, "[%s] Put record to queue OK (id=%d total=%u)\n", __func__, nrec, ble_cli_total);
-			} else {
-				Report(1, "[%s] Put record to queue error (total=%u)\n", __func__, ble_cli_total);
-				free(rc);
-			}
+		if ((nrec = putLIST(item, lst)) >= 0) {
+			Report(1, "[%s] Put record to queue OK (id=%d total=%u)\n", __func__, nrec, ble_cli_total);
 		} else {
-			devError |= devMem;
+			Report(1, "[%s] Put record to queue error (total=%u)\n", __func__, ble_cli_total);
 		}
 
 		return nrec;
@@ -297,7 +293,7 @@ void Report(const uint8_t addTime, const char *fmt, ...)
 			if (st) {
 				sprintf(st, "Total audio bluetooth client items in list = %u:\n", ble_cli_total);
 				for (uint8_t i = 0; i < ble_cli_total; i++) {
-					sprintf(st+strlen(st), "\t[%u] mac:%s name:%s\n", i, lst->rec[i].cli->mac, lst->rec[i].cli->name);
+					sprintf(st+strlen(st), "\t[%u] mac:%s name:%s\n", i, lst->rec[i].cli.mac, lst->rec[i].cli.name);
 				}
 				Report(1, "[%s] %s", __func__, st);
 				free(st);
@@ -307,6 +303,12 @@ void Report(const uint8_t addTime, const char *fmt, ...)
 		}
 		return ble_cli_total;
 	}
+	//-----------------------------------------------------------------------------
+	uint8_t getCountLIST()
+	{
+		return ble_cli_total;
+	}
+	//-----------------------------------------------------------------------------
 	//
 #endif
 //------------------------------------------------------------------------------------------

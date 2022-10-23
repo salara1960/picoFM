@@ -90,12 +90,12 @@
 #define MAX_BAND       4
 #define MAX_STEP       4
 #define MAX_SIZE_NAME 31//16//31
-#define MAX_MENU      11//10//9//8//7//6
+#define MAX_MENU      12//11//10//9//8//7//6
 
 #ifdef SET_ENCODER
-	#define MAX_CMDS  29//28//27//26//25//24//22//21//20//17//16//15//6
+	#define MAX_CMDS  30//29//28//27//26//25//24//22//21//20//17//16//15//6
 #else
-	#define MAX_CMDS  21//20//19//18//15//6
+	#define MAX_CMDS  22//21//20//19//18//15//6
 #endif
 
 //

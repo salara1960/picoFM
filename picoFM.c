@@ -43,7 +43,8 @@ enum {
 	cmdCheck,
 	cmdErase,
 	cmdBle,
-	cmdCli
+	cmdCli,
+	cmdBleSave
 };
 /*
 enum {
@@ -108,11 +109,16 @@ enum {
 //const char *ver = "Ver.3.5.2 05.10.22";
 //const char *ver = "Ver.3.6 06.10.22";
 //const char *ver = "Ver.3.6.1 07.10.22"; // add bluetooth_clients list with mutex support
-const char *ver = "Ver.3.6.2 09.10.22"; // add audio_bluetooth_power_pin
+//const char *ver = "Ver.3.6.2 09.10.22"; // add audio_bluetooth_power_pin
+//const char *ver = "Ver.3.6.3 11.10.22"; // store audio_bluetooth_client_list in rda_sector with offset=2048
+const char *ver = "Ver.3.7 23.10.22"; // minor changes for BLE support
 
 
 
-volatile static uint32_t epoch = 1665325725;//1665323105;//1665147755;
+
+
+volatile static uint32_t epoch = 1666534710;
+//1666533670;//1666524510;//1665485785;//1665325725;//1665323105;//1665147755;
 //1665097475;//1664984285;//1664366320;//1664307575;//1664296340;//1664132995;
 //1664118470;//1664023625;//1663705560;//1663539209;//1663157436;//1663101145;
 //1663013315;//1662723599;//1662671765;//1662670195;//1662659160;//1662643850;//1662589615;
@@ -157,7 +163,8 @@ const char *s_cmds[MAX_CMDS] = {
 	"check",
 	"erase",
 	"ble",
-	"cli"
+	"cli",
+	"blesave"
 };
 
 const uint16_t all_devErr[MAX_ERR_CODE] = {
@@ -223,8 +230,8 @@ uint8_t RSSI = 0;
 uint8_t rdaID = 0;
 volatile uint8_t scan = 0;
 volatile uint8_t seek_up = 1;
-uint8_t Volume = 8;
-uint8_t newVolume = 8;
+uint8_t Volume = 12;
+uint8_t newVolume = 12;
 uint8_t BassBoost = 0;
 uint8_t newBassBoost = 0;
 bool stereo = false;
@@ -247,7 +254,8 @@ enum {
 	iRestart,
 	iSleep,
 	iMute,
-	iTemp
+	iTemp,
+	iBleSave
 };
 enum {
 	line1 = 0,
@@ -274,7 +282,8 @@ const char *allMenu[MAX_MENU] = {
 	" Restart",
 	"  Sleep ",
 	"  Mute  ",
-	"  Temp  "
+	"  Temp  ",
+	" BleSave"
 };
 
 //---------------
@@ -547,7 +556,11 @@ uint16_t listSize = 0;
 
 	bool bleBegin = false;
 	bool bleOFF = false;
-	uint32_t tmr_onoff = 0;
+	bool last_bleOFF = false;
+
+	const uint32_t ble_sector = flash_sectors - 1;
+	int ble_adr_sector = 0, ble_offset_sector = 2048;
+
 #endif
 
 //*******************************************************************************************
@@ -572,18 +585,6 @@ void cmdLedOn()
 	//
 	void gpio_callback(uint gpio, uint32_t events)
 	{
-#ifdef SET_BLE
-		if (gpio == BLE_POWER_PIN) {
-			if (bleBegin) {
-				if (check_mstmr(tmr_onoff)) {
-					evt_t e = {cmdBle, cmdPower, NULL};
-					if (!queue_try_add(&evt_fifo, &e)) devError |= devQue;
-					tmr_onoff = get_mstmr(_550ms);
-				}
-			}
-			return;
-		}
-#endif
 		if (!que_start) {
 #ifdef SET_ENCODER
 			ec_counter = ec_last_counter = 0;
@@ -623,26 +624,6 @@ void cmdLedOn()
 								e.cmd = cmdList;//cmdScan;
 							}
 						break;
-/*#ifdef SET_MINI_DEV
-						case UP_PIN:
-							if (!menuAct && !sleepON) {
-								newVolume = Volume + 1;
-								if (newVolume <= MAX_VOLUME) {
-									e.cmd = cmdVol;
-									e.attr = newVolume;
-								}
-							}
-						break;
-						case DOWN_PIN:
-							if (!menuAct && !sleepON) {
-								newVolume = Volume - 1;
-								if (newVolume <= MAX_VOLUME) {
-									e.cmd = cmdVol;
-									e.attr = newVolume;
-								}
-							}
-						break;
-#endif*/
 #ifdef SET_ENCODER
 						case ENC_PIN:// нажата кнопка энкодера
 							e.cmd = cmdEnc;
@@ -1109,12 +1090,24 @@ bool repeating_timer_callback(struct repeating_timer *t)
 #ifdef SET_TIK_LED
 			gpio_put(LED_PIN, led);
 #endif
+#ifdef SET_BLE
+			if (bleBegin) {
+				bleOFF = gpio_get(BLE_POWER_PIN);
+				if (bleOFF != last_bleOFF) {
+					last_bleOFF = bleOFF;
+					evt_t e = {cmdBle, cmdPower, NULL};
+					if (!queue_try_add(&evt_fifo, &e)) devError |= devQue;
+				}
+			}
+#endif
 		} else {
 #ifdef SET_TIK_LED
 			gpio_put(LED_PIN, 0);
 #endif
+
 		}
 	}
+
 
     return true;
 }
@@ -1268,6 +1261,7 @@ void uart_rx_callback()
         					case cmdShowFreq://"showfreq"
         					case cmdCfg:     //"cfg"
         					case cmdCli:     //"cli"
+        					case cmdBleSave: //"blesave"
         						evt.cmd = i;
         					break;
         					case cmdBand:    //"band:2"
@@ -1336,16 +1330,31 @@ void uart_rx_callback()
         						}
         					break;
 #ifdef SET_FLASH
-        					case cmdRead:// "read:511"
+        					case cmdRead:// "read:511:2048"
         					case cmdCheck:// "check:511"
         					case cmdErase:// "erase:511"
         						if (*uk == ':') {
         							uk++;
+        							//
+        							if (i != cmdErase) {
+        								char *uki = strchr(uk, ':');
+        								if (uki) {
+        									if (strlen(uki + 1) > 0) {
+        										int ofs = atoi(uki + 1);
+        										if ((ofs >= 0) && (ofs < FLASH_SECTOR_SIZE)) {
+        											offset_sector = ofs;
+        										}
+        									}
+        									*uki = '\0';
+        								} else {
+        									offset_sector = 0;
+        								}
+        							}
+        							//
         							if (strlen(uk) > 0) {
         								int sek = atoi(uk);
         								if ( ((sek >= 0) && (sek < flash_sectors)) || (sek == -1) ) {
         									adr_sector = sek;
-        									offset_sector = 0;
         									fadr = XIP_BASE + (adr_sector * FLASH_SECTOR_SIZE) + offset_sector;
         									evt.cmd = i;
         									evt.attr = fadr;
@@ -1588,11 +1597,27 @@ void readList()
 //------------------------------------------------------------------------------
 //   Функция возвращает признак "свободен/занят" для указанного сектора flash-памяти
 //
-bool isSectorEmpty(uint32_t sector)
+bool isSectorEmpty(uint32_t sector, uint32_t offset)
 {
-uint8_t *adr = (uint8_t *)(XIP_BASE + (sector * FLASH_SECTOR_SIZE));
+uint8_t *adr = (uint8_t *)(XIP_BASE + (sector * FLASH_SECTOR_SIZE)) + offset;
 
-	for (uint32_t i = 0; i < FLASH_SECTOR_SIZE; i++) {
+	for (uint32_t i = offset; i < FLASH_SECTOR_SIZE; i++) {
+		if (*adr++ != 0xFF) return false;
+	}
+	return true;
+}
+//------------------------------------------------------------------------------
+//   Функция возвращает признак "свободен/занят" для указанного сектора flash-памяти
+//
+bool isAreaEmpty(uint32_t sector, uint32_t offset, uint32_t len)
+{
+uint8_t *adr = (uint8_t *)(XIP_BASE + (sector * FLASH_SECTOR_SIZE)) + offset;
+uint32_t from = offset;
+uint32_t to = from + len;
+
+	if (to > FLASH_SECTOR_SIZE) to = FLASH_SECTOR_SIZE - from;
+
+	for (uint32_t i = from; i < to; i++) {
 		if (*adr++ != 0xFF) return false;
 	}
 	return true;
@@ -1673,7 +1698,7 @@ int main() {
     gpio_set_dir(BLE_POWER_PIN, GPIO_IN);
     gpio_pull_down(BLE_POWER_PIN);
     bleOFF = gpio_get(BLE_POWER_PIN);
-    gpio_set_irq_enabled_with_callback(BLE_POWER_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
+    //gpio_set_irq_enabled_with_callback(BLE_POWER_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_callback);
 
     noMute = 0;
     gpio_init(AMP_MUTE_PIN);
@@ -1783,7 +1808,8 @@ int main() {
     // Запись данных листа радио станций во flash-память по адресу сектора rda_sector
     //  !!!!! в SDK НЕТ упоминания, что при стирании/записи данных во флэш НУЖНО
     //        ОБЯЗАТЕЛЬНО ЗАПРЕТИТЬ все прерывания, а после операции их РАЗРЕШИТЬ !!!!!
-    if (isSectorEmpty(rda_sector)) {
+    //if (isSectorEmpty(rda_sector, 0))
+    if (isAreaEmpty(rda_sector, 0, sizeof(rec_t) * MAX_LIST)) {
     	Flash_WriteSector((void *)&def_list[0].band, rda_sector, 0, sizeof(rec_t) * MAX_LIST);
     }
     readList();
@@ -1921,7 +1947,8 @@ int main() {
 
 #ifdef SET_BLE
 
-    bleOFF = gpio_get(BLE_POWER_PIN);
+    last_bleOFF = bleOFF = gpio_get(BLE_POWER_PIN);
+
 
     char *bleStr = NULL;
     int last_attr = cmdNone;
@@ -1962,6 +1989,26 @@ int main() {
     			    case cmdCli:
     			    	if (!prnLIST(&cli_list)) Report(1, "[BLE_LIST] List of ble_clients is empty\n");
     			    break;
+    			    case cmdBleSave:
+    			    {
+    			    	uint8_t cnt = getCountLIST();
+    			    	if (!cnt) {
+    			    		Report(1, "[BLE_SAVE] Audio bluetooth device list is Empty\n");
+    			    	} else {
+    			    		Report(1, "[BLE_SAVE] Save audio bluetooth device list with #%lu items\n", cnt);
+    			    		prnLIST(&cli_list);
+    			    		if (isAreaEmpty(ble_sector, ble_offset_sector, FLASH_SECTOR_SIZE - ble_offset_sector)) {
+//    			    		    Flash_WriteSector((void *)&cli_list, ble_sector, ble_offset_sector, sizeof(q_rec_t) * cnt);
+    			    		} else {// cli_list in flash present
+    			    			memset(flash_buf, 0xff, FLASH_SECTOR_SIZE);
+    			    			Flash_ReadSector((uint8_t *)flash_buf, rda_sector, 0, sizeof(rec_t) * MAX_LIST);
+//    			    			Flash_EraseSector(ble_sector);
+    			    			memcpy(flash_buf + ble_offset_sector, &cli_list, FLASH_SECTOR_SIZE - ble_offset_sector);
+//    			    			Flash_WriteSector((void *)&cli_list, ble_sector, ble_offset_sector, sizeof(q_rec_t) * cnt);
+    			    		}
+    			    	}
+    			    }
+    			    break;
     			    case cmdBle:
     			    {
     			    	//--------------------------------------------------------------
@@ -1969,22 +2016,29 @@ int main() {
     			    	if (!bleStr) {//get opid code
     			    		last_attr = attr;
     			    		switch (attr) {
-    			    			//AT+VMLINK?
-    			    			//AT+DELVMLINK
-    			    			//AT+ADDLINKADD=0x4142c7c668bd
-    			    			//AT+ADDLINKNAME=YX-01
-    			    			//AT+CONADD=0x4142c7c668bd
-    			    			//AT+DISCON
     			    			case cmdPower:
-    			    				sleep_ms(100);
-    			    				bleOFF = gpio_get(BLE_POWER_PIN);
+    			    			{
+    			    				last_bleOFF = bleOFF = gpio_get(BLE_POWER_PIN);
+    			    				char tp[64] = {0};
     			    				if (!bleOFF) {
-    			    					Report(1, "[BLE] Audio bluetooth device ON\n");
+    			    					strcpy(tp, "Audio bluetooth device ON");
     			    					ev.cmd = cmdBle;
     			    					ev.attr = cmdReset;
     			    				} else {
-    			    					Report(1, "[BLE] Audio bluetooth device OFF\n");
+    			    					strcpy(tp, "Audio bluetooth device OFF");
+    			    					if (bleConnect) {
+    			    						noMute = 1;
+    			    						ev.cmd = cmdMute;
+    			    					}
     			    				}
+    			    				Report(1, "[BLE] %s\n", tp);
+    			    				mkLineCenter(tp, mfnt->FontWidth);
+    			    				UC1609C_Print(1, lines[line5], tp, mfnt, 0, FOREGROUND);
+    			    				UC1609C_DrawRectangle(0, lfnt->FontHeight, UC1609C_WIDTH - 1, UC1609C_HEIGHT - (lfnt->FontHeight << 1) - 1, 0);
+    			    				UC1609C_update();
+    			    				flag_ver = true;
+    			    				tmr_ver = 10;
+    			    			}
     			    			break;
     			    			case cmdConnect:
     			    				if (strlen(ble_dev.mac) && !bleConnect) {
@@ -2096,9 +2150,7 @@ int main() {
     			    				ev.attr = cmdDelVmLink;
     			    			else
     			    				ev.attr = cmdReset;
-    			    		}/* else {
-    			    			Report(1, "[BLE_RX] %s\n", bleStr);
-    			    		}*/
+    			    		}
     			    		free(bleStr);
     			    		if (look) {
     			    			noMute = (~noMute) & 1;
@@ -2217,6 +2269,13 @@ int main() {
     							ev.cmd = cmdEnc;
     							snd = true;
     							next_evt = cmdTemp;
+    						break;
+    						case iBleSave:
+    							indMenu = iExit;
+    							encMode = iBleSave;
+    							ev.cmd = cmdEnc;
+    							snd = true;
+    							next_evt = cmdBleSave;
     						break;
     					}
     					if (snd) {
@@ -2511,7 +2570,7 @@ int main() {
     							mkLineCenter(tmp, mfnt->FontWidth);
     							UC1609C_Print(1, UC1609C_HEIGHT - mfnt->FontHeight, tmp, mfnt, 0, FOREGROUND);
     							//
-    							if ((next_evt == cmdMute) || (next_evt == cmdTemp)) {
+    							if ((next_evt == cmdMute) || (next_evt == cmdTemp) || (next_evt == cmdBleSave)) {
     								ev.cmd = next_evt;
     								next_evt = cmdNone;
     								ev.attr = 0;
@@ -2616,13 +2675,22 @@ int main() {
     				break;
 #ifdef SET_FLASH
     				case cmdCheck:
-    					if (isSectorEmpty(adr_sector))
-    						Report(1, "[que:%u] Sector %lu is empty\n", queCnt, adr_sector);
-    					else
-    						Report(1, "[que:%u] Sector %lu Not empty\n", queCnt, adr_sector);
+    					if (isSectorEmpty(adr_sector, offset_sector)) {
+    						if (!offset_sector)
+    							Report(1, "[que:%u] Sector %lu is empty\n", queCnt, adr_sector);
+    						else
+    							Report(1, "[que:%u] Area sector:offset %lu:%lu is empty\n",
+    									queCnt, adr_sector, offset_sector);
+    					} else {
+    						if (!offset_sector)
+    							Report(1, "[que:%u] Sector %lu Not empty\n", queCnt, adr_sector);
+    						else
+    							Report(1, "[que:%u] Area sector:offset %lu:%lu Not empty\n",
+    							    	queCnt, adr_sector, offset_sector);
+    					}
     				break;
     				case cmdErase:
-    					if (!isSectorEmpty(adr_sector)) {
+    					if (!isSectorEmpty(adr_sector, 0)) {
     						Flash_EraseSector(adr_sector);
     					} else {
     						Report(1, "[que:%u] Sector %lu already empty\n", queCnt, adr_sector);
